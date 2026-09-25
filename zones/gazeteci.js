@@ -6,11 +6,11 @@ window.ZoneDesigns.gazeteci = (() => {
   const PR = { x: 72, y: 70 };                                   // printing press (front-left of its plinth)
   const FW = { x: PR.x + 12, y: PR.y - 24 };                     // flywheel hub
   const GEAR = { x: PR.x + 59, y: PR.y - 27 };
-  const MAST = { x: -170, y: -140 }, AER = { x: 54, y: -136 };   // wire tower mast and newsroom aerial
-  const LOFT = { x: 146, y: -64 };
+  const MAST = { x: -152, y: -140 }, AER = { x: 54, y: -136 };   // wire tower mast and newsroom aerial
+  const LOFT = { x: 132, y: -64 };
   const MUSTARD = '#c29a48', IRON = '#2e3240', IRON2 = '#454a5c', IRON3 = '#62687c';
   const UPPER = [[-58, -80], [-38, -80], [22, -80], [42, -80]];   // newsroom upper windows (12 x 12)
-  const BIG = { x: 166, y: -124 }, VAN = { x: -106, y: -22 }, VD = { x: -92, y: -52 };   // uplink dish behind the loft; OB van and its roof dish
+  const BIG = { x: 134, y: -124 }, VAN = { x: -106, y: -22 }, VD = { x: -92, y: -52 };   // uplink dish behind the loft; OB van and its roof dish
   const ARR = [[-58, -100], [-48, -100], [-38, -100]];           // small dish array on the newsroom roof
   const JIB = { x: -84, y: 26 }, CAM1 = { x: -70, y: 84 }, CAM2 = { x: -52, y: -20 }, PAD = { x: 34, y: 8 }, PH = { x: -46, y: 98 };
   const SPINE = [C.red1, C.red2, '#3a5a8a', '#2a3a5a', C.teal2, C.teal3, C.gold1, C.gold2, C.plum2, C.plum3, '#4a7a4a', '#6a9a4a', C.wood2, '#b04a3a', C.paper2, '#d8703a'];
@@ -102,13 +102,13 @@ window.ZoneDesigns.gazeteci = (() => {
       for (let i = 0; i < 12; i++) Props.flower(k, -150 + P.hash(i, 4) * 320, -146 + P.hash(i, 7) * 10, ['#f2c14e', '#f6ecd0', '#e98aa0'][i % 3]);
 
       // Wire tower: stone signal tower with a mast and insulators.
-      Props.tower(k, -184, -38, { w: 30, h: 62, roofH: 24, roof: C.slate2, windows: [{ x: 11, y: 8, w: 7, h: 9, arch: true, frame: C.wood0 }, { x: 11, y: 30, w: 7, h: 9, arch: true, frame: C.wood0 }], door: { x: 10, w: 10, h: 14, color: C.slate1, arch: true } });
+      Props.tower(k, -166, -38, { w: 30, h: 62, roofH: 24, roof: C.slate2, windows: [{ x: 11, y: 8, w: 7, h: 9, arch: true, frame: C.wood0 }, { x: 11, y: 30, w: 7, h: 9, arch: true, frame: C.wood0 }], door: { x: 10, w: 10, h: 14, color: C.slate1, arch: true } });
       k.rect(MAST.x - 1, MAST.y, 2, 18, IRON2); k.rect(MAST.x - 1, MAST.y, 1, 18, IRON3);
       for (const [y, w] of [[MAST.y + 3, 12], [MAST.y + 9, 8]]) { k.rect(MAST.x - w / 2, y, w, 1, IRON2); k.px(MAST.x - w / 2, y - 1, C.teal4); k.px(MAST.x + w / 2 - 1, y - 1, C.teal4); }
       // Telegraph hut with a flat roof and a wire sign.
-      Props.building(k, -148, -38, { w: 40, h: 28, style: 'flat', wall: C.plaster2, windows: [{ x: 5, y: 8, w: 10, h: 8, frame: C.wood0 }], door: { x: 24, w: 9, h: 14, color: C.teal2 } });
-      k.rect(-146, -72, 26, 8, C.ink); k.rect(-145, -71, 24, 6, C.teal2); k.text('WIRE', -141, -70, C.paper);
-      k.rect(-116, -76, 2, 12, IRON2); k.rect(-119, -76, 8, 1, IRON2);
+      Props.building(k, -130, -38, { w: 40, h: 28, style: 'flat', wall: C.plaster2, windows: [{ x: 5, y: 8, w: 10, h: 8, frame: C.wood0 }], door: { x: 24, w: 9, h: 14, color: C.teal2 } });
+      k.rect(-128, -72, 26, 8, C.ink); k.rect(-127, -71, 24, 6, C.teal2); k.text('WIRE', -123, -70, C.paper);
+      k.rect(-98, -76, 2, 12, IRON2); k.rect(-101, -76, 8, 1, IRON2);
 
       // Newsroom: brick hall, slate roof, clock, upper windows, shop-front display windows and a roof sign.
       Props.building(k, -66, -36, { w: 128, h: 50, roofH: 28, roof: C.slate2, wall: '#b0674a', mat: 'brick', windows: UPPER.map(([x]) => ({ x: x + 66, y: 6, w: 12, h: 12, frame: C.wood0 })), door: { x: 54, w: 20, h: 24, color: C.teal1, arch: true }, chimney: { x: 104, h: 10 } });
@@ -205,9 +205,9 @@ window.ZoneDesigns.gazeteci = (() => {
       k.rect(58, -12, 20, 34, C.wood1); k.rect(59, -11, 18, 32, C.wood2);
       for (let r = 0; r < 6; r++) for (let c = 0; c < 3; c++) { k.rect(60 + c * 6, -10 + r * 5, 5, 4, C.wood3); k.px(62 + c * 6, -8 + r * 5, C.gold2); }
       Props.barrel(k, 128, 6); k.ellipse(133, 6, 4, 1, '#1a1a20'); Props.barrel(k, 139, 12); k.ellipse(144, 12, 4, 1, '#1a1a20');
-      for (const [x, y, n] of [[150, 52, 3], [164, 52, 4], [156, 64, 2], [172, 72, 3], [150, 88, 2]]) for (let i = 0; i < n; i++) bundle(k, x, y - i * 6);
+      for (const [x, y, n] of [[150, 52, 3], [164, 52, 4], [156, 64, 2], [168, 70, 3], [150, 88, 2]]) for (let i = 0; i < n; i++) bundle(k, x, y - i * 6);
       Props.cart(k, 90, 116, (q, x, y) => { for (let i = 0; i < 3; i++) bundle(q, x + 1 + i * 7 - (i > 1 ? 4 : 0), y - (i > 1 ? 6 : 0)); });
-      Props.crate(k, 64, 106); Props.crate(k, 68, 96, 7); Props.sack(k, 176, 112, C.paper2);
+      Props.crate(k, 64, 106); Props.crate(k, 68, 96, 7); Props.sack(k, 146, 110, C.paper2);
       Props.lamp(k, 58, 40, false);
 
       // Story board on an easel beside the plaza: pinned photos and red string.
@@ -235,12 +235,14 @@ window.ZoneDesigns.gazeteci = (() => {
       k.rect(PAD.x - 25, PAD.y - 3, 12, 6, '#2a2c34'); k.rect(PAD.x - 24, PAD.y - 3, 10, 3, '#5a5e6a'); k.rect(PAD.x - 22, PAD.y - 2, 3, 1, '#3a3e4a'); k.rect(PAD.x - 18, PAD.y - 2, 3, 1, '#3a3e4a'); k.px(PAD.x - 21, PAD.y + 1, C.gold2); k.px(PAD.x - 17, PAD.y + 1, C.gold2); k.rect(PAD.x - 24, PAD.y + 3, 12, 1, C.shadow);
 
       // Street kiosk with magazines, an advertising column, benches and trees.
+      k.at(22, 0, () => {   // kept inside the hexagon's cut corner
       Props.building(k, -184, 92, { w: 50, h: 26, roofH: 12, roof: C.teal2, wall: C.teal1, mat: 'planks', foundation: 3 });
       k.rect(-180, 70, 42, 16, '#2e241c'); k.rect(-181, 86, 44, 3, C.wood3); k.rect(-181, 86, 44, 1, C.wood4);
       for (let i = 0; i < 10; i++) { const x = -179 + i * 4, col = [C.red2, C.gold2, C.paper, C.teal3, C.plum3][i % 5]; k.rect(x, 72 + (i % 2) * 7, 3, 5, col); k.px(x + 1, 73 + (i % 2) * 7, C.white); }
       for (let i = 0; i < 5; i++) { k.rect(-178 + i * 8, 83, 7, 3, C.paper); k.rect(-177 + i * 8, 84, 4, 1, C.stone1); }
       Props.awning(k, -186, 64, 54, C.gold1, C.paper, 5);
       k.rect(-170, 50, 26, 8, C.ink); k.rect(-169, 51, 24, 6, C.red1); k.text('DAILY', -167, 52, C.paper);
+      });
       const cx = -110, cy = 44;
       k.ellipse(cx + 2, cy + 1, 9, 2, C.shadow); k.rect(cx - 7, cy - 3, 14, 3, C.stone2); k.rect(cx - 6, cy - 32, 12, 29, C.stone4);
       for (const [y, h, c] of [[-30, 8, C.red2], [-21, 6, C.paper], [-14, 9, C.teal3]]) { k.rect(cx - 6, cy + y, 12, h, c); k.rect(cx + 4, cy + y, 2, h, S(c, -.25)); k.rect(cx - 6, cy + y, 1, h, S(c, .25)); }
@@ -346,7 +348,7 @@ window.ZoneDesigns.gazeteci = (() => {
         k.rect(px0 + 6, py0 - 17, 8, 3, '#e8e4d8'); k.rect(px0 + 6, py0 - 17, 8, 1, C.white); k.rect(px0 + 6, py0 - 15, 8, 1, '#b8b4a8'); k.rect(px0 + 9, py0 - 17, 1, 3, C.red1);
         k.rect(px0 + 14, py0 - 18, 3, 5, '#2a2c34'); k.px(px0 + 16, py0 - 16, '#6a8aa0'); k.rect(px0 + 8, py0 - 14, 2, 2, C.skin1);
         const fq = (t * .8) % 1;
-        if (fq < .07 || (fq > .16 && fq < .21)) { k.alpha(.3, () => k.circle(px0 + 3, py0 - 21, 10, C.white)); k.rect(px0 - 4, py0 - 21, 15, 1, C.white); k.rect(px0 + 3, py0 - 28, 1, 15, C.white); k.rect(px0 + 1, py0 - 23, 5, 5, C.white); k.alpha(.25, () => k.circle(LEAD.x, LEAD.y - 22, 12, '#fff8e0')); }
+        if (fq < .07 || (fq > .16 && fq < .21)) { k.alpha(.3, () => k.circle(px0 + 3, py0 - 21, 10, C.white)); k.rect(px0 - 4, py0 - 21, 15, 1, C.white); k.rect(px0 + 3, py0 - 28, 1, 15, C.white); k.rect(px0 + 1, py0 - 23, 5, 5, C.white); k.alpha(.25, () => k.circle(LEAD.x, LEAD.y - 33, 18, '#fff8e0')); }
       } else if (live) { k.rect(px0 + 2, py0 - 11, 4, 3, '#2a2c34'); k.rect(px0 + 6, py0 - 11, 5, 2, '#e8e4d8'); k.rect(px0 + 10, py0 - 11, 2, 3, '#2a2c34'); if (err && jam) k.px(px0 + 3, py0 - 12, C.error); }
       else { k.rect(px0 + 7, py0 - 3, 4, 3, dk('#2a2c34')); k.rect(px0 + 11, py0 - 3, 5, 2, dk('#e8e4d8')); }
 
@@ -360,7 +362,7 @@ window.ZoneDesigns.gazeteci = (() => {
         z.crew(24, 124, { look: 3, hat: 'cap', hatColor: C.red1, anim: 'cheer', phase: .7 });
       } else if (live) {
         z.crew(state === 'idle' ? -142 : PR.x + 20, state === 'idle' ? 126 : PR.y + 12, { look: 5, hat: 'cap', hatColor: C.slate2, anim: state === 'idle' ? 'sit' : 'idle' });
-        z.crew(state === 'idle' ? 170 : 118, state === 'idle' ? 106 : 100, { look: 0, hat: 'cap', hatColor: MUSTARD, anim: state === 'idle' ? 'sit' : 'idle', facing: -1 });
+        z.crew(state === 'idle' ? 148 : 118, state === 'idle' ? 106 : 100, { look: 0, hat: 'cap', hatColor: MUSTARD, anim: state === 'idle' ? 'sit' : 'idle', facing: -1 });
         z.crew(state === 'idle' ? -80 : 24, state === 'idle' ? 126 : 124, { look: 3, hat: 'cap', hatColor: C.red1, anim: state === 'idle' ? 'sit' : 'idle' });
         if (state === 'idle') { for (let i = 0; i < 2; i++) Props.butterfly(k, -160 + Math.sin(t * .8 + i * 3) * 18, 24 + i * 10 + Math.cos(t + i) * 5, t + i, i ? '#e98aa0' : '#f2c14e'); }
       } else { z.crew(-142, 126, { look: 5, hat: 'cap', hatColor: C.slate2, anim: 'sleep' }); z.crew(PR.x + 20, PR.y + 12, { look: 0, hat: 'cap', hatColor: MUSTARD, anim: 'sleep' }); }

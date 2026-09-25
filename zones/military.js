@@ -7,7 +7,7 @@ window.ZoneDesigns.military = (() => {
   const FORM = { x: 6, y: 2 };                               // formation origin (front-left soldier)
   const BOARD = { x: 122, y: -10, w: 58, h: 30 };             // run board under the pavilion
   const MAP = { x: 124, y: 26, w: 52, h: 16 };                // map table top
-  const TOWER = { x: 166, top: -106 };                        // watchtower platform floor
+  const TOWER = { x: 140, top: -90 };                        // watchtower platform floor
   const TARGETS = [-174, -150, -126];
   /* ---------- local architecture helpers ---------- */
   // Cut-stone face: staggered blocks with a lit top edge and dark mortar.
@@ -152,7 +152,7 @@ window.ZoneDesigns.military = (() => {
       /* Pines and oaks behind the buildings. */
       for (const [x, y, kind, sz, v] of [[-160, -104, 'dark', 1, 1], [-122, -110, 'pine', 1, 0], [-186, -120, 'pine', 0, 2], [104, -102, 'oak', 1, 2], [132, -110, 'pine', 1, 3], [-96, -121, 'pine', 0, 1], [96, -121, 'pine', 0, 0]]) Props.tree(k, x, y, kind, sz, v);
       /* Barracks: long plank hall with bunk windows and a chimney. */
-      Props.building(k, -186, -58, { w: 92, h: 30, roofH: 20, roof: C.terra1, wall: C.plaster1, mat: 'planks', windows: [{ x: 6, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 22, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 62, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 78, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }], door: { x: 41, w: 11, h: 15, color: C.teal2, open: true }, chimney: { x: 16, h: 12 } });
+      Props.building(k, -164, -58, { w: 70, h: 30, roofH: 20, roof: C.terra1, wall: C.plaster1, mat: 'planks', windows: [{ x: 6, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 20, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 44, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }, { x: 56, y: 9, w: 8, h: 7, lit: true, shutters: C.teal1 }], door: { x: 31, w: 11, h: 15, color: C.teal2, open: true }, chimney: { x: 10, h: 12 } });   // narrowed to clear the hexagon edge
       Props.hangingSign(k, -128, -80, 'BUNK', C.teal1);
       Props.bench(k, -178, -38, 20); Props.barrel(k, -110, -48);
 
@@ -179,7 +179,7 @@ window.ZoneDesigns.military = (() => {
       k.rect(-30, -64, 60, 2, C.teal2); for (let x = -30; x < 30; x += 6) k.rect(x, -62, 3, 3, x % 12 ? C.teal2 : C.paper);
 
       /* Armoury: brick store with shield wall and stacked crates. */
-      Props.building(k, 90, -58, { w: 52, h: 26, roofH: 16, roof: C.slate2, wall: C.plaster1, mat: 'brick', door: { x: 20, w: 12, h: 14, color: C.wood1 }, windows: [{ x: 5, y: 8, w: 7, h: 6 }, { x: 40, y: 8, w: 7, h: 6 }] });
+      Props.building(k, 84, -58, { w: 38, h: 26, roofH: 16, roof: C.slate2, wall: C.plaster1, mat: 'brick', door: { x: 13, w: 12, h: 14, color: C.wood1 }, windows: [{ x: 3, y: 8, w: 7, h: 6 }, { x: 29, y: 8, w: 7, h: 6 }] });   // narrowed to make room for the watchtower
       shieldRack(k, 96, -38); Props.crate(k, 86, -52, 8); Props.crate(k, 90, -60 + 16, 7); Props.barrel(k, 132, -50);
 
       /* Watchtower: timber legs, braced, a lookout platform and a pointed roof. */
@@ -209,13 +209,13 @@ window.ZoneDesigns.military = (() => {
       k.rect(-6, -32, 2, 12, C.wood1); k.rect(-8, -21, 6, 2, C.stone1); k.rect(-4, -32, 6, 4, C.paper); k.textCenter('1', -1, -31, C.ink);
       /* Archery range: targets against hay, and the shooting line. */
       for (const x of TARGETS) { hay(k, x - 8, -28); target(k, x, -22); }
-      k.rect(-186, 58, 76, 1, C.paper); for (let x = -184; x < -112; x += 8) k.px(x, 57, C.paper2);
-      rack(k, -186, 86, 3); Props.barrel(k, -118, 76);
-      for (let i = 0; i < 5; i++) { const x = -182 + i * 3; k.rect(x, 71, 1, 8, C.wood4); k.px(x, 70, C.paper); } k.rect(-184, 76, 16, 4, C.wood1);   // arrow quiver stand
+      k.rect(-176, 58, 66, 1, C.paper); for (let x = -174; x < -112; x += 8) k.px(x, 57, C.paper2);
+      rack(k, -160, 86, 3); Props.barrel(k, -118, 76);
+      for (let i = 0; i < 5; i++) { const x = -140 + i * 3; k.rect(x, 71, 1, 8, C.wood4); k.px(x, 70, C.paper); } k.rect(-142, 76, 16, 4, C.wood1);   // arrow quiver stand
 
       /* Training dummies and a sparring ring. */
-      k.ring(-150, 110, 30, 11, C.paper2);
-      for (const x of [-172, -150, -128]) dummy(k, x, 106);
+      k.ring(-128, 110, 28, 11, C.paper2);
+      for (const x of [-148, -128, -108]) dummy(k, x, 106);
 
       /* Planning pavilion: striped canopy on posts, the run board and the map table. */
       const b = BOARD, m = MAP;
@@ -259,7 +259,7 @@ window.ZoneDesigns.military = (() => {
       Props.bush(k, 186, -8, 1); Props.bush(k, -190, 20, 2); Props.bush(k, 186, 80, 0);
 
       /* Palisade with the open gate at the bottom centre. */
-      palisade(k, -190, -26, 140); palisade(k, 26, 190, 140);
+      palisade(k, -146, -26, 140); palisade(k, 26, 146, 140);   // ends at the hexagon's bottom corners
       for (const x of [-30, 26]) { k.rect(x, 110, 5, 32, C.wood1); k.rect(x, 110, 2, 32, C.wood3); k.rect(x - 1, 108, 7, 3, C.wood0); }
       for (const x of [-44, 38]) { k.rect(x, 124, 2, 16, C.wood1); k.rect(x - 2, 121, 6, 3, C.stone0); }
     },
@@ -285,7 +285,7 @@ window.ZoneDesigns.military = (() => {
       k.rect(TOWER.x - 12, TOWER.top - 16, 4, 4, live ? C[state] : C.slate1); if (live && Math.floor(t * 2) % 2) k.px(TOWER.x - 11, TOWER.top - 15, C.white);
 
       /* Barracks smoke and the cook fire. */
-      if (live) Props.smoke(k, -167, -110, t * (run ? 1 : .5), run ? 4 : 2, err ? '#4a4640' : '#dcd8cc');
+      if (live) Props.smoke(k, -151, -110, t * (run ? 1 : .5), run ? 4 : 2, err ? '#4a4640' : '#dcd8cc');
       if (live) { Props.fire(k, 140, 106, t, .8); if (run) Props.smoke(k, 140, 92, t * .7, 2, '#e8e4d8'); } else { k.rect(137, 103, 6, 2, C.red1); k.px(139, 103, C.red3); }
 
       /* Run board: a card travels TODO -> RUN -> DONE while working; stalls in RUN while waiting. */
@@ -300,7 +300,7 @@ window.ZoneDesigns.military = (() => {
       if (!live) {
         // Lights out: the troops are in the barracks; only the lookout and two gate sentries doze at their posts.
         for (const x of [-46, -30, 23, 39]) k.rect(x, -99, 7, 9, C.glassDark);
-        for (const x of [-180, -164, -124, -108]) k.rect(x, -79, 8, 5, C.glassDark);
+        for (const x of [-158, -144, -120, -108]) k.rect(x, -79, 8, 5, C.glassDark);
         z.crew(TOWER.x, TOWER.top - 2, { look: 1, hat: 'helmet' });
         for (const s of [-1, 1]) { const x = s * 38; z.crew(x, 138, { look: 5, hat: 'helmet', facing: -s }); k.rect(x - 1, 126, 3, 6, C.teal2); }
         return;
@@ -341,8 +341,8 @@ window.ZoneDesigns.military = (() => {
       if (err) { for (let i = 0; i < 6; i++) k.rect(-180 + i * 11, 30 + (i % 3) * 7, 5, 1, C.wood4); }
 
       /* Sparring at the dummies. */
-      z.crew(-160, 116, { look: 5, hat: 'helmet', anim: run ? 'work' : 'idle', tool: 'axe', facing: 1, phase: .1, speed: 5 });
-      z.crew(-138, 118, { look: 0, hat: 'bandana', hatColor: C.red2, anim: run ? 'work' : 'idle', tool: 'hammer', facing: -1, phase: .6, speed: 4 });
+      z.crew(-138, 116, { look: 5, hat: 'helmet', anim: run ? 'work' : 'idle', tool: 'axe', facing: 1, phase: .1, speed: 5 });
+      z.crew(-116, 118, { look: 0, hat: 'bandana', hatColor: C.red2, anim: run ? 'work' : 'idle', tool: 'hammer', facing: -1, phase: .6, speed: 4 });
 
       /* Officers plan at the map table; a runner carries orders from the keep to the pavilion. */
       z.crew(136, 58, { look: 3, hat: 'helmet', anim: run ? 'work' : 'idle', tool: 'pen', facing: 1, phase: .3, speed: 2 }); k.rect(135, 46, 3, 6, C.red2);

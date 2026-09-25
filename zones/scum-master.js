@@ -19,7 +19,7 @@ window.ZoneDesigns['scum-master'] = (() => {
   const BOARD = { x: -104, y: -26, w: 56, h: 32 };            // service board + burndown
   const STAFF = { x: -84, y: 76, w: 40 };                     // staff table
   const POOL = { x: -18, y: 36, w: 46, h: 22 };               // reflecting pool
-  const TABLES = [{ x: 74, y: 30 }, { x: 154, y: 24 }, { x: 88, y: 92 }, { x: 156, y: 98 }];
+  const TABLES = [{ x: 74, y: 30 }, { x: 154, y: 24 }, { x: 88, y: 92 }, { x: 146, y: 98 }];
   const STAGE = ['TODO', 'DOING', 'REVIEW', 'DONE'], STC = [C.slate2, C.teal2, C.gold1, C.leaf2];
   const ST = { hi: '#eef2f6', base: '#bcc4ce', sh: '#8e98a4', dk: '#5a6470' };           // brushed steel
   const TOQ = '#f6f4ee', TOQD = '#d4d0c6';
@@ -166,13 +166,15 @@ window.ZoneDesigns['scum-master'] = (() => {
       k.polyTex([[-16, 130], [16, 130], [18, 141], [-18, 141]], (x, y) => (x === -12 || x === 11) ? C.stone2 : P.hash(x >> 1, y >> 1) < .15 ? C.stone4 : '#d0c8b4');
 
       /* ---- Pantry (the backlog): whitewashed cold store, labelled stock in neat rows ---- */
-      Props.building(k, -186, -58, { w: 62, h: 38, roofH: 18, roof: C.slate2, wall: '#e4e2da', mat: 'plaster', foundation: 3, door: { x: 7, w: 15, h: 22, color: ST.sh, open: true }, windows: [{ x: 48, y: 9, w: 8, h: 8 }] });
+      k.at(24, 0, () => {   // narrowed and moved in from the hexagon edge
+      Props.building(k, -186, -58, { w: 50, h: 38, roofH: 18, roof: C.slate2, wall: '#e4e2da', mat: 'plaster', foundation: 3, door: { x: 7, w: 15, h: 22, color: ST.sh, open: true }, windows: [{ x: 36, y: 9, w: 8, h: 8 }] });
       k.rect(-178, -79, 13, 21, '#2a3038'); k.dither(-178, -79, 13, 21, '#3a424c', 1);
       for (const sy of [-74, -67]) { k.rect(-178, sy, 13, 1, ST.base); k.rect(-178, sy + 1, 13, 1, ST.dk); }
       [[-177, -77, C.red2], [-174, -77, C.gold2], [-171, -77, '#6a9a4a'], [-168, -77, C.plum3], [-177, -70, C.gold1], [-173, -70, C.paper], [-169, -70, C.red1]].forEach(([x, y, c]) => { k.rect(x, y, 2, 3, c); k.px(x, y, S(c, .4)); k.px(x + 1, y + 2, C.white); });
       k.rect(-172, -93, 29, 8, C.ink); k.rect(-171, -92, 27, 6, '#1c2c54'); k.rect(-171, -92, 27, 1, '#34487a'); k.text('PANTRY', -170, -91, C.white);
       k.rect(-160, -84, 12, 1, ST.dk); for (let i = 0; i < 4; i++) { k.circle(-158, -81 + i * 3, 1, C.paper); k.px(-157, -81 + i * 3, C.paper2); }
       for (const hx of [-154, -150]) { k.rect(hx, -83, 1, 2, ST.dk); k.poly([[hx - 2, -81], [hx + 3, -81], [hx + 1, -74], [hx, -74]], hx === -154 ? C.leaf2 : '#6a8a78'); k.px(hx - 1, -80, C.leaf4); }
+      });
       vegCrate(k, -184, -56, 'tomato'); vegCrate(k, -169, -56, 'cabbage'); vegCrate(k, -154, -56, 'carrot');
       vegCrate(k, -184, -44, 'aubergine'); vegCrate(k, -169, -44, 'lemon'); vegCrate(k, -154, -44, 'onion');
       for (const [x, y] of [[-136, -52], [-128, -52], [-136, -42]]) { Props.sack(k, x, y, C.plaster3); k.rect(x + 2, y + 2, 4, 2, C.white); }
@@ -253,10 +255,12 @@ window.ZoneDesigns['scum-master'] = (() => {
 
       /* ---- Dish station (top right): steel sink, drying rack, a tree ---- */
       Props.tree(k, 176, -104, 'dark', 1, 2);
+      k.at(-8, 0, () => {   // clear of the hexagon edge
       k.ellipse(170, -44, 14, 2, C.shadow);
       k.rect(160, -58, 20, 10, ST.base); k.rect(160, -58, 20, 1, ST.hi); k.rect(178, -58, 2, 10, ST.sh);
       k.rect(162, -58, 16, 3, ST.dk); k.ellipse(168, -57, 4, 1, C.foam); k.rect(161, -48, 2, 4, ST.dk); k.rect(177, -48, 2, 4, ST.dk); k.rect(169, -62, 1, 4, ST.hi); k.rect(169, -62, 4, 1, ST.hi);
       k.rect(182, -66, 1, 20, ST.dk); k.rect(186, -66, 1, 20, ST.dk); for (let i = 0; i < 4; i++) { k.rect(181, -64 + i * 4, 7, 3, C.white); k.rect(181, -62 + i * 4, 7, 1, '#d8d6d0'); }
+      });
       topiary(k, 160, -32);
 
       /* ---- Service board with the sprint burndown (the stand-up spot) ---- */
@@ -293,9 +297,9 @@ window.ZoneDesigns['scum-master'] = (() => {
       k.rect(-135, 48, 14, 8, ST.dk); k.rect(-135, 48, 14, 1, ST.hi); Props.tree(k, -128, 50, 'orange', 1, 1);
 
       /* ---- Herb garden (bottom left): steel-edged beds with labels ---- */
-      herbBed(k, -184, 78, 34, 20, ['basil', 'shiso'], 3); herbBed(k, -144, 78, 34, 20, ['chive', 'parsley'], 4);
-      herbBed(k, -184, 104, 34, 20, ['tomato', 'mint'], 5); herbBed(k, -144, 104, 34, 20, ['shiso', 'basil'], 6);
-      Props.hedge(k, -186, 68, 78, 5);
+      herbBed(k, -150, 78, 30, 20, ['basil', 'shiso'], 3); herbBed(k, -116, 78, 30, 20, ['chive', 'parsley'], 4);
+      herbBed(k, -150, 104, 30, 20, ['tomato', 'mint'], 5); herbBed(k, -116, 104, 30, 20, ['shiso', 'basil'], 6);
+      Props.hedge(k, -152, 68, 66, 5);
       k.rect(-102, 122, 6, 5, ST.sh); k.rect(-102, 122, 6, 1, ST.hi); k.line(-96, 123, -92, 120, ST.sh); k.ellipse(-98, 128, 5, 1, C.shadow);
       Props.bush(k, -186, 136, 1); Props.bush(k, -104, 136, 2);
 
@@ -305,7 +309,7 @@ window.ZoneDesigns['scum-master'] = (() => {
       k.rect(38, -7, 148, 1, C.wood4); k.rect(38, 124, 148, 3, C.stone3); k.rect(38, 124, 148, 1, C.stone4);
       k.rect(37, -6, 1, 131, C.wood0);
       Props.hedge(k, 39, 14, 6, 108);
-      for (const [x, y] of [[50, 120], [182, 120]]) topiary(k, x, y);
+      for (const [x, y] of [[50, 120], [140, 124]]) topiary(k, x, y);
       k.rect(160, -12, 24, 10, WD); k.rect(160, -12, 24, 2, WDH); k.rect(160, -3, 24, 1, C.wood0); k.rect(172, -10, 1, 7, C.wood0);
       for (let i = 0; i < 4; i++) { k.rect(162 + i * 3, -17, 2, 5, i % 2 ? '#5a1a2a' : '#2a4a2a'); k.px(162 + i * 3, -18, C.gold2); }
       for (let i = 0; i < 3; i++) { k.rect(175 + i * 3, -15, 2, 2, '#dcecf2'); k.px(175 + i * 3, -13, '#c8d4da'); k.px(175 + i * 3, -15, C.white); }
@@ -525,7 +529,7 @@ window.ZoneDesigns['scum-master'] = (() => {
         puffs(k, -40, -130, t * .9 + .4, 4, ['#4a4644', '#6a6660'], 18, 14);
         for (let i = 0; i < 5; i++) { const q = (t * 2 + i / 5) % 1; k.px(BURN[2] - 6 + i * 3 + Math.sin(q * 7 + i) * 2, -104 - q * 14, q < .5 ? C.gold4 : '#f07a32'); }
         // The head chef is furious: hot red steam from both sides of his toque.
-        for (let i = 0; i < 4; i++) { const q = (t * 1.6 + i / 4) % 1, s = i % 2 ? 1 : -1; k.alpha(1 - q, () => k.circle(LEAD.x + s * (10 + q * 5), LEAD.y - 40 - q * 8, 1 + Math.round(q * 2), i < 2 ? '#ff7a6a' : C.white)); }
+        for (let i = 0; i < 4; i++) { const q = (t * 1.6 + i / 4) % 1, s = i % 2 ? 1 : -1; k.alpha(1 - q, () => k.circle(LEAD.x + s * (15 + q * 5), LEAD.y - 60 - q * 8, 1 + Math.round(q * 2), i < 2 ? '#ff7a6a' : C.white)); }
       }
       if (live && !err && z.detail) {
         if (!run) for (let i = 0; i < 2; i++) { const p = (t * .05 + i * .5) % 1; Props.bird(k, -190 + p * 380, -140 + i * 9 + Math.sin(p * 9) * 3, t + i); }

@@ -96,4 +96,29 @@
   // A colour ramp around a base colour (dark → light).
   P.ramp = (base, steps = [-.62, -.48, -.34, -.2, -.08, 0, .16, .34]) => steps.map(f => f ? P.shade(base, f) : base);
   P.sculpt = sculpt;
+
+  /* Pixel.sculptScaled(scale, w, h, ramps, build): P.sculpt on a grid `scale` times finer, with build() still written
+     in the w×h art coordinates. Part silhouettes and shading are rasterised at the finer grid (so a figure grows
+     without doubled pixels); detail pixels cover their footprint there and detail lines are drawn 1px thin along it.
+     Used by the statue and the avatars. */
+  P.sculptScaled = (sc, w, h, ramps, build, o) => P.sculpt(Math.round(w * sc), Math.round(h * sc), ramps, api => {
+    let seen = null;                                 // hi-res pixels a detail line has already touched
+    const span = v => { const c = (v + .5) * sc; return [Math.ceil(c - sc / 2 - .5), Math.ceil(c + sc / 2 - .5)]; };
+    const cell = v => Math.floor((v + .5) * sc);
+    const each = (x, y, fn) => {
+      if (seen) { const X = cell(x), Y = cell(y), key = Y * 8192 + X; if (!seen.has(key)) { seen.add(key); fn(X, Y); } return; }
+      const [x0, x1] = span(x), [y0, y1] = span(y); for (let Y = y0; Y < y1; Y++) for (let X = x0; X < x1; X++) fn(X, Y);
+    };
+    build({
+      shapes: api.shapes,
+      part: (draw, p = {}) => api.part(c => { c.save(); c.scale(sc, sc); draw(c); c.restore(); }, { ...p, cap: (p.cap || 4) * sc }),
+      set: (x, y, v) => each(x, y, (X, Y) => api.set(X, Y, v)),
+      dk: (x, y, n) => each(x, y, (X, Y) => api.dk(X, Y, n)),
+      lt: (x, y, n) => each(x, y, (X, Y) => api.lt(X, Y, n)),
+      force: (x, y, v, r) => each(x, y, (X, Y) => api.force(X, Y, v, r)),
+      ramp: (x, y) => api.ramp(cell(x), cell(y)),
+      at: (x, y) => api.at(cell(x), cell(y)),
+      ln: (pts, fn) => { seen = new Set(); for (let i = 1; i < pts.length; i++) { const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) * sc * 1.5); for (let j = 0; j <= n; j++) fn(x0 + (x1 - x0) * j / n, y0 + (y1 - y0) * j / n); } seen = null; }
+    });
+  }, o);
 })();

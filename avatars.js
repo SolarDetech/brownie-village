@@ -5,6 +5,10 @@
   const P = window.Pixel, C = P.C, S = P.shade;
   const ramp = P.ramp;
 
+  // The avatars are authored on a 52×94 grid and sculpted at AV× that resolution (Pixel.sculptScaled in
+  // engine/sculpt.js), so they grow without doubled pixels.
+  const AV = 1.5, hires = (w, h, ramps, build) => P.sculptScaled(AV, w, h, ramps, build);
+
   /* ---------- Sprites (sculpted, 3/4 view facing right; flipped for left) ---------- */
   // f: 'stand0' 'stand1' 'walk0'..'walk3' 'lift'
   function pose(f) {
@@ -15,7 +19,7 @@
   const ZORD = [ramp('#e7b487'), ramp('#26272d', [-.3, -.15, 0, .1, .2, .32, .46, .6]), ramp('#d8323a'), ramp('#9dff3c', [-.55, -.35, -.15, 0, .2, .4, .6, .8]), ramp('#eef0f2', [-.45, -.32, -.2, -.1, -.04, 0, .3, .6]), ramp('#2f93d0'), ramp('#86c8ea'), ramp('#6b4630'), ramp('#c4cad0', [-.5, -.34, -.2, -.1, 0, .25, .5, .75]), ramp('#70767e'), ramp('#35bfb0'), ramp('#f0892a')];
   function zordSprite(f) {
     const p = pose(f), s = p.s, a = -s * .8, b = p.bob;
-    return P.sculpt(52, 94, ZORD, api => {
+    return hires(52, 94, ZORD, api => {
       const { part, set, dk, lt, ln, force } = api, sh = api.shapes;
       const legY = p.lift ? 2 : 0, armUp = p.lift ? -6 : 0, up = p.lift ? 1 : 0;
       // High-top sneaker, toe to the right; bottom at y + 3.5.
@@ -92,7 +96,7 @@
   const GOJO = [ramp('#f3d6bf'), ramp('#e4e9f1', [-.46, -.34, -.23, -.13, -.05, 0, .45, .8]), ramp('#1b1d26', [-.3, -.15, 0, .08, .16, .26, .38, .5]), ramp('#0c0d11', [-.2, 0, .06, .12, .18, .26, .36, .48]), ramp('#2b2f3b', [-.4, -.22, -.08, 0, .12, .26, .44, .64]), ramp('#d8b24c', [-.55, -.4, -.26, -.12, 0, .2, .45, .7]), ramp('#58b7e6'), ramp('#17181d', [-.4, -.2, 0, .12, .25, .45, .7, .9])];
   function gojoSprite(f) {
     const p = pose(f), s = p.s, a = -s * .6, b = p.bob, sign = f.startsWith('stand');
-    return P.sculpt(52, 94, GOJO, api => {
+    return hires(52, 94, GOJO, api => {
       const { part, set, dk, lt, ln, force } = api, sh = api.shapes, legY = p.lift ? 2 : 0;
       // Far leg and shoe.
       part(sh.limb([[28.6, 57 + b, 3.3], [28.6 - s * .6, 73 + b + legY, 2.9], [28.6 - s, 86.5 + legY, 2.6]]), { ramp: 4, cap: 2.6, tone: -.16 });
@@ -132,15 +136,16 @@
       ln([[23.2 + s * .3, 61 + b], [23.2 + s * .95, 85]], (x, y) => lt(x, y, 1)); lt(24 + s, 88.6 + legY, 2); lt(25 + s, 88.6 + legY, 2);
     });
   }
-  // Kinds stay 'boss' (GKTC's Megazord) and 'princess' (Daghan's Gojo) so older callers keep working. Both are 52 wide.
-  const cache = {};
-  function sprite(kind, f) { const key = kind + f; return cache[key] || (cache[key] = { canvas: (kind === 'princess' ? gojoSprite : zordSprite)(f), ox: 26, oy: 91 }); }
+  // Kinds stay 'boss' (GKTC's Megazord) and 'princess' (Daghan's Gojo) so older callers keep working. Both are 78 × 141 on the map.
+  // A: an art-grid point (52 × 94, feet near 26, 91) → map offset from the avatar's feet.
+  const cache = {}, A = (ax, ay) => [(ax - 26) * AV, (ay - 91) * AV];
+  function sprite(kind, f) { const key = kind + f; return cache[key] || (cache[key] = { canvas: (kind === 'princess' ? gojoSprite : zordSprite)(f), ox: Math.round(26 * AV), oy: Math.round(91 * AV) }); }
 
   /* ---------- State ---------- */
   const world = () => window.VillageWorld;
   const avatars = [
-    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-70, 150], greet: 'MEGAZORD!' },
-    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [70, 150], greet: 'GOJO SENSEI!' }
+    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-70, 172], greet: 'MEGAZORD!' },
+    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [70, 172], greet: 'GOJO SENSEI!' }
   ];
   const KEY = 'brownie-avatars-v2'; // v2: the map gained a 180 px margin, so v1 positions are stale
   function init() {
@@ -163,7 +168,7 @@
     let off, walking = false, facing = 1;
     if (c < 3) off = 0; else if (c < 7) { off = (c - 3) / 4 * amp; walking = true; } else if (c < 10) { off = amp; facing = -1; } else { off = amp - (c - 10) / 4 * amp; walking = true; facing = -1; }
     let x = av.x + off - amp / 2; const p = av.zone?.plot;
-    if (p) x = Math.max(p.x + 24, Math.min(p.x + p.w - 24, x));
+    if (p) x = Math.max(p.x + 36, Math.min(p.x + p.w - 36, x));
     return { x, y: av.y, facing, walking, lifted: false };
   }
 
@@ -192,8 +197,8 @@
       const d = Math.hypot(post.x - e.from[0], post.y - e.from[1]); e.dur = Math.max(.6, d / 30);
       const f = Math.min(1, (t - e.t0) / e.dur); return { pos: [e.from[0] + (post.x - e.from[0]) * f, e.from[1] + (post.y - e.from[1]) * f], walking: f < 1, facing: post.x < e.from[0] ? -1 : 1 };
     }
-    // A double lead (sekreter's butler & secretary) is wider, so its centre stands further out; the nearer figure keeps the usual ~30 px.
-    const gap = AgentCharacters.profiles[z.role]?.pair ? 40 : 30;
+    // The lead stands beside the avatar, clear of its arms (both are drawn 1.5× their art size).
+    const gap = 48;
     const a = place(e.av, t), target = [a.x + e.side * gap, a.y + 3], d = Math.hypot(target[0] - e.from[0], target[1] - e.from[1]), dur = Math.max(.8, d / 32), f = Math.min(1, (t - e.t0) / dur);
     if (f < 1) return { pos: [e.from[0] + (target[0] - e.from[0]) * f, e.from[1] + (target[1] - e.from[1]) * f], walking: true, facing: target[0] < e.from[0] ? -1 : 1, arrived: false };
     return { pos: target, walking: a.walking, facing: a.walking ? a.facing : -e.side, arrived: true, since: e.t0 + dur };
@@ -227,19 +232,19 @@
   /* ---------- Drawing ---------- */
   function drawAvatar(k, av, t) {
     const pl = place(av, t), f = pl.lifted ? 'lift' : pl.walking ? 'walk' + (Math.floor(t * 7) % 4) : 'stand' + (Math.floor(t * 1.2) % 2), s = sprite(av.kind, f);
-    const lift = pl.lifted ? 14 + Math.round(Math.sin(t * 5) * 2) : 0;
-    k.alpha(pl.lifted ? .25 : .38, () => k.ellipse(pl.x + 2, pl.y + 1, pl.lifted ? 11 : 15, pl.lifted ? 3 : 4, '#1d2a22'));
-    if (!pl.lifted) { k.alpha(.5, () => k.ring(pl.x, pl.y + 1, 18, 5, av.kind === 'princess' ? '#9fdcff' : '#c8f08c')); }
+    const lift = pl.lifted ? 20 + Math.round(Math.sin(t * 5) * 3) : 0;
+    k.alpha(pl.lifted ? .25 : .38, () => k.ellipse(pl.x + 3, pl.y + 1, pl.lifted ? 16 : 22, pl.lifted ? 4 : 6, '#1d2a22'));
+    if (!pl.lifted) { k.alpha(.5, () => k.ring(pl.x, pl.y + 1, 27, 7, av.kind === 'princess' ? '#9fdcff' : '#c8f08c')); }
     k.blit(s, pl.x, pl.y - lift, pl.facing === -1);
     if (av.kind === 'boss') {
       // Megazord: the green triangle eyes glow with a slow pulse.
-      const y = pl.y - lift - 91 + pose(f).bob, g = .2 + .16 * Math.sin(t * 4);
-      k.alpha(g, () => { for (const ex of [19.4, 24.8]) k.circle(pl.x + (ex - 26) * pl.facing, y + 40 - (ex > 20 ? 1 : 0), 3.5, '#b8ff5a'); });
+      const b = pose(f).bob, g = .2 + .16 * Math.sin(t * 4);
+      k.alpha(g, () => { for (const [ex, ey] of [[19.4, 40.4], [24.8, 39.4]]) { const [dx, dy] = A(ex, ey + b); k.circle(pl.x + dx * pl.facing, pl.y - lift + dy, 5, '#b8ff5a'); } });
     }
     if (av.kind === 'princess') {
       // Gojo: a faint Infinity shimmer around him, and a small blue orb over his raised fingers while he stands.
-      k.alpha(.6, () => { for (let i = 0; i < 4; i++) { const q = t * 1.4 + i * 1.57; k.px(pl.x + Math.round(Math.cos(q) * 15), pl.y - lift - 46 + Math.round(Math.sin(q * .7 + i) * 40), '#bfeaff'); } });
-      if (!pl.walking && !pl.lifted) { const ox = pl.x + 11 * pl.facing, oy = pl.y - 71 + Math.round(Math.sin(t * 3)), r = Math.sin(t * 7) > 0 ? 3 : 2.5; k.alpha(.35, () => k.circle(ox, oy, r + 1, '#58b7e6')); k.circle(ox, oy, 1.5, '#8fd4ff'); k.px(ox, oy, '#ffffff'); }
+      k.alpha(.6, () => { for (let i = 0; i < 4; i++) { const q = t * 1.4 + i * 1.57; k.px(pl.x + Math.round(Math.cos(q) * 22), pl.y - lift - 69 + Math.round(Math.sin(q * .7 + i) * 60), '#bfeaff'); } });
+      if (!pl.walking && !pl.lifted) { const [dx, dy] = A(37, 20), ox = Math.round(pl.x + dx * pl.facing), oy = Math.round(pl.y + dy + Math.sin(t * 3)), r = Math.sin(t * 7) > 0 ? 4.5 : 3.5; k.alpha(.35, () => k.circle(ox, oy, r + 1, '#58b7e6')); k.circle(ox, oy, 2, '#8fd4ff'); k.px(ox, oy, '#ffffff'); }
     }
     return pl;
   }
@@ -262,22 +267,22 @@
       const z = world().zones.find(q => q.id === id), st = opts.stateOf(z), L = lines(z, e.av, st), tl = t - e._ep.since, step = Math.floor(tl / 2.6), cur = L[step % L.length], t0 = e._ep.since + step * 2.6;
       if (!cur[0]) continue;
       const pl = e.av._pl;
-      if (cur[0] === 'lead') speech(k, Math.round(e._ep.pos[0]), Math.round(e._ep.pos[1] - 80), cur[1], t0, t);
-      else speech(k, Math.round(pl.x), Math.round(pl.y - 98), cur[1], t0, t);
+      if (cur[0] === 'lead') speech(k, Math.round(e._ep.pos[0]), Math.round(e._ep.pos[1] - 104), cur[1], t0, t);
+      else speech(k, Math.round(pl.x), Math.round(pl.y - 144), cur[1], t0, t);
     }
   }
 
   /* ---------- Interaction (the app calls these with world coordinates) ---------- */
   function hit(x, y) {
     init();
-    for (const av of [...avatars].reverse()) { const pl = av._pl || { x: av.x, y: av.y }; if (Math.abs(x - pl.x) < 17 && y < pl.y + 4 && y > pl.y - 92) return av; }
+    for (const av of [...avatars].reverse()) { const pl = av._pl || { x: av.x, y: av.y }; if (Math.abs(x - pl.x) < 25 && y < pl.y + 5 && y > pl.y - 136) return av; }
     return null;
   }
   function pick(av, x, y) { const pl = av._pl || { x: av.x, y: av.y }; av.drag = { x: pl.x, y: pl.y, ox: pl.x - x, oy: pl.y - y, facing: pl.facing }; }
   function move(av, x, y) { if (!av.drag) return; const nx = x + av.drag.ox; av.drag.facing = nx < av.drag.x ? -1 : nx > av.drag.x ? 1 : av.drag.facing; av.drag.x = nx; av.drag.y = y + av.drag.oy; }
   function drop(av, t) {
     if (!av.drag) return null;
-    const W = world(); av.x = Math.max(20, Math.min(W.width - 20, av.drag.x)); av.y = Math.max(100, Math.min(W.height - 10, av.drag.y)); av.drag = null; av.since = t; av.zone = zoneAt(av.x, av.y); save();
+    const W = world(); av.x = Math.max(30, Math.min(W.width - 30, av.drag.x)); av.y = Math.max(145, Math.min(W.height - 10, av.drag.y)); av.drag = null; av.since = t; av.zone = zoneAt(av.x, av.y); save();
     return av.zone;
   }
   // Test hook: put an avatar in a zone, already chatting.

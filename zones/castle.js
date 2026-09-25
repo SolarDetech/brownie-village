@@ -7,7 +7,7 @@ window.ZoneDesigns.castle = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
   const ROOF = '#4a5f8c';                          // royal slate-blue roofs (tinted from slate)
   const TR = '#e30a17';                            // Turkish flag red
-  const F = { x: -192, y: 124 };                   // garden fountain centre (basin water level)
+  const F = { x: -166, y: 124 };                   // garden fountain centre (basin water level)
   const WALK_Y = 176;                              // feet line on the front wall walkways
   const POLE = { x: 82, y: 46, top: -44 };         // plaza flagpoles at ±x
   const KW_UP = [-87, -67, -47, 40, 60, 80];       // keep upper window columns (y -124)
@@ -16,11 +16,11 @@ window.ZoneDesigns.castle = (() => {
   const DARK = [
     ...KW_UP.map(x => [x, -124, 7, 11]), ...KW_LOW.map(x => [x, -90, 7, 8]), [-10, -122, 7, 14], [4, -122, 7, 14],
     ...[-70, -40, 34, 64].map(x => [x, -154, 6, 5]), [-121, -118, 6, 7], [115, -118, 6, 7], [-121, -88, 6, 7], [115, -88, 6, 7],
-    [-222, -89, 8, 6], [-208, -89, 8, 6], [-172, -89, 8, 6], [-158, -89, 8, 6], [154, -92, 6, 12], [214, -92, 6, 12],
-    [154, 100, 8, 5], [170, 100, 8, 5], [202, 100, 8, 5], [216, 100, 8, 5]
+    [-208, -89, 8, 6], [-194, -89, 8, 6], [-158, -89, 8, 6], [-144, -89, 8, 6], [144, -92, 6, 12], [204, -92, 6, 12],
+    [126, 100, 8, 5], [142, 100, 8, 5], [174, 100, 8, 5], [188, 100, 8, 5]
   ];
   // Lamps: [x, y] feet.
-  const LAMPS = [[-106, 96], [104, 96], [-124, 132], [122, 132], [-118, 182], [116, 182], [-128, -20], [126, -20], [-236, 124], [-148, 92], [168, 124]];
+  const LAMPS = [[-106, 96], [104, 96], [-124, 132], [122, 132], [-118, 182], [116, 182], [-128, -20], [126, -20], [-194, 98], [-148, 92], [140, 124]];
 
   /* ---------- local architecture helpers ---------- */
   // Cut-stone face: staggered blocks with a lit top edge and dark mortar.
@@ -47,13 +47,17 @@ window.ZoneDesigns.castle = (() => {
     k.rect(x, top - 1, w, 1, C.stone4); merlons(k, x, top, w, base);
     k.rect(x, by - 3, w, 3, S(base, -.18)); k.rect(x, by - 3, w, 1, S(base, .1));
   }
-  // Wall running north-south, seen from above as a walkway strip with merlons on both edges.
-  function sideWall(k, x, y0, y1, shadowRight) {
-    k.rect(shadowRight ? x + 12 : x - 5, y0 + 6, 5, y1 - y0 - 6, C.shadowSoft);
-    k.rect(x, y0, 12, y1 - y0, C.stone2);
-    for (let y = y0 + 2; y < y1; y += 6) { k.rect(x + 3, y, 6, 1, S(C.stone2, -.14)); k.px(x + 4 + (y % 4), y + 2, C.stone3); }
-    for (let y = y0 + 2; y < y1 - 3; y += 8) for (const ex of [x, x + 9]) { k.rect(ex, y, 3, 5, C.stone3); k.rect(ex, y, 3, 1, C.stone5); k.rect(ex + 2, y + 1, 1, 4, C.stone1); }
-    k.rect(x - 1, y0, 1, y1 - y0, C.stone1); k.rect(x + 12, y0, 1, y1 - y0, C.stone0);
+  // The plot is a flat-top hexagon (world.js): half-width HW(y), side points at y = -5. The side walls run
+  // just inside its slanted edges, drawn row by row as a walkway strip with merlons on both edges.
+  const HW = y => 262 - .4 * Math.abs(y + 5);
+  function slantWalls(k, y0, y1) {
+    for (const s of [-1, 1]) for (let y = y0; y < y1; y++) {
+      const x = s < 0 ? Math.round(-HW(y)) + 2 : Math.round(HW(y)) - 14, m = (y - y0) % 8;
+      if (y - y0 > 6) k.rect(s < 0 ? x + 12 : x - 5, y, 5, 1, C.shadowSoft);
+      k.rect(x, y, 12, 1, C.stone2); if ((y - y0) % 6 === 2) k.rect(x + 3, y, 6, 1, S(C.stone2, -.14));
+      if (m >= 2 && m < 7) for (const ex of [x, x + 9]) { k.rect(ex, y, 3, 1, m === 2 ? C.stone5 : C.stone3); if (m > 2) k.px(ex + 2, y, C.stone1); }
+      k.px(x - 1, y, C.stone1); k.px(x + 12, y, C.stone0);
+    }
   }
   // Round tower with cylindrical shading; either a cone roof (o.roof) or a crenellated parapet.
   // o.edge keeps the cast shadow short so towers on the plot edge stay inside the footprint.
@@ -307,22 +311,26 @@ window.ZoneDesigns.castle = (() => {
       /* Woods behind the castle give the silhouette depth. */
       for (const [x, y, kind, sz, v] of [[-214, -160, 'dark', 1, 1], [-188, -164, 'pine', 2, 0], [-160, -158, 'oak', 2, 2], [-136, -166, 'pine', 1, 1], [212, -160, 'dark', 1, 3], [186, -164, 'pine', 2, 1], [160, -158, 'oak', 2, 0], [138, -166, 'pine', 1, 2], [-240, -168, 'pine', 0, 3], [240, -168, 'pine', 0, 2]]) Props.tree(k, x, y, kind, sz, v);
       /* Rear curtain wall and its corner towers. */
-      curtain(k, -246, -136, 492, 18);
-      for (let i = 0; i < 12; i++) { const x = -236 + i * 42 + (i % 2) * 7; if (Math.abs(x) > 140) { k.rect(x, -150, 2, 10, C.leaf1); k.rect(x - 2, -146, 6, 3, C.leaf2); k.px(x - 1, -147, C.leaf4); k.px(x + 3, -144, C.leaf1); } }
-      rtower(k, -229, -132, 13, 44, { roof: ROOF, roofH: 28, slits: [18, 34], edge: true });
-      rtower(k, 229, -132, 13, 44, { roof: ROOF, roofH: 28, slits: [18, 34], edge: true });
+      curtain(k, -198, -136, 396, 18);
+      slantWalls(k, -150, -5);
+      for (let i = 0; i < 12; i++) { const x = -236 + i * 42 + (i % 2) * 7; if (Math.abs(x) > 140 && Math.abs(x) < 186) { k.rect(x, -150, 2, 10, C.leaf1); k.rect(x - 2, -146, 6, 3, C.leaf2); k.px(x - 1, -147, C.leaf4); k.px(x + 3, -144, C.leaf1); } }
+      rtower(k, -180, -132, 13, 40, { roof: ROOF, roofH: 24, slits: [18, 32], edge: true });
+      rtower(k, 180, -132, 13, 40, { roof: ROOF, roofH: 24, slits: [18, 32], edge: true });
 
       /* West: kitchen and servants' hall with a busy yard. */
+      k.at(14, 0, () => {   // kept clear of the slanted west wall
       Props.cobbles(k, -236, -66, 100, 22, 11, C.stone3);
       Props.building(k, -228, -66, { w: 82, h: 32, roofH: 20, roof: C.terra2, wall: C.plaster2, mat: 'timber', windows: [{ x: 6, y: 9, w: 8, h: 8, lit: true, shutters: C.teal1 }, { x: 20, y: 9, w: 8, h: 8, lit: true, shutters: C.teal1 }, { x: 56, y: 9, w: 8, h: 8, lit: true, shutters: C.teal1 }, { x: 70, y: 9, w: 8, h: 8, lit: true, shutters: C.teal1 }], door: { x: 35, w: 12, h: 16, color: C.wood2, open: true }, chimney: { x: 60, h: 12 } });
       k.rect(-199, -100, 26, 6, C.wood1); k.rect(-198, -99, 24, 4, C.wood3); k.text('KITCH', -197, -99, C.paper);
       Props.barrel(k, -236, -60); Props.barrel(k, -226, -56); Props.sack(k, -214, -52, C.plaster1); Props.sack(k, -207, -50, '#b8a276');
+      });
       Props.crate(k, -172, -56); Props.crate(k, -163, -52, 7); Props.logPile(k, -166, -62, 3);
-      k.rect(-214, -46, 4, 3, C.gold1); k.rect(-214, -46, 4, 1, C.gold3);
+      k.rect(-200, -46, 4, 3, C.gold1); k.rect(-200, -46, 4, 1, C.gold3);
       // Bread oven: a small domed brick oven by the yard.
       k.ellipse(-149, -46, 9, 3, C.shadow); k.ellipse(-150, -52, 9, 8, C.terra1); k.ellipse(-151, -54, 7, 6, C.terra2); k.ellipse(-153, -56, 3, 2, C.terra3);
       k.rect(-158, -52, 16, 6, C.terra1); k.rect(-153, -52, 6, 5, C.ink); k.rect(-152, -50, 4, 2, '#8a3a1a');
       /* East: royal chapel with rose window and bell-cote. */
+      k.at(-10, 0, () => {   // kept clear of the slanted east wall
       Props.cobbles(k, 136, -66, 100, 22, 12, C.stone3);
       Props.building(k, 148, -66, { w: 78, h: 36, style: 'peak', roofH: 26, depth: 12, roof: ROOF, wall: C.stone4, mat: 'stone', door: { x: 33, w: 12, h: 17, color: C.wood2, arch: true }, windows: [{ x: 6, y: 10, w: 6, h: 14, arch: true, lit: true, frame: C.stone1 }, { x: 66, y: 10, w: 6, h: 14, arch: true, lit: true, frame: C.stone1 }], vent: false });
       const rx = 187, ry = -112;
@@ -332,6 +340,7 @@ window.ZoneDesigns.castle = (() => {
       k.rect(rx - 5, -152, 11, 13, C.stone4); k.rect(rx - 5, -152, 1, 13, C.stone5); k.rect(rx + 5, -152, 1, 13, C.stone1); k.rect(rx - 3, -149, 7, 7, C.ink); k.rect(rx - 2, -147, 5, 4, C.gold2); k.px(rx - 2, -147, C.gold4);
       k.poly([[rx - 7, -152], [rx, -161], [rx + 8, -152]], ROOF); k.poly([[rx - 7, -152], [rx, -161], [rx, -152]], S(ROOF, .2)); k.rect(rx, -166, 1, 5, C.gold2); k.rect(rx - 1, -165, 3, 1, C.gold2);
       for (const x of [140, 230]) Props.pot(k, x, -60); Props.bench(k, 152, -46, 16); Props.bench(k, 206, -46, 16);
+      });
 
       /* The keep: hipped roof with dormers and belfry, tall ashlar front, a central frontispiece. */
       const kx = -96, kw = 192, kb = -56, kt = -134;
@@ -387,11 +396,10 @@ window.ZoneDesigns.castle = (() => {
       }
 
       /* Side walls with mid towers enclose the ward. */
-      sideWall(k, -251, -136, 190, true); sideWall(k, 239, -136, 190, false);
-      rtower(k, -240, 40, 9, 26, { slits: [14], edge: true }); rtower(k, 239, 40, 9, 26, { slits: [14], edge: true });
+      // (The side walls follow the hexagon edge: slantWalls() above the side points, and below them before the front wall.)
 
       /* Formal parterres on both sides of the plaza. */
-      const L = parterre(k, -232, -38, false, 31), R = parterre(k, 132, -38, true, 57);
+      const L = parterre(k, -222, -38, false, 31), R = parterre(k, 122, -38, true, 57);
       k.ellipse(L.cx, L.cy, 11, 6, C.stone4); k.ellipse(L.cx, L.cy + 1, 9, 4, C.water1); k.ellipse(L.cx - 1, L.cy, 7, 3, C.water2);
       k.ellipse(L.cx + 3, L.cy + 1, 2, 1, C.leaf3); k.px(L.cx + 3, L.cy, '#ffc6d8'); k.ellipse(L.cx - 4, L.cy + 2, 2, 1, C.leaf2);
       // Sundial on a column.
@@ -420,21 +428,22 @@ window.ZoneDesigns.castle = (() => {
         return (Math.floor((x + y) / 10) + Math.floor((x - y) / 10)) % 2 ? C.stone3 : C.stone4;
       });
       k.path([...pl, pl[0]], C.stone5);
-      // Raised marble platform for the pedestal.
-      k.ellipse(2, 50, 68, 27, C.shadowSoft); k.ellipse(0, 48, 66, 26, C.stone1); k.ellipse(0, 46, 66, 26, C.stone4);
-      k.ellipse(-1, 45, 63, 24, C.stone5); k.ditherEllipse(4, 48, 56, 20, C.stone4, 1); k.ring(0, 46, 66, 26, C.stone2);
+      // Raised marble platform for the pedestal: a chamfered slab that also carries the flagpoles.
+      const oct = (w, t, b, c) => [[-w + c, t], [w - c, t], [w, t + c], [w, b - c], [w - c, b], [-w + c, b], [-w, b - c], [-w, t + c]];
+      k.poly(oct(91, 38, 79, 6).map(([x, y]) => [x + 2, y + 2]), C.shadowSoft); k.poly(oct(90, 37, 77, 6), C.stone1); k.poly(oct(90, 36, 75, 6), C.stone4);
+      k.poly(oct(88, 37, 73, 5), C.stone5); k.ditherPoly(oct(84, 42, 71, 4), C.stone4, 1); k.path([...oct(90, 36, 75, 6), [-84, 36]], C.stone2);
       // Low clipped hedges frame the back and sides.
       Props.hedge(k, -96, -12, 34, 6); Props.hedge(k, 62, -12, 34, 6);
       vhedge(k, -97, -4, 5, 88); vhedge(k, 92, -4, 5, 88);
       // Red and white beds along the sides, behind the flagpoles.
       trBed(k, -88, 2, 18, 30); trBed(k, 70, 2, 18, 30);
       for (const s of [-1, 1]) flagpole(k, s * POLE.x, POLE.y, POLE.top);
-      // The statue itself (another module); it overlaps the keep and plaza behind it.
-      window.AtaturkStatue?.draw(k, 0, 60);
-      // In front of the pedestal: low beds and the laurel wreath.
-      trBed(k, -46, 68, 30, 7); trBed(k, 16, 68, 30, 7);
-      wreath(k, 0, 70);
-      trBed(k, -92, 60, 26, 22); trBed(k, 66, 60, 26, 22);
+      // The statue itself (another module, 1.5× size); it overlaps the keep and plaza behind it.
+      window.AtaturkStatue?.draw(k, 0, 66);
+      // In front of the pedestal: low beds and the laurel wreath, and the corner beds behind the honour guard.
+      trBed(k, -46, 81, 30, 7); trBed(k, 16, 81, 30, 7);
+      wreath(k, 0, 79);
+      trBed(k, -92, 80, 22, 12); trBed(k, 70, 80, 22, 12);
       for (const [x, y] of [[-101, 94], [99, 94]]) { k.rect(x - 1, y - 3, 4, 4, C.stone2); }
 
       /* ===== Esplanade: open paved ground from the plaza to the gate ===== */
@@ -456,14 +465,15 @@ window.ZoneDesigns.castle = (() => {
       for (let i = 0; i < 14; i++) { const x = -116 + Math.floor(P.hash(i, 5) * 232), y = 104 + Math.floor(P.hash(i, 6) * 86); if (Math.abs(x) > 24) k.px(x, y, C.leaf2); }
 
       /* West garden: the fountain in a ring of hedges and blossom trees. */
-      Props.hedge(k, -234, 80, 38, 6); Props.hedge(k, -172, 80, 38, 6);
-      radial(k, F.x, F.y + 2, 40, 21);
+      Props.hedge(k, -210, 80, 34, 6); Props.hedge(k, -172, 80, 38, 6);
+      radial(k, F.x, F.y + 2, 36, 19);
       fountain(k);
-      for (const [x, y, v] of [[-228, 102, 0], [-156, 100, 1]]) Props.tree(k, x, y, 'blossom', 1, v);
-      Props.bench(k, -232, 156, 16); Props.bench(k, -178, 156, 16);
-      Props.flowerBed(k, -234, 161, 30, 8, ['#e98aa0', C.paper, '#f2c14e'], 7); Props.flowerBed(k, -196, 161, 30, 8, ['#e98aa0', C.paper, C.plum4], 8);
+      for (const [x, y, v] of [[-198, 102, 0], [-140, 100, 1]]) Props.tree(k, x, y, 'blossom', 1, v);
+      Props.bench(k, -180, 156, 16); Props.bench(k, -150, 156, 16);
+      Props.flowerBed(k, -176, 161, 20, 8, ['#e98aa0', C.paper, '#f2c14e'], 7); Props.flowerBed(k, -152, 161, 22, 8, ['#e98aa0', C.paper, C.plum4], 8);
 
       /* East: guard barracks and training yard. */
+      k.at(-28, 0, () => {   // kept clear of the slanted east wall
       k.rectTex(136, 118, 100, 52, (x, y) => { const h = P.hash(x * 3, y); return h < .15 ? C.dirt2 : h > .9 ? C.dirt4 : C.dirt3; });
       Props.building(k, 146, 118, { w: 84, h: 26, roofH: 16, roof: ROOF, wall: C.stone3, mat: 'stone', windows: [{ x: 8, y: 8, w: 8, h: 7, lit: true }, { x: 24, y: 8, w: 8, h: 7, lit: true }, { x: 56, y: 8, w: 8, h: 7, lit: true }, { x: 70, y: 8, w: 8, h: 7, lit: true }], door: { x: 38, w: 10, h: 14, color: C.wood2, open: true }, sign: { x: 49, y: 5, text: 'GUARD', color: C.red1 } });
       // Weapon rack with spears and shields.
@@ -476,13 +486,15 @@ window.ZoneDesigns.castle = (() => {
       k.ellipse(231, 138, 5, 2, C.shadow); k.rect(228, 130, 1, 8, C.wood1); k.rect(233, 130, 1, 8, C.wood1);
       k.circle(230, 126, 6, C.gold1); k.circle(230, 126, 5, C.white); k.circle(230, 126, 3, TR); k.circle(230, 126, 1, C.gold3);
       Props.barrel(k, 186, 156); Props.crate(k, 196, 160, 8);
+      });
 
       for (const [x, y] of LAMPS) Props.lamp(k, x, y, true);
 
       /* Front: curtain walls, corner and gate towers, the open gate with balustrade and piers. */
-      curtain(k, -236, 196, 92, 18); curtain(k, 144, 196, 92, 18);
-      for (const x of [-220, -180, 160, 204]) { k.rect(x, 184, 4, 10, C.leaf1); k.rect(x - 2, 186, 3, 4, C.leaf2); k.px(x + 4, 188, C.leaf3); k.px(x - 1, 185, C.leaf4); }
-      rtower(k, -237, 192, 12, 40, { slits: [18], edge: true }); rtower(k, 236, 192, 12, 40, { slits: [18], edge: true });
+      slantWalls(k, -5, 196);
+      rtower(k, -241, 2, 9, 26, { slits: [14], edge: true }); rtower(k, 240, 2, 9, 26, { slits: [14], edge: true });
+      curtain(k, -172, 196, 32, 18); curtain(k, 140, 196, 32, 18);
+      for (const x of [-166, 158]) { k.rect(x, 184, 4, 10, C.leaf1); k.rect(x - 2, 186, 3, 4, C.leaf2); k.px(x + 4, 188, C.leaf3); k.px(x - 1, 185, C.leaf4); }
       for (const s of [-1, 1]) {
         rtower(k, s * 140, 191, 14, 50, { roof: ROOF, roofH: 28, slits: [20, 36], pole: 8 });
         Props.door(k, s * 140 - 5, 191, 10, 13, C.wood2, { arch: true });
@@ -493,7 +505,7 @@ window.ZoneDesigns.castle = (() => {
     },
     front(k) {
       // Front merlons of the wall walkways sit in front of the patrolling guards' feet.
-      for (const x0 of [-236, 144]) merlons(k, x0, 178, 92);
+      for (const x0 of [-172, 140]) merlons(k, x0, 178, 32);
     },
     animate(k, t, state, z) {
       const run = state === 'working', live = state !== 'off', calm = state === 'idle';
@@ -516,16 +528,16 @@ window.ZoneDesigns.castle = (() => {
 
       /* Garden fountain and kitchen smoke. */
       fountainWater(k, t, run ? 1 : calm ? .6 : state === 'waiting' ? .8 : state === 'error' ? .7 : 0, state === 'error');
-      if (live) Props.smoke(k, -165, -132, t * (run ? 1 : .5), run ? 4 : 2, state === 'error' ? '#5a5650' : '#dcd8cc');
+      if (live) Props.smoke(k, -151, -132, t * (run ? 1 : .5), run ? 4 : 2, state === 'error' ? '#5a5650' : '#dcd8cc');
 
       /* Birds circle the keep. */
       if (live && z.detail) for (let i = 0; i < 3; i++) { const a = t * .5 + i * 2.1; Props.bird(k, Math.cos(a) * (120 + i * 26), -196 + Math.sin(a) * 8 + i * 5, t + i); }
 
       /* Guards on the front walkways, spears shouldered. */
-      for (let i = 0; i < 4; i++) {
-        const side = i < 2 ? -1 : 1, x0 = side * (i % 2 ? 214 : 162);
+      for (let i = 0; i < 4; i += 2) {
+        const side = i < 2 ? -1 : 1, x0 = side * 158;
         if (run || calm) {
-          const p = (t * (run ? .07 : .03) + i * .29) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2, x = x0 + (i % 2 ? -1 : 1) * side * q * 24, f = ((back ? -1 : 1) * (i % 2 ? -1 : 1) * side);
+          const p = (t * (run ? .07 : .03) + i * .29) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2, x = x0 + (i % 2 ? -1 : 1) * side * q * 10, f = ((back ? -1 : 1) * (i % 2 ? -1 : 1) * side);
           z.crew(x, WALK_Y, { look: 5, hat: 'helmet', anim: run ? 'walk' : 'idle', facing: f, phase: i * .4 }); tabard(k, x, WALK_Y); spear(k, x, WALK_Y, f);
         } else { z.crew(x0, WALK_Y, { look: 5, hat: 'helmet', anim: 'idle', facing: -side, phase: i }); tabard(k, x0, WALK_Y); spear(k, x0, WALK_Y, -side); }
       }
@@ -537,7 +549,7 @@ window.ZoneDesigns.castle = (() => {
 
       if (!live) {
         // Night: courtiers asleep on the benches, a servant dozing by the oven.
-        z.crew(-116, 44, { look: 2, anim: 'sit' }); z.crew(-214, 154, { look: 4, anim: 'sit' }); z.crew(-176, -46, { look: 0, hat: 'bandana', hatColor: C.paper, anim: 'sit' });
+        z.crew(-116, 44, { look: 2, anim: 'sit' }); z.crew(-174, 154, { look: 4, anim: 'sit' }); z.crew(-176, -46, { look: 0, hat: 'bandana', hatColor: C.paper, anim: 'sit' });
         plazaFlags(); return;
       }
       /* Forecourt patrols pace before the great towers. */
@@ -553,9 +565,9 @@ window.ZoneDesigns.castle = (() => {
           const p = (t * .07 + i * .5) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2, x = -188 + q * 58;
           z.crew(x, -44, { look: i ? 0 : 3, hat: 'bandana', hatColor: C.paper, anim: 'walk', carry: back ? '' : (i ? 'food' : 'box'), facing: back ? -1 : 1, phase: i });
         }
-        const m = (t * .05) % 1, mx = 140 + m * 46;
+        const m = (t * .05) % 1, mx = 130 + m * 46;
         z.crew(mx, -42, { look: 4, hat: 'scarf', hatColor: C.plum3, anim: 'walk', carry: 'paper', facing: 1, phase: .3 });
-      } else { z.crew(-196, -46, { look: 0, hat: 'bandana', hatColor: C.paper, anim: 'idle', facing: 1 }); z.crew(206, -46, { look: 4, hat: 'scarf', hatColor: C.plum3, anim: 'sit' }); }
+      } else { z.crew(-196, -46, { look: 0, hat: 'bandana', hatColor: C.paper, anim: 'idle', facing: 1 }); z.crew(196, -46, { look: 4, hat: 'scarf', hatColor: C.plum3, anim: 'sit' }); }
 
       /* Gardeners tend the parterres. */
       z.crew(-160, 20, { look: 1, hat: 'straw', anim: 'work', tool: 'hoe', phase: .3, speed: 4 });
@@ -566,17 +578,17 @@ window.ZoneDesigns.castle = (() => {
       /* Fountain garden: courtiers stroll around the basin, or rest on the benches. */
       if (run) for (let i = 0; i < 2; i++) {
         const a = .12 * Math.PI + ((Math.sin(t * .2 + i * 2.4) + 1) / 2) * .76 * Math.PI, dir = Math.cos(t * .2 + i * 2.4) > 0 ? -1 : 1;
-        z.crew(F.x + Math.cos(a) * 38, F.y + 10 + Math.sin(a) * 12, { look: i ? 4 : 2, hat: i ? 'scarf' : 'none', hatColor: C.plum3, anim: 'walk', facing: dir, phase: i * .6 });
-      } else { z.crew(-214, 154, { look: 2, anim: 'sit' }); z.crew(-154, 154, { look: 4, hat: 'scarf', hatColor: C.plum3, anim: 'sit' }); }
+        z.crew(F.x + Math.cos(a) * 30, F.y + 10 + Math.sin(a) * 12, { look: i ? 4 : 2, hat: i ? 'scarf' : 'none', hatColor: C.plum3, anim: 'walk', facing: dir, phase: i * .6 });
+      } else { z.crew(-174, 154, { look: 2, anim: 'sit' }); z.crew(-144, 154, { look: 4, hat: 'scarf', hatColor: C.plum3, anim: 'sit' }); }
       if (calm) z.crew(-116, 44, { look: 1, anim: 'sit' });
 
       /* Barracks yard: a drill squad marches, a recruit strikes the dummy. */
       if (run) {
         const p = (t * .08) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2;
-        for (let i = 0; i < 3; i++) { const x = 162 + q * 22 + i * 10; z.crew(x, 132 + i * 2, { look: 5, hat: 'helmet', anim: 'walk', facing: back ? -1 : 1, phase: i * .1 }); tabard(k, x, 132 + i * 2); }
-        z.crew(202, 160, { look: 5, hat: 'helmet', anim: 'work', tool: 'hammer', phase: .4, speed: 6 });
+        for (let i = 0; i < 3; i++) { const x = 134 + q * 22 + i * 10; z.crew(x, 132 + i * 2, { look: 5, hat: 'helmet', anim: 'walk', facing: back ? -1 : 1, phase: i * .1 }); tabard(k, x, 132 + i * 2); }
+        z.crew(174, 160, { look: 5, hat: 'helmet', anim: 'work', tool: 'hammer', phase: .4, speed: 6 });
       } else if (state !== 'error') {
-        for (let i = 0; i < 3; i++) { const x = 168 + i * 12; z.crew(x, 134, { look: 5, hat: 'helmet', anim: 'idle', facing: 1, phase: i }); tabard(k, x, 134); }
+        for (let i = 0; i < 3; i++) { const x = 140 + i * 12; z.crew(x, 134, { look: 5, hat: 'helmet', anim: 'idle', facing: 1, phase: i }); tabard(k, x, 134); }
       }
 
       /* Waiting: petitioners queue for an audience at the east tower door, an amber lantern above it. */
@@ -588,8 +600,8 @@ window.ZoneDesigns.castle = (() => {
         // A tower fire: black smoke pours from the east great tower; the barracks yard is in disarray.
         Props.fire(k, 118, -109, t, .6); Props.fire(k, 118, -79, t + .4, .5);
         Props.smoke(k, 118, -116, t, 6, '#3a3632'); Props.smoke(k, 122, -188, t * 1.3, 5, '#2a2622'); Props.smoke(k, 110, -182, t * .9, 4, '#6a6660');
-        Props.crate(k, 168, 136, 7); Props.crate(k, 184, 142, 6); Props.barrel(k, 196, 130); k.rect(176, 150, 3, 2, C.red2);
-        for (let i = 0; i < 2; i++) z.crew(172 + i * 20, 162, { look: 5, hat: 'helmet', anim: 'idle', facing: i ? -1 : 1, phase: i });
+        Props.crate(k, 140, 136, 7); Props.crate(k, 156, 142, 6); Props.barrel(k, 168, 130); k.rect(148, 150, 3, 2, C.red2);
+        for (let i = 0; i < 2; i++) z.crew(144 + i * 20, 162, { look: 5, hat: 'helmet', anim: 'idle', facing: i ? -1 : 1, phase: i });
         if (Math.floor(t * 4) % 2) for (const s of [-1, 1]) { k.rect(s * 140 - 3, 120, 7, 7, C.ink); k.rect(s * 140 - 2, 121, 5, 5, C.error); }
       }
       plazaFlags();

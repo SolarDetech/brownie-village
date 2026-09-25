@@ -6,7 +6,7 @@ window.ZoneDesigns.bayes = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
   const LEAD = { x: 60, y: 86 }, REST = { x: -92, y: 128 };      // lawn between portal and garage; by the histogram bed when off
   const DOME = { x: -120, y: -100, rx: 30, ry: 24 };               // observatory dome centre on the drum cornice
-  const ORR = { x: -140, y: 94 };                                  // orrery dais centre
+  const ORR = { x: -128, y: 94 };                                  // orrery dais centre
   const ARM = { x: -172, y: -22 };                                 // armillary sphere pedestal
   const ANEMO = { x: -24, y: -124 };                               // anemometer hub
   const PORT = { x: -44, y: 50, gy: 77 };                          // portal centre and its ground line
@@ -272,14 +272,14 @@ window.ZoneDesigns.bayes = (() => {
       for (let i = 0; i < 12; i++) Props.flower(k, -186 + P.hash(i, 3) * 190, -148 + P.hash(i, 6) * 10, ['#c3a2c0', '#f6ecd0', '#8aa7d8'][i % 3]);
 
       /* ----- Observatory terrace (top left) ----- */
-      k.poly([[-190, -60], [-174, -77], [-54, -77], [-45, -60], [-45, -13], [-190, -13]], C.stone1);
-      k.polyTex([[-188, -60], [-172, -75], [-56, -75], [-47, -60], [-47, -14], [-188, -14]], flagTex(C.stone4));
-      k.rect(-190, -14, 146, 3, C.stone5); k.rect(-190, -11, 146, 10, C.stone2);
-      for (let row = 0; row < 3; row++) { k.rect(-190, -8 + row * 3, 146, 1, C.stone1); for (let x = -190 + (row % 2) * 5; x < -44; x += 10) k.rect(x, -11 + row * 3, 1, 3, C.stone1); }
-      k.rect(-188, -1, 146, 3, C.shadow);
+      k.poly([[-182, -60], [-166, -77], [-54, -77], [-45, -60], [-45, -13], [-182, -13]], C.stone1);
+      k.polyTex([[-180, -60], [-164, -75], [-56, -75], [-47, -60], [-47, -14], [-180, -14]], flagTex(C.stone4));
+      k.rect(-182, -14, 138, 3, C.stone5); k.rect(-182, -11, 138, 10, C.stone2);
+      for (let row = 0; row < 3; row++) { k.rect(-182, -8 + row * 3, 138, 1, C.stone1); for (let x = -182 + (row % 2) * 5; x < -44; x += 10) k.rect(x, -11 + row * 3, 1, 3, C.stone1); }
+      k.rect(-180, -1, 138, 3, C.shadow);
       k.rect(-132, -16, 24, 16, C.stone3); for (let i = 0; i < 4; i++) { k.rect(-132, -14 + i * 4, 24, 1, C.stone5); k.rect(-132, -11 + i * 4, 24, 1, C.stone1); }
       k.rect(-134, -18, 3, 18, C.stone2); k.rect(-109, -18, 3, 18, C.stone2); k.rect(-135, -20, 5, 3, C.stone4); k.rect(-110, -20, 5, 3, C.stone4);
-      for (const x0 of [-184, -160, -90, -66]) for (let i = 0; i < 6; i++) { k.px(x0 + i * 2, -10 + (i % 3) * 3, C.leaf2); k.px(x0 + i * 2 + 1, -9 + (i % 3) * 3, C.leaf3); }
+      for (const x0 of [-176, -154, -90, -66]) for (let i = 0; i < 6; i++) { k.px(x0 + i * 2, -10 + (i % 3) * 3, C.leaf2); k.px(x0 + i * 2 + 1, -9 + (i % 3) * 3, C.leaf3); }
       // Zodiac ring inlaid in front of the observatory.
       k.ellipse(-120, -36, 26, 9, C.stone2); k.ellipse(-120, -36, 24, 8, NIGHT); k.ellipse(-120, -36, 18, 5, NIGHT2); k.ring(-120, -36, 21, 7, C.gold1);
       for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; k.px(-120 + Math.round(Math.cos(a) * 21), -36 + Math.round(Math.sin(a) * 7), C.gold3); }
@@ -308,7 +308,7 @@ window.ZoneDesigns.bayes = (() => {
       for (let i = 0; i < 24; i++) { const x = i - 12, y = Math.round(14 * Math.exp(-(x * x) / 30)); k.px(cb[0] + 2 + i, cb[1] + 17 - y, C.paper); }
       for (let i = 0; i < 24; i++) { const x = i - 7, y = Math.round(8 * Math.exp(-(x * x) / 50)); k.px(cb[0] + 2 + i, cb[1] + 17 - y, '#9fdc6a'); }
       k.rect(cb[0] + 2, cb[1] + 18, 24, 1, C.stone3); k.rect(cb[0] + 14, cb[1] + 2, 1, 16, '#6a8a80');
-      Props.crate(k, -64, -30, 8); Props.crate(k, -56, -26, 7); Props.pot(k, -184, -70); Props.pot(k, -62, -70); Props.pot(k, -150, -30, false);
+      Props.crate(k, -64, -30, 8); Props.crate(k, -56, -26, 7); Props.pot(k, -174, -70); Props.pot(k, -62, -70); Props.pot(k, -150, -30, false);
 
       // Weather mast and instrument screen between the observatory and the garage.
       k.rect(ANEMO.x - 1, ANEMO.y, 3, 70, C.stone1); k.rect(ANEMO.x - 1, ANEMO.y, 1, 70, C.stone3); k.ellipse(ANEMO.x + 2, ANEMO.y + 70, 5, 1, C.shadow);
@@ -319,10 +319,10 @@ window.ZoneDesigns.bayes = (() => {
 
       /* ----- Suburban house and garage lab (top right) ----- */
       const HW = '#e6d6ae', GW = '#d8d0bc';
-      Props.building(k, 128, -40, { w: 58, h: 46, roofH: 18, style: 'gable', roof: C.terra1, wall: HW, chimney: { x: 44, h: 8 } });
-      for (let y = -84; y < -44; y += 3) k.rect(129, y, 55, 1, S(HW, -.12));
-      Props.window(k, 133, -76, 10, 10, { shutters: '#5a7a9a' }); Props.window(k, 171, -76, 10, 10, { shutters: '#5a7a9a' });
-      Props.door(k, 151, -40, 10, 17, '#7a5a86'); k.rect(150, -40, 12, 2, '#a8845c');
+      Props.building(k, 126, -40, { w: 40, h: 46, roofH: 18, style: 'gable', roof: C.terra1, wall: HW, chimney: { x: 30, h: 8 } });   // narrowed to clear the hexagon edge
+      for (let y = -84; y < -44; y += 3) k.rect(127, y, 37, 1, S(HW, -.12));
+      Props.window(k, 129, -76, 10, 10, { shutters: '#5a7a9a' }); Props.window(k, 153, -76, 10, 10, { shutters: '#5a7a9a' });
+      Props.door(k, 141, -40, 10, 17, '#7a5a86'); k.rect(140, -40, 12, 2, '#a8845c');
       Props.building(k, 6, -40, { w: 120, h: 38, roofH: 14, style: 'gable', roof: C.slate2, wall: GW, foundation: 2 });
       for (let y = -76; y < -42; y += 3) k.rect(7, y, 117, 1, S(GW, -.12));
       // Roll-up door: frame, the rolled slats and the interior.
@@ -400,9 +400,9 @@ window.ZoneDesigns.bayes = (() => {
       k.ellipse(ORR.x + 3, ORR.y + 4, 28, 9, C.shadow); k.ellipse(ORR.x, ORR.y + 2, 28, 10, C.stone2); k.ellipse(ORR.x, ORR.y, 27, 9, C.stone4); k.ellipse(ORR.x, ORR.y, 25, 8, C.stone3);
       for (const [rx, ry] of [[9, 3], [16, 5], [23, 7]]) k.ring(ORR.x, ORR.y - 10, rx, ry, C.gold1);
       k.rect(ORR.x - 2, ORR.y - 10, 4, 10, C.gold1); k.rect(ORR.x - 2, ORR.y - 10, 1, 10, C.gold3); k.rect(ORR.x - 5, ORR.y - 2, 10, 3, C.gold0);
-      k.rect(-183, 113, 70, 20, C.wood1); k.rect(-182, 114, 68, 18, C.dirt1); k.dither(-182, 114, 68, 18, C.dirt0, 1);
-      for (let i = 0; i < 11; i++) { const x = i - 5, h = Math.max(1, Math.round(5 * Math.exp(-(x * x) / 8))), fx = -180 + i * 6; k.rect(fx + 1, 130 - h * 3, 1, h * 3, C.leaf1); for (let j = 0; j < h; j++) { const fy = 128 - j * 3, c = ['#5a74b8', '#8aa7d8', '#c3a2c0', '#f2c14e', '#fff1bf'][j]; k.rect(fx, fy, 3, 2, c); k.px(fx, fy, S(c, .4)); k.px(fx + 2, fy + 1, S(c, -.25)); } }
-      Props.tree(k, -178, 44, 'oak', 1, 1); Props.bush(k, -166, 70, 0); Props.rock(k, -186, 60, 1, 3); Props.bush(k, -58, 134, 2);
+      k.rect(-151, 113, 58, 20, C.wood1); k.rect(-150, 114, 56, 18, C.dirt1); k.dither(-150, 114, 56, 18, C.dirt0, 1);
+      for (let i = 0; i < 11; i++) { const x = i - 5, h = Math.max(1, Math.round(5 * Math.exp(-(x * x) / 8))), fx = -148 + i * 5; k.rect(fx + 1, 130 - h * 3, 1, h * 3, C.leaf1); for (let j = 0; j < h; j++) { const fy = 128 - j * 3, c = ['#5a74b8', '#8aa7d8', '#c3a2c0', '#f2c14e', '#fff1bf'][j]; k.rect(fx, fy, 3, 2, c); k.px(fx, fy, S(c, .4)); k.px(fx + 2, fy + 1, S(c, -.25)); } }
+      Props.tree(k, -178, 44, 'oak', 1, 1); Props.bush(k, -166, 70, 0); Props.rock(k, -174, 60, 1, 3); Props.bush(k, -58, 134, 2);
 
       /* ----- Scrap yard (bottom right) ----- */
       Props.barrel(k, 100, 42); Props.barrel(k, 112, 46); for (const x of [105, 117]) { k.ellipse(x, x === 105 ? 42 : 46, 3, 1, GOO); k.rect(x - 2, x === 105 ? 43 : 47, 1, 4, '#5cc83a'); }
@@ -414,9 +414,9 @@ window.ZoneDesigns.bayes = (() => {
       k.poly([[110, 106], [118, 90], [128, 84], [142, 86], [154, 98], [158, 106]], C.stone2); k.poly([[114, 104], [120, 92], [128, 87], [132, 92], [126, 104]], C.stone3);
       k.ring(122, 96, 4, 4, C.stone4); k.px(122, 96, C.stone1); k.line(130, 100, 150, 92, C.slate2, 2); k.line(140, 104, 152, 102, C.terra2, 2);
       k.rect(134, 84, 11, 9, C.wood2); k.rect(135, 85, 8, 6, C.glassDark); k.px(136, 86, C.glass); k.rect(146, 88, 8, 7, C.stone3); k.rect(147, 90, 2, 2, C.red2); k.rect(151, 90, 2, 2, C.red2);
-      for (const [x, y] of [[168, 104], [168, 98]]) { k.ellipse(x, y, 8, 3, '#2a2a2e'); k.ellipse(x, y - 1, 7, 2, '#44444c'); k.ellipse(x, y - 1, 3, 1, '#1a1a1e'); }
-      Props.crate(k, 170, 112, 9); Props.crate(k, 158, 116, 8); Props.sack(k, 104, 114, C.plaster1);
-      Props.fence(k, 96, 136, 90);
+      for (const [x, y] of [[150, 114], [146, 108]]) { k.ellipse(x, y, 8, 3, '#2a2a2e'); k.ellipse(x, y - 1, 7, 2, '#44444c'); k.ellipse(x, y - 1, 3, 1, '#1a1a1e'); }
+      Props.crate(k, 114, 118, 9); Props.crate(k, 124, 122, 8); Props.sack(k, 104, 114, C.plaster1);
+      Props.fence(k, 96, 136, 46);
       // Suburban touches: mailbox, lawn flamingo, lamps, shrubs.
       k.rect(117, 18, 2, 10, C.wood1); k.rect(113, 12, 10, 6, C.slate2); k.rect(113, 12, 10, 1, C.slate4); k.rect(123, 12, 1, 4, C.red2); k.rect(123, 12, 3, 2, C.red2);
       k.rect(90, 40, 1, 10, C.ink); k.ellipse(90, 38, 4, 2, '#f08aa8'); k.rect(92, 32, 1, 6, '#f08aa8'); k.rect(92, 31, 3, 2, '#f08aa8'); k.px(95, 32, C.ink);
@@ -431,7 +431,7 @@ window.ZoneDesigns.bayes = (() => {
       // Lit windows and lamps.
       if (live) {
         for (const x of [-144, -103]) { k.rect(x, -92, 3, 6, C.glassLit); k.rect(x + 4, -92, 3, 6, C.glassLit); k.rect(x, -85, 3, 4, '#f0b862'); k.rect(x + 4, -85, 3, 4, '#f0b862'); }
-        for (const x of [133, 171]) { k.rect(x, -76, 5, 5, C.glassLit); k.rect(x + 6, -76, 4, 5, C.glassLit); }
+        for (const x of [129, 153]) { k.rect(x, -76, 5, 5, C.glassLit); k.rect(x + 6, -76, 4, 5, C.glassLit); }
         for (const x of [-26, 24]) k.rect(x - 1, 104, 4, 3, C.glassLit);
         k.rect(10, -61, 2, 2, C.glassLit);
       }
@@ -535,7 +535,7 @@ window.ZoneDesigns.bayes = (() => {
 
       // The lead: out on the lawn between the portal and the garage; asleep by the flower bed when off.
       if (state === 'off') z.lead(REST.x, REST.y, {}); else z.lead(LEAD.x, LEAD.y, {});
-      if (live && !err) Props.smoke(k, 175, -100, t * (run ? 1 : .5), run ? 3 : 2);
+      if (live && !err) Props.smoke(k, 159, -100, t * (run ? 1 : .5), run ? 3 : 2);
     }
   };
 })();

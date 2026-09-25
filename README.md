@@ -63,6 +63,15 @@ Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed
   pulses to the river, and a datacenter on a river island joined to both banks by stone suspension bridges,
   powered by turbines in the river (`energy.js`).
 
+## Additions (round 4)
+
+- **Hexagon districts.** Every plot is a flat-top hexagon with a stone kerb; the forest grows into the cut
+  corners and zone art is clipped to the hexagon (`VillageWorld.hexOf`, see `zones/DESIGN-CONTRACT.md`).
+- **Bigger figures.** Agent leads are drawn 1.5× (rendered at 3× and filtered down); the founder avatars and
+  the Atatürk statue are re-sculpted at 1.5× resolution (`Pixel.sculptScaled` in `engine/sculpt.js`).
+- **Sekreter.** The lead is an Alfred-like butler; a young footman serves the tea.
+- **Gazeteci.** Satellite dishes, a live van, broadcast cameras, a camera crane, a drone and full bookshelves.
+
 ## Files
 
 | File | Purpose |

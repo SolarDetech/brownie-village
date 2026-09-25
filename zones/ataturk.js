@@ -1,16 +1,17 @@
 /* The equestrian Atatürk statue for the castle plaza, after the portrait of Atatürk on horseback.
    Bronze on a stepped marble pedestal. The bronze is sculpted part by part with Pixel.sculpt (rounded,
    lit from the top left, quantised to a bronze ramp); hand-placed details (bridle, reins, mane, uniform,
-   kalpak) go on top. Rendered once and cached. */
+   kalpak) go on top. Authored on a 136×102 grid and sculpted at 1.5× that resolution. Rendered once and cached. */
+
 window.AtaturkStatue = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const SW = 136, SH = 102;                       // sprite size; hooves stand on y = 96, centre x = 66
+  const SW = 136, SH = 102, K = 1.5;              // art grid; hooves stand on y = 96, centre x = 66. K: sculpt scale
   const RAMP = ['#130c08', '#22160e', '#322115', '#462f1c', '#5d4024', '#78542d', '#976c39', '#bb8d4c', '#e2b86e'];
   let sprite = null;
 
   /* ---------- the sculpt (see engine/sculpt.js) ---------- */
   function sculpt() {
-    return P.sculpt(SW, SH, [RAMP], api => {
+    return P.sculptScaled(K, SW, SH, [RAMP], api => {
     const { part, set, dk, lt, ln, force } = api, shapeFill = api.shapes.spline, limbFill = api.shapes.limb, polyFill = api.shapes.poly;
     /* Far side (darker, behind the body). */
     part(limbFill([[98, 51, 6], [95, 62, 4.6], [104, 73, 2.9], [104, 85, 2.1], [103, 89, 2.4], [101, 92, 2.6]]), { cap: 3, tone: -.2 });            // far hind, lifting
@@ -101,37 +102,38 @@ window.AtaturkStatue = (() => {
     for (let i = 0; i < w / 14; i++) { const vx = x + 3 + P.hash(i, w) * (w - 8), vy = y - front + 1 + P.hash(w, i) * (front - 2); k.px(vx, vy, t(2)); k.px(vx + 1, vy + 1, t(2)); k.px(vx + 2, vy + 1, t(1)); }
   }
   function pedestal(k, x, y) {
-    // Stepped base, the die with a bronze plaque, and a moulded cornice. Top surface at y - 64.
-    block(k, x - 55, y, 110, 6, 4);
-    block(k, x - 48, y - 9, 96, 6, 4);
-    block(k, x - 38, y - 18, 76, 34, 0, -1);                         // the die
+    // Stepped base, the die with a bronze plaque, and a moulded cornice (all 1.5× the original design). Top surface at y - 104.
+    block(k, x - 83, y, 165, 9, 6);
+    block(k, x - 72, y - 14, 144, 9, 6);
+    block(k, x - 57, y - 28, 114, 51, 0, -1);                        // the die
     // Recessed panel and plaque.
-    const py = y - 50; k.rect(x - 32, py, 64, 28, M[1]); k.rect(x - 31, py + 1, 62, 26, M[2]); k.rect(x - 31, py + 1, 62, 1, M[0]); k.rect(x - 31, py + 1, 1, 26, M[0]); k.rect(x + 30, py + 1, 1, 26, M[4]); k.rect(x - 31, py + 26, 62, 1, M[4]);
-    k.rect(x - 26, py + 3, 52, 21, '#2c1c10'); k.rect(x - 25, py + 4, 50, 19, '#6b4a24'); k.rect(x - 25, py + 4, 50, 1, '#b5864a'); k.rect(x - 25, py + 4, 1, 19, '#976b36'); k.rect(x + 24, py + 4, 1, 19, '#3a2616'); k.rect(x - 25, py + 22, 50, 1, '#3a2616');
-    for (const [dx, dy] of [[-23, 6], [22, 6], [-23, 20], [22, 20]]) k.px(x + dx, py + dy, '#d3a764');
-    // ATATÜRK in raised gold letters; the umlaut is drawn by hand.
-    const name = 'ATATURK', tw = P.textWidth(name), tx = x - Math.floor(tw / 2);
-    k.text(name, tx + 1, py + 9, '#2a1a0e'); k.text(name, tx, py + 8, '#f0d08a'); k.px(tx + 16, py + 6, '#f0d08a'); k.px(tx + 18, py + 6, '#f0d08a');
+    const py = y - 76; k.rect(x - 48, py, 96, 42, M[1]); k.rect(x - 47, py + 1, 94, 40, M[2]); k.rect(x - 47, py + 1, 94, 1, M[0]); k.rect(x - 47, py + 1, 1, 40, M[0]); k.rect(x + 46, py + 1, 1, 40, M[4]); k.rect(x - 47, py + 40, 94, 1, M[4]);
+    k.rect(x - 39, py + 5, 78, 31, '#2c1c10'); k.rect(x - 38, py + 6, 76, 29, '#6b4a24'); k.rect(x - 38, py + 6, 76, 1, '#b5864a'); k.rect(x - 38, py + 6, 1, 29, '#976b36'); k.rect(x + 37, py + 6, 1, 29, '#3a2616'); k.rect(x - 38, py + 34, 76, 1, '#3a2616');
+    for (const [dx, dy] of [[-35, 9], [34, 9], [-35, 31], [34, 31]]) { k.px(x + dx, py + dy, '#d3a764'); k.px(x + dx + 1, py + dy + 1, '#8a6232'); }
+    // ATATÜRK in raised gold letters at double size; the umlaut is drawn by hand.
+    const name = 'ATATURK', tw = P.textWidth(name, 2), tx = x - Math.floor(tw / 2), ny = py + 11;
+    k.text(name, tx + 1, ny + 1, '#2a1a0e', 2); k.text(name, tx, ny, '#f0d08a', 2);
+    for (const ux of [32, 36]) { k.rect(tx + ux + 1, ny - 2, 2, 2, '#2a1a0e'); k.rect(tx + ux, ny - 3, 2, 2, '#f0d08a'); }
     // "1881-193" then the last 8 lying sideways like an infinity sign (7×5 glyph, full letter height).
-    const dates = '1881-193', dx0 = x - Math.floor((P.textWidth(dates) + 8) / 2), ix = dx0 + P.textWidth(dates) + 1; k.text(dates, dx0, py + 15, '#c9a060');
-    ['.#...#.', '#.#.#.#', '#..#..#', '#.#.#.#', '.#...#.'].forEach((row, ay) => [...row].forEach((ch, ax) => ch === '#' && k.px(ix + ax, py + 15 + ay, '#c9a060')));
+    const dates = '1881-193', dx0 = x - Math.floor((P.textWidth(dates) + 8) / 2), ix = dx0 + P.textWidth(dates) + 1; k.text(dates, dx0, py + 25, '#c9a060');
+    ['.#...#.', '#.#.#.#', '#..#..#', '#.#.#.#', '.#...#.'].forEach((row, ay) => [...row].forEach((ch, ax) => ch === '#' && k.px(ix + ax, py + 25 + ay, '#c9a060')));
     // Laurel relief on the die, either side of the panel.
-    for (const s of [-1, 1]) for (let i = 0; i < 5; i++) { const lx = x + s * 35, ly = y - 44 + i * 5; k.px(lx, ly, M[1]); k.px(lx - s, ly + 1, M[4]); k.px(lx + s, ly + 2, M[1]); }
+    for (const s of [-1, 1]) for (let i = 0; i < 6; i++) { const lx = x + s * 52, ly = y - 71 + i * 7; k.px(lx, ly, M[1]); k.px(lx - s, ly + 1, M[4]); k.px(lx + s, ly + 2, M[1]); k.px(lx, ly + 3, M[1]); k.px(lx - s, ly + 4, M[4]); }
     // Cornice: a projecting slab with a shadowed underside and a lit top on which the horse stands.
-    k.rect(x - 42, y - 54, 84, 2, M[0]);
-    block(k, x - 44, y - 55, 88, 5, 0);
-    block(k, x - 40, y - 60, 80, 3, 7);
+    k.rect(x - 63, y - 82, 126, 3, M[0]);
+    block(k, x - 66, y - 82, 132, 8, 0);
+    block(k, x - 60, y - 90, 120, 4, 10);
   }
 
   return {
-    // (x, y) = centre of the pedestal's front edge on the ground. Art spans x -60..60, y -154..6.
+    // (x, y) = centre of the pedestal's front edge on the ground. Art spans x -100..126, y -244..10.
     draw(k, x, y) {
       if (!sprite) sprite = sculpt();
       // Cast shadow to the bottom right.
-      k.alpha(.28, () => { k.poly([[x + 55, y - 2], [x + 80, y - 14], [x + 84, y - 4], [x + 60, y + 7]], '#1d2a22'); k.ellipse(x + 8, y + 3, 60, 5, '#1d2a22'); });
+      k.alpha(.28, () => { k.poly([[x + 82, y - 3], [x + 120, y - 21], [x + 126, y - 6], [x + 90, y + 10]], '#1d2a22'); k.ellipse(x + 12, y + 4, 90, 7, '#1d2a22'); });
       pedestal(k, x, y);
-      // Hooves on the top surface (y - 64 is its back edge; stand a little forward of it).
-      k.c.drawImage(sprite, Math.round(x - 66 - 1), Math.round(y - 67 - 96 - 1));
+      // Hooves on the top surface (y - 104 is its back edge; stand a little forward of it).
+      k.c.drawImage(sprite, Math.round(x - 66 * K - 1), Math.round(y - 99 - 96 * K - 1));
     },
     sprite: () => sprite || (sprite = sculpt())
   };

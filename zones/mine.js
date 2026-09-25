@@ -168,13 +168,15 @@ window.ZoneDesigns.mine = (() => {
       oreHeap(k, 156, 50, 14, 6, ORE.coal, 12); Props.barrel(k, 176, 38); k.line(164, 44, 170, 34, C.wood3); k.rect(168, 32, 5, 3, C.stone2);
 
       /* ---- Quarry block yard with a timber derrick ---- */
+      k.at(22, 0, () => {   // kept inside the hexagon's cut corner
       k.rect(-186, 60, 70, 70, '#9a8a74'); k.dither(-186, 60, 70, 70, C.stone3, 1);
-      block(k, -182, 128, 16, 9); block(k, -164, 128, 14, 9); block(k, -180, 116, 14, 8); block(k, -148, 126, 12, 8); block(k, -140, 104, 14, 9); block(k, -124, 126, 8, 6);
+      block(k, -174, 128, 16, 9); block(k, -164, 128, 14, 9); block(k, -180, 116, 14, 8); block(k, -148, 126, 12, 8); block(k, -140, 104, 14, 9); block(k, -124, 126, 8, 6);
       for (let i = 0; i < 16; i++) k.px(-184 + P.hash(i, 51) * 66, 64 + P.hash(i, 52) * 60, i % 2 ? C.stone4 : C.stone1);
       k.rect(-172, 52, 3, 50, C.wood1); k.rect(-172, 52, 1, 50, C.wood3); k.line(-170, 56, -130, 70, C.wood2, 2); k.line(-170, 56, -130, 70, C.wood4, 1);
       k.line(-172, 52, -186, 100, C.wood1); k.line(-170, 52, -156, 100, C.wood1); k.rect(-175, 96, 10, 5, C.wood2);
       k.rect(-131, 70, 1, 14, C.stone0); block(k, -136, 92, 11, 6, 3);
       k.rect(-176, 88, 7, 7, C.wood0); k.circle(-173, 91, 3, C.wood2); k.px(-173, 91, C.stone3);
+      });
 
       /* ---- Lamp house and miners' bench ---- */
       Props.building(k, -102, 106, { w: 50, h: 26, roofH: 14, roof: C.terra1, wall: C.plaster1, mat: 'timber', windows: [{ x: 6, y: 7, w: 8, h: 8 }, { x: 36, y: 7, w: 8, h: 8 }], door: { x: 20, w: 10, h: 14, color: C.teal1 }, sign: { x: 38, y: -2, text: 'LAMP', color: C.teal1 } });

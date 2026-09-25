@@ -6,18 +6,18 @@ window.ZoneDesigns.kole = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
   const LEAD = { x: -98, y: -2 };                   // hammering at the anvil in the forge yard
   const ANVIL = { x: -76, y: -6 };
-  const WHEEL = { x: -172, y: -70, r: 17 };
+  const WHEEL = { x: -162, y: -68, r: 17 };
   const FORGE = { x: -150, y: -48, w: 92, h: 44 };
   const MOUTH = { x: -142, y: -82, w: 38, h: 34 };  // open forge front
   const HOIST = { x: 34, y: -60 };
-  const GRIND = { x: 150, y: -64 };
+  const GRIND = { x: 144, y: -64 };
   const REST = { x: -22, y: 84 };                   // the lead dozes by the bunkhouse when off
   const BH = { x0: -190, x1: -46, y0: 34, y1: 134 }; // cutaway bunkhouse interior
   const PG = { x0: 44, x1: 190, y0: 30, y1: 138 };   // dining pergola
-  const BEDS = [[-184, 36], [-157, 36], [-130, 36], [-103, 36], [-76, 36], [-184, 100], [-157, 100], [-130, 100]];
+  const BEDS = [[-172, 36], [-148, 36], [-124, 36], [-100, 36], [-76, 36], [-146, 100], [-122, 100]];   // seven bunks inside the hexagon's slanted wall
   const BLANKET = ['#6a7ab0', '#a85a6a', '#5a8a5a', '#c8a04a', '#8a6a9a', '#6a8a9a', '#b8683a', '#5a6a8a'];
   const ROUTE = [[30, -22], [6, 22], [2, 90], [0, 146]];   // tool rack -> south exit
-  const SLEEPERS = { working: [2], idle: [0, 3, 6], waiting: [1, 4], error: [5], off: [0, 1, 2, 3, 4, 5, 6, 7] };
+  const SLEEPERS = { working: [2], idle: [0, 3, 6], waiting: [1, 4], error: [5], off: [0, 1, 2, 3, 4, 5, 6] };
 
   // Cached water-wheel frames (6 spokes, 12 paddles; 8 frames cover one 60° step).
   const wheel = f => P.sprite(`kole|wheel|${f}`, 42, 42, 21, 21, q => {
@@ -199,17 +199,19 @@ window.ZoneDesigns.kole = (() => {
 
       /* ---- Flume and water wheel (top left) ---- */
       // Stone wheel pit with a pool that spills away to the west.
+      k.at(10, 0, () => {   // under the wheel, moved in from the hexagon edge
       k.rect(-194, -56, 44, 14, C.stone1); k.rect(-192, -54, 40, 10, C.water1); k.rect(-192, -54, 40, 2, C.water0); k.dither(-192, -50, 40, 6, C.water2, 1);
       k.rect(-194, -58, 44, 3, C.stone3); k.rect(-194, -58, 44, 1, C.stone4); for (let x = -194; x < -150; x += 6) k.px(x, -57, C.stone1);
       k.rect(-194, -43, 44, 3, C.stone2); k.rect(-194, -43, 44, 1, C.stone4);
+      });
       // Wooden flume on trestles from the upland stream to the top of the wheel.
       k.poly([[-195, -148], [-184, -150], [-180, -138], [-195, -134]], C.water1); k.ditherPoly([[-195, -148], [-184, -150], [-180, -138], [-195, -134]], C.water3, 1);
       for (const [x, y, h] of [[-189, -126, 30], [-181, -106, 16]]) { k.rect(x, y, 2, h, C.wood1); k.rect(x, y, 1, h, C.wood3); k.rect(x + 7, y + 2, 2, h - 2, C.wood0); k.line(x + 1, y + h, x + 8, y + 3, C.wood1); k.rect(x - 1, y + h, 11, 2, C.stone2); k.rect(x - 1, y, 11, 2, C.wood2); }
-      k.poly([[-193, -140], [-183, -140], [-166, -90], [-176, -90]], C.wood1); k.poly([[-192, -141], [-184, -141], [-168, -92], [-175, -92]], C.wood3);
-      k.poly([[-190, -141], [-185, -141], [-170, -93], [-174, -93]], C.water2); k.line(-188, -141, -172, -93, C.water4);
+      k.poly([[-193, -140], [-183, -140], [-156, -88], [-166, -88]], C.wood1); k.poly([[-192, -141], [-184, -141], [-158, -90], [-165, -90]], C.wood3);
+      k.poly([[-190, -141], [-185, -141], [-160, -91], [-164, -91]], C.water2); k.line(-188, -141, -162, -91, C.water4);
       for (let i = 0; i < 5; i++) { const y = -134 + i * 10; k.line(-193 + i * 3.4, y, -183 + i * 3.4, y, C.wood0); }
       // Axle shaft into the forge wall, with a bearing block.
-      k.rect(-172, -72, 22, 4, C.wood1); k.rect(-172, -72, 22, 1, C.wood3); k.rect(-156, -76, 6, 10, C.stone2); k.rect(-156, -76, 6, 2, C.stone4);
+      k.rect(-162, -70, 12, 4, C.wood1); k.rect(-162, -70, 12, 1, C.wood3); k.rect(-156, -76, 6, 10, C.stone2); k.rect(-156, -76, 6, 2, C.stone4);
 
       /* ---- Forge hall (top left) ---- */
       const fb = Props.building(k, FORGE.x, FORGE.y, { w: FORGE.w, h: FORGE.h, roofH: 26, roof: C.slate2, wall: C.stone3, mat: 'stone', foundation: 5,
@@ -255,7 +257,7 @@ window.ZoneDesigns.kole = (() => {
       Props.tree(k, -14, -112, 'oak', 1, 2);
 
       /* ---- Repair shed (top right) ---- */
-      const sx0 = 62, sx1 = 190, sb = -50;
+      const sx0 = 52, sx1 = 160, sb = -50;   // kept inside the hexagon edge
       k.rect(sx0 + 4, sb, sx1 - sx0, 3, C.shadow);
       Props.planks(k, sx0, sb - 48, sx1 - sx0, 48, C.wood2);
       k.rect(sx0, sb - 48, sx1 - sx0, 48, '#00000030');
@@ -270,8 +272,8 @@ window.ZoneDesigns.kole = (() => {
       for (let i = 0; i < 5; i++) k.px(sx0 + 46 + i * 3, sb - 21, i % 2 ? C.slate3 : C.gold2);
       k.rect(sx0 + 14, sb - 5, 8, 5, C.wood3); k.rect(sx0 + 40, sb - 5, 10, 5, C.slate1);
       // A broken cart wheel leaning on the wall, and spare spokes.
-      k.ring(sx0 + 84, sb - 22, 11, 11, C.wood1); k.ring(sx0 + 84, sb - 22, 10, 10, C.wood3); for (let i = 0; i < 5; i++) { const a = i * 1.26 + .3; k.line(sx0 + 84, sb - 22, sx0 + 84 + Math.cos(a) * 9, sb - 22 + Math.sin(a) * 9, C.wood2); } k.circle(sx0 + 84, sb - 22, 2, C.slate2);
-      for (let i = 0; i < 4; i++) k.line(sx0 + 98 + i * 2, sb - 2, sx0 + 100 + i * 2, sb - 18, C.wood4);
+      k.ring(sx0 + 76, sb - 22, 11, 11, C.wood1); k.ring(sx0 + 76, sb - 22, 10, 10, C.wood3); for (let i = 0; i < 5; i++) { const a = i * 1.26 + .3; k.line(sx0 + 76, sb - 22, sx0 + 76 + Math.cos(a) * 9, sb - 22 + Math.sin(a) * 9, C.wood2); } k.circle(sx0 + 76, sb - 22, 2, C.slate2);
+      for (let i = 0; i < 4; i++) k.line(sx0 + 100 + i * 2, sb - 2, sx0 + 102 + i * 2, sb - 18, C.wood4);
       // Grindstone frame (the stone spins in animate).
       k.rect(GRIND.x - 8, GRIND.y + 2, 2, 12, C.wood1); k.rect(GRIND.x + 6, GRIND.y + 2, 2, 12, C.wood1); k.rect(GRIND.x - 8, GRIND.y + 8, 16, 2, C.wood2); k.rect(GRIND.x - 6, GRIND.y + 7, 12, 4, C.water1);
       // Shed roof slab and posts.
@@ -279,7 +281,7 @@ window.ZoneDesigns.kole = (() => {
       for (let x = sx0 - 4; x < sx1 + 2; x += 5) { k.rect(x, sb - 64, 3, 14, C.terra2); k.px(x, sb - 64, C.terra4); k.px(x + 1, sb - 58, C.terra3); }
       k.rect(sx0 - 4, sb - 64, sx1 - sx0 + 6, 1, C.terra4); k.rect(sx0 - 4, sb - 50, sx1 - sx0 + 6, 2, C.terra0);
       for (const x of [sx0 - 2, sx0 + 70, sx1 - 3]) { k.rect(x, sb - 48, 3, 48, C.wood2); k.rect(x, sb - 48, 1, 48, C.wood4); k.rect(x + 2, sb - 48, 1, 48, C.wood0); }
-      Props.hangingSign(k, sx0 + 106, sb - 48, 'FIX', C.teal1);
+      Props.hangingSign(k, sx0 + 88, sb - 48, 'FIX', C.teal1);
       
       // Tool rack for the field crews, by the road.
       k.rect(22, -42, 34, 3, C.wood2); k.rect(22, -42, 34, 1, C.wood4); for (const x of [22, 53]) k.rect(x, -42, 3, 16, C.wood1);
@@ -311,6 +313,8 @@ window.ZoneDesigns.kole = (() => {
       k.rect(BH.x0, BH.y0, BH.x1 - BH.x0, 3, '#00000030');
       for (const x of [BH.x0 - 5, BH.x1]) { k.rect(x, 12, 5, BH.y1 - 8, C.plaster1); k.rect(x, 12, 5, 1, C.plaster3); k.rect(x + 1, 13, 3, BH.y1 - 10, C.plaster3); k.rect(x, 12, 1, BH.y1 - 8, C.plaster0); k.rect(x + 4, 12, 1, BH.y1 - 8, C.plaster0); }
       k.rect(BH.x1 + 5, 16, 3, BH.y1 - 6, C.shadow);
+      // The west wall runs along the hexagon's slanted edge (half-width 204 - 0.4 y below the side point).
+      for (let y = 12; y < BH.y1 + 8; y++) { const x = Math.round(-(204 - .4 * y)) + 1; k.rect(x, y, 6, 1, C.plaster1); k.px(x, y, C.plaster0); k.rect(x + 1, y, 3, 1, C.plaster3); k.px(x + 5, y, C.plaster0); k.px(x + 6, y, '#00000030'); }
       const door = [-84, -66];
       for (const [a, b] of [[BH.x0 - 5, door[0]], [door[1], BH.x1 + 5]]) { k.rect(a, BH.y1, b - a, 3, C.plaster3); k.rect(a, BH.y1 + 3, b - a, 5, C.plaster1); k.rect(a, BH.y1 + 3, b - a, 1, C.plaster0); for (let x = a + 6; x < b; x += 14) k.rect(x, BH.y1 + 3, 2, 5, C.wood1); k.rect(a, BH.y1 + 8, b - a, 2, C.stone2); }
       k.rect(door[0], BH.y1 + 2, door[1] - door[0], 8, C.wood2); k.rect(door[0], BH.y1 + 2, door[1] - door[0], 1, C.wood4);
@@ -325,12 +329,12 @@ window.ZoneDesigns.kole = (() => {
         k.rect(x, y + 24, 18, 3, C.wood2); k.rect(x, y + 24, 18, 1, C.wood4);
       });
       // Foot lockers, boots, a stove with pipe, a table and a rag rug in the aisle.
-      for (let i = 0; i < 5; i++) { const x = -182 + i * 27; k.rect(x, 66, 14, 6, C.wood2); k.rect(x, 66, 14, 1, C.wood4); k.px(x + 7, 68, C.gold2); if (i % 2) { k.rect(x + 16, 68, 2, 3, C.wood0); k.rect(x + 19, 69, 2, 2, C.wood0); } }
+      for (let i = 0; i < 5; i++) { const x = -170 + i * 24; k.rect(x, 66, 14, 6, C.wood2); k.rect(x, 66, 14, 1, C.wood4); k.px(x + 7, 68, C.gold2); if (i % 2) { k.rect(x + 16, 68, 2, 3, C.wood0); k.rect(x + 19, 69, 2, 2, C.wood0); } }
       k.ellipse(-130, 86, 30, 6, '#8a4a3a'); k.ring(-130, 86, 26, 5, C.gold1); k.ring(-130, 86, 20, 4, '#6a7ab0'); k.ellipse(-130, 86, 12, 2, '#a85a6a');
       Props.table(k, -118, 94, 16, 8, C.wood3); k.rect(-112, 82, 3, 4, C.paper); k.px(-111, 81, C.gold3);
       k.rect(-98, 96, 20, 22, C.stone1); k.rect(-98, 96, 20, 3, C.stone3); k.rect(-94, 104, 12, 8, '#2a1a14'); k.rect(-90, 80, 4, 16, C.slate1); k.rect(-90, 80, 1, 16, C.slate3);
       k.rect(-72, 100, 18, 30, C.wood1); k.rect(-71, 101, 16, 28, C.wood2); k.rect(-64, 101, 1, 28, C.wood1); k.px(-66, 114, C.gold3); k.px(-62, 114, C.gold3);
-      for (let i = 0; i < 3; i++) { k.rect(-178 + i * 27, 128, 3, 3, C.wood0); k.rect(-174 + i * 27, 129, 3, 2, C.wood0); }
+      for (let i = 0; i < 2; i++) { k.rect(-142 + i * 24, 128, 3, 3, C.wood0); k.rect(-138 + i * 24, 129, 3, 2, C.wood0); }
 
       /* ---- Water pump and noticeboard between the quarters ---- */
       k.rect(-38, 30, 10, 6, C.stone2); k.rect(-38, 30, 10, 1, C.stone4); k.rect(-37, 31, 8, 3, C.water2);
@@ -351,21 +355,21 @@ window.ZoneDesigns.kole = (() => {
       k.rect(52, 22, 56, 30, C.wood1); k.rect(53, 23, 54, 28, C.wood3);
       for (let r = 0; r < 3; r++) { k.rect(53, 31 + r * 8, 54, 2, C.wood1); for (let i = 0; i < 9; i++) { const x = 56 + i * 6; if (r === 2) { k.rect(x, 43 + 2, 4, 3, i % 2 ? C.terra2 : C.stone4); k.px(x, 45, C.white); } else { k.ellipse(x + 2, 27 + r * 8, 2, 3, i % 3 ? C.stone5 : '#8fb0d8'); k.px(x + 1, 25 + r * 8, C.white); } } }
       k.rect(52, 52, 56, 2, C.shadow);
-      k.rect(146, 22, 40, 32, C.terra1); k.rect(146, 22, 40, 3, C.terra3); for (let y = 27; y < 54; y += 4) { k.rect(146, y, 40, 1, C.terra0); k.px(150 + (y % 8 ? 0 : 6), y + 2, C.terra0); }
-      k.rect(152, 36, 12, 12, '#2a1a14'); k.rect(151, 35, 14, 1, C.stone2); k.rect(168, 16, 6, 10, C.slate1); k.rect(168, 16, 2, 10, C.slate3); k.rect(167, 14, 8, 2, C.slate2);
-      k.ellipse(176, 24, 8, 3, C.slate0); k.ellipse(176, 23, 6, 2, '#b8683a'); k.rect(170, 24, 12, 5, C.slate0); k.rect(170, 24, 2, 5, C.slate2);
+      k.rect(142, 22, 38, 32, C.terra1); k.rect(142, 22, 38, 3, C.terra3); for (let y = 27; y < 54; y += 4) { k.rect(142, y, 38, 1, C.terra0); k.px(146 + (y % 8 ? 0 : 6), y + 2, C.terra0); }
+      k.rect(148, 36, 12, 12, '#2a1a14'); k.rect(147, 35, 14, 1, C.stone2); k.rect(162, 16, 6, 10, C.slate1); k.rect(162, 16, 2, 10, C.slate3); k.rect(161, 14, 8, 2, C.slate2);
+      k.ellipse(170, 24, 8, 3, C.slate0); k.ellipse(170, 23, 6, 2, '#b8683a'); k.rect(164, 24, 12, 5, C.slate0); k.rect(164, 24, 2, 5, C.slate2);
       k.rect(112, 38, 30, 6, C.wood4); k.rect(112, 38, 30, 1, C.wood5); k.rect(114, 44, 2, 8, C.wood1); k.rect(138, 44, 2, 8, C.wood1);
       k.circle(120, 36, 3, '#d8a86a'); k.px(119, 35, C.wood5); k.rect(126, 34, 6, 4, C.leaf3); k.px(127, 33, C.leaf4); k.rect(134, 33, 4, 5, C.stone3);
       Props.barrel(k, 108, 50);
       // Front bench (empty) in front of the long table.
-      Props.bench(k, 64, 112, 100);
-      // Pergola posts, back beam and vines.
-      for (const [x, y] of [[PG.x0, PG.y0 + 14], [PG.x1 - 3, PG.y0 + 14], [PG.x0, PG.y1], [PG.x1 - 3, PG.y1]]) { k.rect(x, y - 38, 4, 38, C.wood2); k.rect(x, y - 38, 1, 38, C.wood4); k.rect(x + 3, y - 38, 1, 38, C.wood0); k.rect(x - 1, y - 2, 6, 2, C.stone2); }
+      Props.bench(k, 64, 112, 90);
+      // Pergola posts, back beam and vines (the front-right post stands on the hexagon edge).
+      for (const [x, y] of [[PG.x0, PG.y0 + 14], [PG.x1 - 9, PG.y0 + 14], [PG.x0, PG.y1], [140, PG.y1]]) { k.rect(x, y - 38, 4, 38, C.wood2); k.rect(x, y - 38, 1, 38, C.wood4); k.rect(x + 3, y - 38, 1, 38, C.wood0); k.rect(x - 1, y - 2, 6, 2, C.stone2); }
       k.rect(PG.x0 - 4, PG.y0 - 26, PG.x1 - PG.x0 + 8, 4, C.wood3); k.rect(PG.x0 - 4, PG.y0 - 26, PG.x1 - PG.x0 + 8, 1, C.wood5); k.rect(PG.x0 - 4, PG.y0 - 22, PG.x1 - PG.x0 + 8, 1, C.wood0);
       for (let x = PG.x0 - 2; x < PG.x1 + 4; x += 10) { k.rect(x, PG.y0 - 29, 3, 3, C.wood3); k.px(x, PG.y0 - 29, C.wood5); }
       for (let i = 0; i < 30; i++) { const x = PG.x0 - 2 + i * 5, y = PG.y0 - 24 + Math.round(Math.sin(i * 1.7) * 2); k.rect(x, y, 3, 2, i % 3 ? C.leaf2 : C.leaf3); if (i % 4 === 0) k.rect(x + 1, y + 2, 1, 3 + (i % 3), C.leaf1); if (i % 7 === 3) k.px(x + 1, y, '#e98aa0'); }
-      for (const x of [PG.x0 + 1, PG.x1 - 2]) for (let y = PG.y0 - 18; y < PG.y1 - 4; y += 5) k.px(x + (y % 2), y, y % 3 ? C.leaf2 : C.leaf4);
-      Props.flowerBed(k, 50, 142, 44, 7, ['#f2c14e', '#e46c52', '#f6ecd0'], 11); Props.flowerBed(k, 140, 142, 44, 7, ['#c3a2c0', '#f2c14e', '#f6ecd0'], 12);
+      for (const [x, y1] of [[PG.x0 + 1, PG.y1 - 4], [PG.x1 - 8, PG.y0 + 10]]) for (let y = PG.y0 - 18; y < y1; y += 5) k.px(x + (y % 2), y, y % 3 ? C.leaf2 : C.leaf4);
+      Props.flowerBed(k, 50, 142, 44, 7, ['#f2c14e', '#e46c52', '#f6ecd0'], 11); Props.flowerBed(k, 98, 142, 40, 7, ['#c3a2c0', '#f2c14e', '#f6ecd0'], 12);
 
       /* ---- Trees and margins ---- */
       Props.tree(k, 186, -126, 'oak', 1, 1); Props.tree(k, 120, -126, 'dark', 0, 2); Props.tree(k, -50, -120, 'pine', 0, 1);
@@ -388,15 +392,15 @@ window.ZoneDesigns.kole = (() => {
 
       /* Flume water and the wheel: turning while working, still when idle, jammed when broken. */
       const flow = run ? 1 : idle || wait ? .35 : err ? .6 : 0;
-      if (flow) { for (let i = 0; i < 4; i++) { const p = (t * .9 * flow + i / 4) % 1; k.px(-188 + p * 15, -139 + p * 45, C.water5); } }
+      if (flow) { for (let i = 0; i < 4; i++) { const p = (t * .9 * flow + i / 4) % 1; k.px(-188 + p * 25, -139 + p * 47, C.water5); } }
       const wf = run ? Math.floor(t * 10) % 8 : err ? Math.floor(t * 6) % 2 : 0;
       k.blit(wheel(wf), WHEEL.x, WHEEL.y);
       if (err) { k.line(WHEEL.x - 4, WHEEL.y - 12, WHEEL.x + 6, WHEEL.y - 20, C.wood0, 2); if (Math.floor(t * 3) % 2) k.rect(WHEEL.x - 2, WHEEL.y - 30, 4, 4, C.error); }
       if (flow) {
         const n = run ? 6 : 3;
-        for (let i = 0; i < n; i++) { const p = (t * 1.6 + i / n) % 1; k.rect(-170 + (err ? p * 12 : p * 3), -92 + p * (err ? 40 : 14), 2, 2, i % 2 ? C.water4 : C.foam); }
+        for (let i = 0; i < n; i++) { const p = (t * 1.6 + i / n) % 1; k.rect(-160 + (err ? p * 12 : p * 3), -90 + p * (err ? 40 : 14), 2, 2, i % 2 ? C.water4 : C.foam); }
         if (run) for (let i = 0; i < 3; i++) { const q = (t * 1.2 + i / 3) % 1; k.alpha(1 - q, () => k.ring(WHEEL.x + 4, -50, 3 + q * 8, 1 + q * 2, C.foam)); }
-        if (err) k.ellipse(-150, -40, 8, 2, C.water3);
+        if (err) k.ellipse(-140, -40, 8, 2, C.water3);
       }
 
       /* Forge mouth: roaring, banked, flaring or cold. */
@@ -437,9 +441,9 @@ window.ZoneDesigns.kole = (() => {
       });
 
       /* Kitchen: stew steam and stove glow; lamps and string lights. */
-      if (live && !err) { k.rect(153, 44, 10, 3, run ? C.gold2 : C.red1); Props.smoke(k, 176, 20, t * (run ? 1 : .5), run ? 3 : 2, '#eef0ee'); }
-      if (live) Props.smoke(k, 171, 12, t * .6, run ? 3 : 1, err ? '#4a4642' : '#cfcac2');
-      if (live) { k.line(PG.x0 + 2, PG.y1 - 36, PG.x1 - 2, PG.y1 - 36, C.ink); for (let i = 0; i < 10; i++) { const x = PG.x0 + 8 + i * 14; k.rect(x, PG.y1 - 35 + (i % 2), 2, 2, (!err || Math.floor(t * 4 + i) % 2) ? (i % 3 ? C.glassLit : '#ffb870') : C.glassDark); } }
+      if (live && !err) { k.rect(149, 44, 10, 3, run ? C.gold2 : C.red1); Props.smoke(k, 170, 20, t * (run ? 1 : .5), run ? 3 : 2, '#eef0ee'); }
+      if (live) Props.smoke(k, 165, 12, t * .6, run ? 3 : 1, err ? '#4a4642' : '#cfcac2');
+      if (live) { k.line(PG.x0 + 2, PG.y1 - 36, 160, PG.y1 - 36, C.ink); for (let i = 0; i < 8; i++) { const x = PG.x0 + 8 + i * 14; k.rect(x, PG.y1 - 35 + (i % 2), 2, 2, (!err || Math.floor(t * 4 + i) % 2) ? (i % 3 ? C.glassLit : '#ffb870') : C.glassDark); } }
       for (const [x, y] of [[26, 128], [-34, 50]]) k.rect(x - 1, y - 20, 4, 3, live && !run ? C.glassLit : live ? S(C.glassLit, -.2) : C.glassDark);
 
       /* Status lamp on the forge corner and the waiting pile. */

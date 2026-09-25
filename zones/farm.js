@@ -5,10 +5,10 @@ window.ZoneDesigns.farm = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
   const MILL = { x: -40, y: -46, hub: -102 };      // windmill base centre and sail hub height
   const WHEAT = { x: -176, y: 2, w: 158, h: 34 };  // ripe wheat field (animated sway)
-  const PEN = { x0: -182, x1: -64, y0: 54, y1: 132 };
+  const PEN = { x0: -150, x1: -64, y0: 54, y1: 132 };
   const CARTP = { x: 26, y: 106 };
-  const SHEEP = [[-146, 74], [-120, 98], [-96, 76], [-138, 120], [-86, 112]];
-  const HENS = [[-160, 104], [-150, 116], [-110, 122], [-100, 90], [-128, 84]];
+  const SHEEP = [[-110, 74], [-120, 98], [-96, 76], [-138, 120], [-86, 112]];
+  const HENS = [[-136, 104], [-128, 118], [-110, 122], [-100, 90], [-128, 84]];
   const straw = look => ({ look, hat: 'straw' });
   const RED = ['#5e1c18', '#86281f', '#a8382c', '#c4533e'];
 
@@ -68,18 +68,18 @@ window.ZoneDesigns.farm = (() => {
       for (let i = 0; i < 22; i++) { const x = -12 + P.hash(i, 7) * 24, y = -40 + P.hash(i, 8) * 84; k.px(x, y, C.dirt4); }
 
       /* ---- Red barn with hayloft and silo ---- */
-      const bx = -186, by = -44, bw = 80;
+      const bx = -162, by = -44, bw = 60;   // narrowed to clear the hexagon edge
       Props.building(k, bx, by, { w: bw, h: 42, roofH: 28, roof: C.slate1, wall: RED[2], mat: 'planks', foundation: 4 });
       for (let x = bx + 3; x < bx + bw - 2; x += 4) k.rect(x, by - 40, 1, 36, RED[1]);
       k.rect(bx, by - 42, bw, 2, C.paper); k.rect(bx, by - 42, 2, 38, C.paper); k.rect(bx + bw - 2, by - 42, 2, 38, C.paper2);
       // Big double door with white X braces.
-      const dx = bx + 26, dw = 28, dh = 26; k.rect(dx - 2, by - dh - 2, dw + 4, dh + 2, C.paper); k.rect(dx, by - dh, dw, dh, RED[1]);
+      const dx = bx + 16, dw = 28, dh = 26; k.rect(dx - 2, by - dh - 2, dw + 4, dh + 2, C.paper); k.rect(dx, by - dh, dw, dh, RED[1]);
       for (const x0 of [dx, dx + dw / 2]) { k.rect(x0, by - dh, 1, dh, C.paper2); k.line(x0 + 1, by - dh + 1, x0 + dw / 2 - 2, by - 2, C.paper); k.line(x0 + dw / 2 - 2, by - dh + 1, x0 + 1, by - 2, C.paper); k.rect(x0, by - dh / 2 - 1, dw / 2, 1, C.paper); }
       k.rect(dx + dw / 2, by - dh, 1, dh, RED[0]); k.rect(dx - 3, by, dw + 6, 2, C.stone3);
       // Hayloft door, pulley beam and hay spilling out.
       k.rect(dx + 7, by - 40, 14, 10, C.paper); k.rect(dx + 8, by - 39, 12, 9, '#3a2418'); k.rect(dx + 8, by - 33, 12, 3, C.gold2); k.px(dx + 10, by - 34, C.gold3); k.px(dx + 15, by - 34, C.gold3);
       k.rect(dx + 12, by - 48, 3, 8, C.wood1); k.rect(dx + 12, by - 44, 8, 2, C.wood2); k.rect(dx + 18, by - 42, 1, 6, C.stone1); k.rect(dx + 17, by - 36, 3, 2, C.stone2);
-      Props.window(k, bx + 8, by - 30, 8, 8, { frame: C.paper }); Props.window(k, bx + 64, by - 30, 8, 8, { frame: C.paper });
+      Props.window(k, bx + 4, by - 30, 8, 8, { frame: C.paper }); Props.window(k, bx + 48, by - 30, 8, 8, { frame: C.paper });
       // Silo: banded cylinder with a dome cap.
       const sx = -102, sw = 22, stop = -98;
       k.rect(sx + sw, stop + 4, 5, -44 - stop - 4, C.shadowSoft);
@@ -146,9 +146,9 @@ window.ZoneDesigns.farm = (() => {
       /* ---- Paddock with coop, trough and animals ---- */
       k.rect(PEN.x0, PEN.y0, PEN.x1 - PEN.x0, PEN.y1 - PEN.y0, C.grass3); k.dither(PEN.x0, PEN.y0, PEN.x1 - PEN.x0, PEN.y1 - PEN.y0, C.grass4, 1);
       for (let i = 0; i < 18; i++) Props.tuft(k, PEN.x0 + 4 + P.hash(i, 71) * 110, PEN.y0 + 6 + P.hash(i, 72) * 70, C.grass1, C.grass5);
-      k.ellipse(-150, 112, 14, 6, C.dirt2); k.dither(-164, 106, 28, 12, C.dirt3, 1);
-      Props.building(k, -180, 96, { w: 30, h: 18, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 10, w: 8, h: 9, color: C.wood1, open: true }, foundation: 2 });
-      k.line(-166, 96, -160, 102, C.wood2, 2); for (let i = 0; i < 3; i++) k.rect(-165 + i * 2, 97 + i * 2, 1, 1, C.wood4);
+      k.ellipse(-126, 112, 14, 6, C.dirt2); k.dither(-140, 106, 28, 12, C.dirt3, 1);
+      Props.building(k, -146, 96, { w: 30, h: 18, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 10, w: 8, h: 9, color: C.wood1, open: true }, foundation: 2 });
+      k.line(-132, 96, -126, 102, C.wood2, 2); for (let i = 0; i < 3; i++) k.rect(-131 + i * 2, 97 + i * 2, 1, 1, C.wood4);
       k.rect(-100, 58, 22, 6, C.wood1); k.rect(-99, 59, 20, 3, C.water2); k.rect(-99, 59, 20, 1, C.water4); k.rect(-100, 64, 2, 2, C.wood0); k.rect(-80, 64, 2, 2, C.wood0);
       Props.fence(k, PEN.x0, PEN.y0, PEN.x1 - PEN.x0); Props.fence(k, PEN.x0, PEN.y1, PEN.x1 - PEN.x0);
       Props.fence(k, PEN.x0, PEN.y0, PEN.y1 - PEN.y0, true); Props.fence(k, PEN.x1, PEN.y0, 36, true); Props.fence(k, PEN.x1, PEN.y0 + 54, PEN.y1 - PEN.y0 - 54, true);
@@ -157,9 +157,9 @@ window.ZoneDesigns.farm = (() => {
       /* ---- Farmyard: well, hay bales, produce stand, cart ---- */
       Props.well(k, -36, 88);
       const bale = (x, y) => { k.rect(x + 2, y + 1, 14, 2, C.shadow); k.rect(x, y - 8, 14, 8, C.gold2); k.rect(x, y - 8, 14, 1, C.gold3); k.rect(x, y - 1, 14, 1, C.gold0); k.rect(x + 4, y - 8, 1, 8, C.gold1); k.rect(x + 9, y - 8, 1, 8, C.gold1); for (let i = 0; i < 4; i++) k.px(x + 1 + i * 3, y - 5 + (i % 2), C.gold4); };
-      for (const [x, y] of [[132, 128], [146, 128], [160, 128], [139, 120], [153, 120], [146, 112], [170, 104], [156, 96]]) bale(x, y);
+      for (const [x, y] of [[106, 128], [120, 128], [113, 120], [127, 120], [120, 112], [132, 104]]) bale(x, y);   // stacked inside the hexagon's cut corner
       const round = (x, y) => { k.ellipse(x + 2, y + 1, 9, 2, C.shadow); k.circle(x, y - 6, 7, C.gold1); k.circle(x - 1, y - 7, 5, C.gold2); k.ring(x - 1, y - 7, 3, 3, C.gold1); k.px(x - 3, y - 10, C.gold4); };
-      round(118, 96); round(176, 126); round(102, 84);
+      round(118, 96); round(150, 92); round(102, 84);
       Props.cart(k, CARTP.x, CARTP.y, (q, x, y) => { for (let i = 0; i < 3; i++) { q.circle(x + 5 + i * 6, y - 1, 3, i === 1 ? C.red2 : '#d8742a'); q.px(x + 4 + i * 6, y - 3, C.white); } q.ellipse(x + 11, y - 5, 4, 3, C.leaf2); q.px(x + 10, y - 7, C.leaf4); });
       for (let i = 0; i < 4; i++) { const x = 64 + (i % 2) * 11, y = 118 - Math.floor(i / 2) * 9; Props.crate(k, x, y, 10); for (let j = 0; j < 3; j++) k.circle(x + 2 + j * 3, y, 1, [C.red2, '#d8742a', C.leaf3, C.gold2][i]); }
       for (const [x, y, s] of [[92, 128, 4], [100, 124, 3], [86, 122, 3], [96, 118, 3]]) pumpkin(k, x, y, s);
@@ -171,15 +171,15 @@ window.ZoneDesigns.farm = (() => {
       for (let i = 0; i < 16; i++) Props.flower(k, -186 + P.hash(i, 81) * 372, -140 + P.hash(i, 82) * 12, ['#f2c14e', '#f6ecd0', '#e98aa0'][i % 3]);
       for (let i = 0; i < 20; i++) Props.tuft(k, -120 + P.hash(i, 91) * 240, -140 + P.hash(i, 92) * 20, C.grass1, C.grass4);
       // Back boundary: herb beds, a duck pond with reeds, hedges and a split-rail fence.
-      Props.fence(k, -186, -140, 150); Props.hedge(k, 120, -148, 66, 7);
-      Props.flowerBed(k, -184, -134, 40, 12, ['#c3a2c0', '#f6ecd0', C.leaf4], 3); Props.flowerBed(k, -138, -134, 30, 12, ['#f2c14e', '#e46c52', C.leaf4], 4);
+      Props.fence(k, -150, -140, 114); Props.hedge(k, 100, -148, 46, 7);
+      Props.flowerBed(k, -148, -134, 32, 12, ['#c3a2c0', '#f6ecd0', C.leaf4], 3); Props.flowerBed(k, -112, -134, 30, 12, ['#f2c14e', '#e46c52', C.leaf4], 4);
       Props.pond(k, 28, -128, 26, 9); k.rect(2, -120, 10, 2, C.wood2); k.rect(2, -120, 10, 1, C.wood4); for (const x of [3, 10]) k.rect(x, -118, 1, 4, C.wood1);
       for (let i = 0; i < 7; i++) { const x = -78 + i * 5; k.rect(x, -140, 1, 12, C.leaf1); k.line(x, -134, x + 2, -136, C.leaf3); k.circle(x, -142, 2, C.gold2); k.px(x, -142, C.wood1); }
       Props.tree(k, 76, -120, 'oak', 0, 2); Props.tree(k, 100, -116, 'birch', 0, 1); Props.bush(k, -94, -128, 2); Props.bush(k, 62, -136, 1);
       // Tool shed with hung hoes and watering cans in the east yard.
-      Props.building(k, 132, 80, { w: 48, h: 22, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 6, w: 12, h: 14, color: C.wood1, open: true }, windows: [{ x: 32, y: 6, w: 8, h: 7 }], foundation: 2 });
-      for (let i = 0; i < 3; i++) { k.rect(152 + i * 4, 62, 1, 14, C.wood4); k.rect(151 + i * 4, 75, 3, 2, C.stone2); }
-      k.rect(122, 72, 6, 5, '#6a8aa0'); k.line(128, 73, 131, 70, '#6a8aa0'); k.rect(122, 72, 6, 1, '#8aaac0');
+      Props.building(k, 122, 80, { w: 48, h: 22, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 6, w: 12, h: 14, color: C.wood1, open: true }, windows: [{ x: 32, y: 6, w: 8, h: 7 }], foundation: 2 });
+      for (let i = 0; i < 3; i++) { k.rect(142 + i * 4, 62, 1, 14, C.wood4); k.rect(141 + i * 4, 75, 3, 2, C.stone2); }
+      k.rect(112, 72, 6, 5, '#6a8aa0'); k.line(118, 73, 121, 70, '#6a8aa0'); k.rect(112, 72, 6, 1, '#8aaac0');
       { const x = 72, y = 70; k.ellipse(x + 8, y + 1, 11, 2, C.shadow); k.line(x + 12, y - 4, x + 22, y - 1, C.wood1, 2); k.poly([[x - 2, y - 9], [x + 14, y - 9], [x + 12, y - 2], [x + 1, y - 2]], C.wood2); k.rect(x - 1, y - 9, 15, 1, C.wood4); pumpkin(k, x + 3, y - 9, 3); pumpkin(k, x + 9, y - 10, 3); k.circle(x + 2, y - 1, 3, C.wood0); k.circle(x + 2, y - 1, 2, C.stone1); }
       k.ellipse(40, 66, 12, 5, C.dirt1); k.ellipse(39, 64, 9, 4, '#5a4a2a'); for (let i = 0; i < 8; i++) k.px(30 + P.hash(i, 5) * 18, 61 + P.hash(i, 6) * 6, i % 2 ? C.leaf3 : '#d8742a');
     },
@@ -239,7 +239,7 @@ window.ZoneDesigns.farm = (() => {
         if (z.detail) for (let i = 0; i < 5; i++) { const q2 = (t * 1.8 + i / 5) % 1; k.px(-106 + q2 * 10 + i, 90 + q2 * q2 * 12, C.gold3); }
       } else if (state === 'idle') {
         // Rest: crew sit on the hay bales and by the well; animals graze and butterflies drift.
-        z.crew(128, 108, { ...straw(0), anim: 'sit', phase: .1 }); z.crew(160, 112, { ...straw(1), anim: 'sit', facing: -1, phase: .5 });
+        z.crew(124, 108, { ...straw(0), anim: 'sit', phase: .1 }); z.crew(138, 100, { ...straw(1), anim: 'sit', facing: -1, phase: .5 });
         z.crew(-22, 96, { ...straw(2), anim: 'sit', facing: -1, phase: .3 }); z.crew(50, 36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, anim: 'idle', phase: .7 });
         z.crew(100, 94, { ...straw(3), anim: 'sit', phase: .2 }); z.crew(-112, 104, { ...straw(5), anim: 'idle', phase: .9 });
         if (z.detail) { Props.butterfly(k, -40 + Math.sin(t * .7) * 30, -20 + Math.cos(t * 1.3) * 8, t); Props.butterfly(k, 60 + Math.sin(t * .5 + 1) * 24, -40 + Math.sin(t * 1.1) * 6, t + 1, '#f6ecd0'); for (let i = 0; i < 2; i++) Props.bird(k, ((t * 14 + i * 150) % 360) - 180, -132 + i * 7, t + i); }
@@ -248,7 +248,7 @@ window.ZoneDesigns.farm = (() => {
         z.crew(-60, 34, { ...straw(2), anim: err ? 'cheer' : 'idle', phase: .3 }); z.crew(50, 36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, anim: 'idle', phase: .7 });
         z.crew(10, 98, { ...straw(3), anim: 'idle', facing: 1, phase: .2 }); z.crew(-50, 60, { ...straw(5), anim: err ? 'cheer' : 'idle', facing: -1, phase: .9 });
       } else {
-        z.crew(128, 108, { ...straw(0), phase: .1 }); z.crew(160, 112, { ...straw(1), facing: -1, phase: .5 }); z.crew(100, 94, { ...straw(3), phase: .2 });
+        z.crew(124, 108, { ...straw(0), phase: .1 }); z.crew(138, 100, { ...straw(1), facing: -1, phase: .5 }); z.crew(100, 94, { ...straw(3), phase: .2 });
         z.crew(-22, 96, { ...straw(2), facing: -1, phase: .3 }); z.crew(-166, -36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, phase: .7 }); z.crew(-118, -36, { ...straw(5), phase: .9 });
       }
     }

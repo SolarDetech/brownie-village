@@ -3,10 +3,10 @@
 <script src="engine/pixel.js"></script><script src="engine/props.js"></script><script src="engine/sculpt.js"></script><script src="characters.js"></script><script src="zones/ataturk.js"></script><script src="avatars.js"></script></head><body>
 <canvas id="c"></canvas><script>
 /* Dev harness: the statue and every avatar frame. ?scale=4 */
-const s = +(new URLSearchParams(location.search).get('scale') || 4), frames = ['stand0', 'stand1', 'walk0', 'walk1', 'walk2', 'walk3', 'lift'], W = 180 + frames.length * 52, H = 220, cv = document.getElementById('c');
+const s = +(new URLSearchParams(location.search).get('scale') || 4), frames = ['stand0', 'stand1', 'walk0', 'walk1', 'walk2', 'walk3', 'lift'], W = 340 + frames.length * 80, H = 330, cv = document.getElementById('c');
 cv.width = W * s; cv.height = H * s; const b = document.createElement('canvas'); b.width = W; b.height = H; const k = Pixel.kit(b.getContext('2d'));
-k.rect(0, 0, W, H, Pixel.C.grass3); AtaturkStatue.draw(k, 84, 196);
-['boss', 'princess'].forEach((kind, r) => frames.forEach((f, i) => { const x = 200 + i * 52, y = 100 + r * 108; k.ellipse(x + 2, y + 1, 14, 3, '#1d2a2255'); k.blit(Avatars.sprite(kind, f), x, y, false); }));
-AgentCharacters.lead(k, 'sekreter', 190, 196, 1, 'working', {});
+k.rect(0, 0, W, H, Pixel.C.grass3); AtaturkStatue.draw(k, 112, 306);
+['boss', 'princess'].forEach((kind, r) => frames.forEach((f, i) => { const x = 290 + i * 80, y = 150 + r * 160; k.ellipse(x + 3, y + 1, 21, 4, '#1d2a2255'); k.blit(Avatars.sprite(kind, f), x, y, false); }));
+AgentCharacters.lead(k, 'sekreter', W - 36, 306, 1, 'working', {});
 const o = cv.getContext('2d'); o.imageSmoothingEnabled = false; o.drawImage(b, 0, 0, W * s, H * s);
 </script></body></html>

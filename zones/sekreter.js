@@ -2,8 +2,7 @@
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.sekreter = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const LEAD = { x: -17, y: 46 };              // the butler & secretary pair, centred; the butler stands at the stamping desk
-  const DESK = LEAD.x + 9;                      // the butler's x (the desk sits just to his right)
+  const LEAD = { x: -8, y: 46 };               // the butler at his stamping desk
   const BELT = { x: 22, y: -12, w: 92 };        // sorting conveyor on the pavilion counter
   const envelope = (k, x, y, seal = C.red2) => { k.rect(x - 1, y - 1, 9, 7, C.ink); k.rect(x, y, 7, 5, C.paper); k.px(x + 1, y + 1, C.paper2); k.px(x + 5, y + 1, C.paper2); k.px(x + 2, y + 2, C.paper2); k.px(x + 4, y + 2, C.paper2); k.px(x + 3, y + 3, seal); };
   const pigeon = (k, x, y, t, fly) => {
@@ -102,7 +101,7 @@ window.ZoneDesigns.sekreter = (() => {
       else if (p < .97) { const q = (p - .64) / .33; x = sx + (dx - sx) * q; y = sy + (dy - sy) * q; pose = 'walk'; f = wf; flip = true; load = 'none'; }
       else { [x, y] = BUTLER.door; load = 'none'; }
       // Once served, the cup sits steaming on the Sekreter's desk until the next round.
-      if (p >= .64) { teacup(k, DESK + 20, LEAD.y - 18); steam(k, DESK + 21, LEAD.y - 20, t); }
+      if (p >= .64) { teacup(k, LEAD.x + 31, LEAD.y - 24); steam(k, LEAD.x + 32, LEAD.y - 26, t); }
     } else if (state === 'waiting') { [x, y] = BUTLER.wait; pose = 'front'; load = 'letter'; }
     else if (state === 'error') { [x, y] = BUTLER.err; pose = 'down'; load = 'none'; }
     else if (state === 'off') { [x, y] = BUTLER.chair; pose = 'sit'; load = 'none'; }
@@ -170,9 +169,9 @@ window.ZoneDesigns.sekreter = (() => {
       for (let i = 0; i < 4; i++) Props.sack(k, BELT.x + 8 + i * 22, 8, i % 2 ? '#c9b388' : '#b8a276');
 
       // Pigeon loft tower with landing rail and arched openings.
-      Props.building(k, 136, -30, { w: 42, h: 60, style: 'peak', roofH: 20, depth: 12, roof: C.slate2, wall: C.plaster1, mat: 'planks', door: { x: 16, w: 10, h: 14, color: C.wood3 } });
-      for (let r = 0; r < 2; r++) for (let i = 0; i < 3; i++) { const x = 141 + i * 12, y = -84 + r * 14; k.rect(x, y, 7, 8, C.wood0); k.rect(x + 1, y + 1, 5, 7, '#241a14'); k.rect(x - 1, y + 8, 9, 2, C.wood3); }
-      k.rect(132, -58, 50, 2, C.wood3); k.rect(132, -56, 50, 1, C.wood1);
+      Props.building(k, 128, -30, { w: 34, h: 60, style: 'peak', roofH: 20, depth: 12, roof: C.slate2, wall: C.plaster1, mat: 'planks', door: { x: 12, w: 10, h: 14, color: C.wood3 } });   // narrowed to clear the hexagon edge
+      for (let r = 0; r < 2; r++) for (let i = 0; i < 3; i++) { const x = 132 + i * 10, y = -84 + r * 14; k.rect(x, y, 7, 8, C.wood0); k.rect(x + 1, y + 1, 5, 7, '#241a14'); k.rect(x - 1, y + 8, 9, 2, C.wood3); }
+      k.rect(124, -58, 44, 2, C.wood3); k.rect(124, -56, 44, 1, C.wood1);
 
       // Courier yard: parked mail carts, a cart shed and a teal pillar letterbox.
       Props.cart(k, -170, 44, (q, x, y) => { q.rect(x + 2, y - 7, 18, 7, C.teal2); q.rect(x + 2, y - 7, 18, 1, C.teal3); q.rect(x + 8, y - 5, 6, 3, C.paper); });
@@ -182,10 +181,15 @@ window.ZoneDesigns.sekreter = (() => {
       k.ellipse(lb[0] + 5, lb[1] + 1, 7, 2, C.shadow); k.rect(lb[0], lb[1] - 22, 11, 22, C.teal1); k.rect(lb[0], lb[1] - 22, 2, 22, C.teal3); k.rect(lb[0] + 9, lb[1] - 22, 2, 22, C.teal0);
       k.ellipse(lb[0] + 5, lb[1] - 23, 6, 3, C.teal2); k.rect(lb[0] - 1, lb[1] - 23, 13, 2, C.gold2); k.rect(lb[0] + 2, lb[1] - 16, 7, 2, C.ink); k.rect(lb[0] + 3, lb[1] - 11, 5, 4, C.gold1); k.rect(lb[0] - 1, lb[1] - 1, 13, 2, C.stone2);
 
-      // The Sekreter's stamping desk: inkpad, ledgers and outgoing tray.
-      Props.table(k, DESK + 4, LEAD.y - 2, 26, 12, C.wood3);
-      k.rect(DESK + 16, LEAD.y - 17, 8, 3, C.wood1); k.rect(DESK + 17, LEAD.y - 17, 6, 1, C.red1);
-      k.rect(DESK + 25, LEAD.y - 19, 6, 5, C.wood2); for (let i = 0; i < 3; i++) k.rect(DESK + 25, LEAD.y - 20 - i, 6, 1, i % 2 ? C.paper : C.paper2);
+      // The Sekreter's stamping desk (sized for the 1.5× lead): inkpad, teacup spot and outgoing tray.
+      Props.table(k, LEAD.x + 6, LEAD.y - 2, 37, 18, C.wood3);
+      k.rect(LEAD.x + 22, LEAD.y - 23, 7, 3, C.wood1); k.rect(LEAD.x + 23, LEAD.y - 23, 5, 1, C.red1);
+      k.rect(LEAD.x + 35, LEAD.y - 25, 7, 5, C.wood2); for (let i = 0; i < 3; i++) k.rect(LEAD.x + 35, LEAD.y - 26 - i, 7, 1, i % 2 ? C.paper : C.paper2);
+      // Behind him, a side table with the salver of incoming letters he takes the next one from.
+      k.ellipse(LEAD.x - 16, LEAD.y - 1, 6, 2, C.shadow); k.rect(LEAD.x - 17, LEAD.y - 19, 2, 18, C.wood1); k.rect(LEAD.x - 20, LEAD.y - 2, 8, 2, C.wood1);
+      k.ellipse(LEAD.x - 16, LEAD.y - 20, 7, 2, C.wood2); k.ellipse(LEAD.x - 16, LEAD.y - 21, 7, 2, C.wood3); k.rect(LEAD.x - 21, LEAD.y - 23, 8, 1, C.wood4);
+      k.ellipse(LEAD.x - 16, LEAD.y - 23, 5, 1, '#9aa2ae'); k.rect(LEAD.x - 20, LEAD.y - 24, 9, 1, '#dde2e8');
+      for (let i = 0; i < 3; i++) { k.rect(LEAD.x - 19 + (i & 1), LEAD.y - 26 - i, 6, 2, i % 2 ? C.paper2 : C.paper); k.px(LEAD.x - 16 + (i & 1), LEAD.y - 26 - i, C.red2); }
 
       // Parcel depot: a notice board, weighing scale, stacked parcels and a wall of private post boxes.
       k.rect(96, 14, 34, 22, C.wood1); k.rect(97, 15, 32, 20, C.wood3); k.rect(97, 15, 32, 2, C.wood4); k.rect(99, 36, 2, 10, C.wood1); k.rect(125, 36, 2, 10, C.wood1);
@@ -204,9 +208,9 @@ window.ZoneDesigns.sekreter = (() => {
       k.ring(-30, 104, 4, 4, C.ink); k.ring(-16, 104, 4, 4, C.ink); k.line(-30, 104, -23, 97, C.teal2); k.line(-23, 97, -16, 104, C.teal2); k.line(-23, 97, -20, 104, C.teal2); k.line(-26, 96, -21, 96, C.ink); k.rect(-19, 94, 6, 4, C.wood3); k.rect(-18, 93, 4, 1, C.paper);
 
       // Waiting garden: hedges, flower beds, benches and shade trees at the corners.
-      Props.hedge(k, -184, 112, 70, 8); Props.hedge(k, 118, 110, 64, 8);
-      Props.flowerBed(k, -172, 124, 46, 12, ['#f2c14e', '#e46c52', '#f6ecd0'], 7);
-      Props.flowerBed(k, 126, 122, 46, 12, ['#c3a2c0', '#f6ecd0', '#e46c52'], 9);
+      Props.hedge(k, -156, 112, 44, 8); Props.hedge(k, 114, 110, 40, 8);
+      Props.flowerBed(k, -146, 124, 34, 12, ['#f2c14e', '#e46c52', '#f6ecd0'], 7);
+      Props.flowerBed(k, 116, 122, 32, 12, ['#c3a2c0', '#f6ecd0', '#e46c52'], 9);
       Props.bench(k, -110, 122, 18); Props.bench(k, 94, 120, 18);
       Props.lamp(k, -40, 118, true); Props.lamp(k, 28, 118, true);
       Props.tree(k, -186, -104, 'oak', 2, 1); Props.tree(k, 186, -118, 'blossom', 1, 2); Props.tree(k, -182, 144, 'oak', 1, 3); Props.tree(k, 188, 132, 'fruit', 1, 0);
@@ -237,7 +241,7 @@ window.ZoneDesigns.sekreter = (() => {
       if (run) for (let i = 0; i < 3; i++) {
         const p = (t * .12 + i / 3) % 1, out = i % 2, x = out ? 150 - p * 330 : -180 + p * 330, y = -60 - Math.sin(p * Math.PI) * 50 - i * 8;
         pigeon(k, x, y, t + i, true); if (!out) envelope(k, x - 3, y + 2);
-      } else for (let i = 0; i < 4; i++) pigeon(k, 136 + i * 11, -58, t, false);
+      } else for (let i = 0; i < 4; i++) pigeon(k, 128 + i * 10, -58, t, false);
 
       // Couriers walk the lane between the posthouse door and the letterbox.
       if (run) {
@@ -261,9 +265,9 @@ window.ZoneDesigns.sekreter = (() => {
       if (run) { const q = (t * .4) % 1, px = 124 - q * 18, py = 66 - Math.sin(q * Math.PI) * 10; Props.crate(k, px, py, 7); z.crew(114, 90, { look: 3, hat: 'cap', hatColor: C.teal2, anim: 'work', tool: 'pen', phase: .7 }); }
       else if (state === 'waiting') { for (let i = 0; i < 3; i++) Props.crate(k, 98 + i * 7, 52 - i * 2, 7); z.crew(114, 90, { look: 3, hat: 'cap', hatColor: C.teal2, anim: 'idle' }); }
 
-      // The footman serves tea from the posthouse door (drawn before the lead pair, who stand in front of him).
+      // The footman serves tea from the posthouse door (drawn before the lead, who stands in front of him).
       butler(k, t, state);
-      // The lead pair: the butler stamps at the desk while the secretary hands him letters; both doze in the garden when off.
+      // The lead: the butler stamps letters at the desk, and dozes in the garden when off.
       if (state === 'off') z.lead(96, 116, {}); else z.lead(LEAD.x, LEAD.y, {});
       // Posthouse chimney smoke and window glow follow the working state.
       if (live) Props.smoke(k, -57, -110, t * (run ? 1 : .5), run ? 4 : 2);

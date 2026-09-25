@@ -8,7 +8,7 @@ window.ZoneDesigns['text-writer'] = (() => {
   const LAMP = { x: 42, y: 60 };                               // signal lantern on its post
   const INK = '#2a2440', INKL = '#4a4060', VIOLET = '#5c5a8a';
   const BOOKS = [C.plum2, C.teal2, C.red1, C.gold1, C.slate2, VIOLET, C.wood2, C.leaf2, C.terra2, C.plum1];
-  const WIN = [[-172, -66], [-154, -66], [-98, -66], [-80, -66]];          // lodge windows (8 x 12)
+  const WIN = [[-154, -66], [-143, -66], [-98, -66], [-80, -66]];          // lodge windows (8 x 12)
   const LINE_A = [108, 118, 128, 152, 162, 172], LINE_B = [114, 124, 136, 156, 166, 176];
   const flagTex = base => (x, y) => {
     const r = Math.floor((y + 300) / 6), o = (r % 2) * 5, cx = (x + 300 + o) % 10, cy = (y + 300) % 6;
@@ -62,13 +62,13 @@ window.ZoneDesigns['text-writer'] = (() => {
       for (let i = 0; i < 14; i++) Props.flower(k, -180 + P.hash(i, 3) * 360, -146 + P.hash(i, 6) * 14, ['#e0cc92', '#c3a2c0', '#f6ecd0'][i % 3]);
 
       // Library lodge: stone hall, plum roof, arched windows and an open-book crest.
-      Props.building(k, -182, -30, { w: 120, h: 48, roofH: 30, roof: C.plum2, wall: C.stone3, mat: 'stone', windows: WIN.map(([x]) => ({ x: x + 182, y: 12, w: 8, h: 12, arch: true, frame: C.wood0 })), door: { x: 50, w: 20, h: 22, color: C.plum1, arch: true }, chimney: { x: 96, h: 12 } });
+      Props.building(k, -162, -30, { w: 100, h: 48, roofH: 30, roof: C.plum2, wall: C.stone3, mat: 'stone', windows: WIN.map(([x]) => ({ x: x + 162, y: 12, w: 8, h: 12, arch: true, frame: C.wood0 })), door: { x: 30, w: 20, h: 22, color: C.plum1, arch: true }, chimney: { x: 76, h: 12 } });   // narrowed to clear the hexagon edge
       k.rect(-123, -52, 1, 22, C.plum0);
       k.rect(-135, -75, 26, 16, C.gold1); k.rect(-134, -74, 24, 14, C.plum1);
       k.poly([[-132, -71], [-122, -69], [-122, -61], [-132, -63]], C.paper); k.poly([[-122, -69], [-112, -71], [-112, -63], [-122, -61]], C.paper2); k.rect(-122, -70, 1, 9, C.wood1);
       for (let i = 0; i < 3; i++) { k.rect(-130, -68 + i * 2, 6, 1, INKL); k.rect(-120, -68 + i * 2, 6, 1, INKL); }
       // Ivy climbing the lodge corners.
-      for (let i = 0; i < 26; i++) { const y = -32 - i * 2, x = -182 + Math.round(Math.sin(i * .7) * 2) + (i % 3); k.px(x, y, C.leaf1); k.px(x + 1, y - 1, i % 2 ? C.leaf3 : C.leaf2); if (i % 4 === 0) k.px(x + 2, y, C.leaf4); }
+      for (let i = 0; i < 26; i++) { const y = -32 - i * 2, x = -162 + Math.round(Math.sin(i * .7) * 2) + (i % 3); k.px(x, y, C.leaf1); k.px(x + 1, y - 1, i % 2 ? C.leaf3 : C.leaf2); if (i % 4 === 0) k.px(x + 2, y, C.leaf4); }
       for (let i = 0; i < 18; i++) { const y = -32 - i * 2, x = -64 - (i % 3) + Math.round(Math.sin(i) * 1); k.px(x, y, C.leaf1); k.px(x - 1, y - 1, C.leaf3); }
       // Door steps, planters and a manuscript cart by the lodge.
       k.rect(-136, -30, 28, 3, C.stone4); k.rect(-136, -28, 28, 1, C.stone1);
@@ -152,21 +152,21 @@ window.ZoneDesigns['text-writer'] = (() => {
       k.ellipse(FT.x, FT.y - 18, 9, 3, C.stone2); k.ellipse(FT.x, FT.y - 19, 9, 3, C.stone4); k.ellipse(FT.x, FT.y - 19, 7, 2, C.water3);
       k.rect(FT.x - 1, FT.y - 25, 3, 6, C.stone4); k.circle(FT.x, FT.y - 26, 2, C.stone4); k.px(FT.x - 1, FT.y - 27, C.white);
       for (let i = 0; i < 3; i++) { k.ellipse(FT.x + 8 + i * 4, FT.y + 2, 2, 1, C.leaf3); } k.px(FT.x + 12, FT.y + 1, '#ffc6d8');
-      cone(k, -176, 78, 24); cone(k, -60, 70, 18); cone(k, -176, 116, 18);
+      cone(k, -164, 78, 24); cone(k, -60, 70, 18); cone(k, -146, 118, 18);
       ball(k, -30, 134, 5, true); ball(k, 30, 134, 5, true); ball(k, -84, 60, 4, false);
-      Props.hedge(k, -188, 124, 52, 8); Props.flowerBed(k, -130, 124, 40, 12, ['#c3a2c0', '#f6ecd0', '#e0cc92'], 3);
+      Props.hedge(k, -150, 124, 18, 8); Props.flowerBed(k, -130, 124, 40, 12, ['#c3a2c0', '#f6ecd0', '#e0cc92'], 3);
       Props.bench(k, -148, 66, 18); Props.bench(k, -74, 128, 20); Props.lamp(k, -86, 110, false);
       // Herb garden and rose arbour: ingredients for the inks.
       for (let b = 0; b < 3; b++) {
-        const x = 100 + (b % 2) * 6, y = 56 + b * 20;
-        k.rect(x - 1, y - 1, 74, 14, C.wood1); k.rect(x, y, 72, 12, C.dirt1); k.dither(x, y, 72, 12, C.dirt0, 1);
-        for (let i = 0; i < 12; i++) { const px = x + 3 + i * 6, py = y + 8; k.rect(px, py - 4, 1, 4, C.leaf2); k.px(px - 1, py - 3, C.leaf3); k.px(px + 1, py - 4, C.leaf4); k.px(px, py - 5, [C.plum3, '#4a6ab0', C.gold2][b]); }
+        const x = 100 + (b % 2) * 6, y = 56 + b * 20, w = [72, 58, 52][b];   // shorter rows toward the hexagon's cut corner
+        k.rect(x - 1, y - 1, w + 2, 14, C.wood1); k.rect(x, y, w, 12, C.dirt1); k.dither(x, y, w, 12, C.dirt0, 1);
+        for (let i = 0; i < w / 6; i++) { const px = x + 3 + i * 6, py = y + 8; k.rect(px, py - 4, 1, 4, C.leaf2); k.px(px - 1, py - 3, C.leaf3); k.px(px + 1, py - 4, C.leaf4); k.px(px, py - 5, [C.plum3, '#4a6ab0', C.gold2][b]); }
       }
       // Rose arbour over a garden seat.
-      k.ellipse(168, 139, 20, 2, C.shadow); Props.bench(k, 158, 136, 20);
-      for (const x of [148, 186]) { k.rect(x, 124, 2, 15, C.wood1); k.rect(x, 124, 1, 15, C.wood3); }
-      for (let i = 0; i <= 20; i++) { const a = Math.PI * (1 - i / 20), x = 167 + Math.cos(a) * 19, y = 126 - Math.sin(a) * 10; k.rect(x - 1, y - 1, 3, 3, C.leaf1); k.px(x - 1, y - 1, C.leaf3); if (i % 3 === 0) { k.px(x + 1, y, '#e98aa0'); k.px(x, y + 1, '#c4485a'); } }
-      for (const x of [148, 186]) for (let y = 127; y < 138; y += 3) { k.px(x + (y % 2 ? -1 : 2), y, C.leaf2); k.px(x + (y % 2 ? 2 : -1), y + 1, C.leaf3); if (y % 9 === 0) k.px(x + 2, y, '#e98aa0'); }
+      k.ellipse(128, 139, 20, 2, C.shadow); Props.bench(k, 118, 136, 20);
+      for (const x of [108, 146]) { k.rect(x, 124, 2, 15, C.wood1); k.rect(x, 124, 1, 15, C.wood3); }
+      for (let i = 0; i <= 20; i++) { const a = Math.PI * (1 - i / 20), x = 127 + Math.cos(a) * 19, y = 126 - Math.sin(a) * 10; k.rect(x - 1, y - 1, 3, 3, C.leaf1); k.px(x - 1, y - 1, C.leaf3); if (i % 3 === 0) { k.px(x + 1, y, '#e98aa0'); k.px(x, y + 1, '#c4485a'); } }
+      for (const x of [108, 146]) for (let y = 127; y < 138; y += 3) { k.px(x + (y % 2 ? -1 : 2), y, C.leaf2); k.px(x + (y % 2 ? 2 : -1), y + 1, C.leaf3); if (y % 9 === 0) k.px(x + 2, y, '#e98aa0'); }
       Props.pot(k, 92, 116); Props.pot(k, 26, 104, true); Props.pot(k, -32, 104, true);
       Props.lamp(k, 80, 100, false); Props.sign(k, 44, 132, 'SCRIPT', C.plum1);
       Props.bush(k, -100, -2, 1); Props.bush(k, 188, 60, 2); Props.bush(k, 92, 60, 0);

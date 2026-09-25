@@ -5,9 +5,9 @@ window.ZoneDesigns.hospital = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
   const POND = { x: 0, y: 66, rx: 38, ry: 16 };
   const VIT = { x: 116, y: -24, w: 58, h: 22 };              // vitals board screen
-  const BEDS = [-178, -154, -130];                            // pergola bed left edges
+  const BEDS = [-172, -150, -128];                            // pergola bed left edges
   const BED_Y = -46;                                          // bed headboard top
-  const PERG = { x0: -188, x1: -108, back: -76, front: -6, ground: 26 };
+  const PERG = { x0: -176, x1: -108, back: -76, front: -6, ground: 26 };
   const HERBS = [['#9d78c0', '#c3a2e0'], ['#f6ecd0', '#f2c14e'], [C.leaf3, C.leaf5], ['#f09a2a', '#f5c866'], ['#e98aa0', '#ffd0dc'], [C.leaf2, C.leaf4]];
 
   // Neutral healing emblem: a white rounded plus on a green roundel with a small leaf.
@@ -65,7 +65,7 @@ window.ZoneDesigns.hospital = (() => {
       k.rect(-20, -64, 1, 1, C.white);
 
       /* Glasshouse for tender herbs (east). */
-      const gx = 108, gw = 76, gb = -40, gt = -66;
+      const gx = 102, gw = 76, gb = -40, gt = -66;
       k.rect(gx + 3, gb, gw + 4, 3, C.shadow); k.poly([[gx + gw, gb], [gx + gw + 7, gb - 4], [gx + gw + 7, gt - 8], [gx + gw, gt - 10]], C.shadowSoft);
       k.rect(gx, gb - 5, gw, 5, C.stone2); k.rect(gx, gb - 5, gw, 1, C.stone4);
       k.rect(gx, gt, gw, gb - gt - 5, C.glass); k.dither(gx, gt, gw, gb - gt - 5, '#a8d8dc', 0);
@@ -91,7 +91,7 @@ window.ZoneDesigns.hospital = (() => {
       k.rect(pg.x0 - 2, pg.back - 3, pg.x1 - pg.x0 + 4, 3, C.wood2); k.rect(pg.x0 - 2, pg.back - 3, pg.x1 - pg.x0 + 4, 1, C.wood4);
       for (let x = pg.x0; x < pg.x1; x += 6) { k.rect(x, pg.back, 3, 4 + (x % 4), C.leaf2); k.px(x + 1, pg.back + 3, C.leaf4); if (x % 12 === 0) k.px(x, pg.back + 5 + (x % 4), '#c3a2e0'); }
       BEDS.forEach((x, i) => { bed(k, x, BED_Y); const col = [C.teal3, '#8aa7d8', C.plum3][i]; k.rect(x + 1, BED_Y + 13, 14, 12, col); k.rect(x + 1, BED_Y + 13, 14, 1, S(col, .3)); for (let yy = BED_Y + 16; yy < BED_Y + 25; yy += 4) k.rect(x + 1, yy, 14, 1, S(col, -.15)); });
-      for (const x of [-160, -136]) { k.rect(x - 1, BED_Y + 4, 5, 8, C.wood2); k.rect(x - 1, BED_Y + 4, 5, 1, C.wood4); jar(k, x, BED_Y + 4, C.teal3); }
+      for (const x of [-154, -132]) { k.rect(x - 1, BED_Y + 4, 5, 8, C.wood2); k.rect(x - 1, BED_Y + 4, 5, 1, C.wood4); jar(k, x, BED_Y + 4, C.teal3); }
       k.rect(-112, BED_Y + 2, 2, 20, C.stone1); k.rect(-114, BED_Y + 1, 6, 1, C.stone1); k.rect(-115, BED_Y + 2, 3, 5, '#bfe6ff'); k.px(-114, BED_Y + 7, C.stone1);   // drip stand
       Props.table(k, -180, 22, 20, 8, C.wood3); jar(k, -178, 14, C.red2); jar(k, -172, 14, C.gold2); jar(k, -166, 14, C.leaf3); k.rect(-167, 12, 4, 1, C.white);
       Props.bench(k, -140, 20, 22);
@@ -120,23 +120,23 @@ window.ZoneDesigns.hospital = (() => {
       for (let i = 0; i < 5; i++) { const x = -54 + i * 5, y = 70 + (i % 2); k.ellipse(x, y, 2, 1, C.stone3); }
 
       /* Resting lawn (south-west): wheelchair, loungers, well and flowers. */
-      Props.tree(k, -150, 112, 'birch', 2, 1); Props.tree(k, -90, 128, 'blossom', 1, 2);
-      for (const x of [-182, -128]) { k.rect(x + 2, 67, 22, 2, C.shadow); k.rect(x, 60, 22, 5, C.wood3); k.rect(x, 60, 22, 1, C.wood4); for (let i = 2; i < 22; i += 4) k.px(x + i, 62, C.wood1); k.line(x + 16, 60, x + 22, 54, C.wood3, 2); k.rect(x + 1, 65, 1, 3, C.wood1); k.rect(x + 20, 65, 1, 3, C.wood1); k.rect(x + 2, 60, 14, 2, x < -150 ? C.teal4 : '#f2c9a0'); }
+      Props.tree(k, -138, 112, 'birch', 2, 1); Props.tree(k, -90, 128, 'blossom', 1, 2);
+      for (const x of [-172, -128]) { k.rect(x + 2, 67, 22, 2, C.shadow); k.rect(x, 60, 22, 5, C.wood3); k.rect(x, 60, 22, 1, C.wood4); for (let i = 2; i < 22; i += 4) k.px(x + i, 62, C.wood1); k.line(x + 16, 60, x + 22, 54, C.wood3, 2); k.rect(x + 1, 65, 1, 3, C.wood1); k.rect(x + 20, 65, 1, 3, C.wood1); k.rect(x + 2, 60, 14, 2, x < -150 ? C.teal4 : '#f2c9a0'); }
       Props.well(k, -86, 58);
-      Props.flowerBed(k, -186, 80, 40, 10, ['#f2c14e', '#f6ecd0', '#c3a2c0'], 13); Props.flowerBed(k, -120, 88, 22, 10, ['#e98aa0', '#f6ecd0'], 14);
+      Props.flowerBed(k, -162, 80, 36, 10, ['#f2c14e', '#f6ecd0', '#c3a2c0'], 13); Props.flowerBed(k, -120, 88, 22, 10, ['#e98aa0', '#f6ecd0'], 14);
       Props.bush(k, -64, 118, 2); Props.bush(k, -182, 128, 1);
 
       /* Medicinal herb garden (south-east): raised beds, beehives, apothecary cart. */
       k.rect(60, 16, 128, 4, C.dirt4); k.dither(60, 16, 128, 4, C.dirt3, 1);
-      for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) herbBed(k, 66 + c * 60, 26 + r * 20, 52, HERBS[(r * 2 + c) % HERBS.length], r * 2 + c);
+      for (let r = 0; r < 4; r++) for (let c = 0; c < 2; c++) herbBed(k, 66 + c * 60, 26 + r * 20, c ? [52, 50, 42, 34][r] : 52, HERBS[(r * 2 + c) % HERBS.length], r * 2 + c);
       k.rect(118, 24, 8, 84, C.dirt4); k.dither(118, 24, 8, 84, C.dirt3, 1);
-      hive(k, 170, 124); hive(k, 154, 126);
+      hive(k, 140, 122); hive(k, 126, 118);
       Props.cart(k, 70, 124, (q, x, y) => { for (let i = 0; i < 5; i++) jar(q, x + 2 + i * 4, y + 1, [C.teal3, C.red2, C.gold2, C.leaf3, C.plum3][i]); });
       k.rect(96, 108, 2, 16, C.wood1); k.rect(92, 106, 26, 9, C.wood0); k.rect(93, 107, 24, 7, C.leaf2); k.text('HERBS', 95, 108, C.white);
       Props.barrel(k, 104, 118); k.rect(105, 117, 8, 1, C.water3);
 
       /* Picket fence and the garden gate at the bottom centre. */
-      picket(k, -188, -22, 138); picket(k, 22, 188, 138);
+      picket(k, -146, -22, 138); picket(k, 22, 146, 138);   // the fence ends at the hexagon's bottom corners
       for (const x of [-24, 20]) { k.rect(x, 118, 4, 22, C.white); k.rect(x + 3, 118, 1, 22, C.plaster1); k.rect(x - 1, 116, 6, 3, C.plaster2); }
       k.poly([[-24, 118], [-12, 108], [0, 105], [12, 108], [24, 118], [20, 118], [12, 111], [0, 108], [-12, 111], [-20, 118]], C.leaf2);
       for (const [x, y] of [[-18, 112], [-8, 107], [4, 106], [14, 109], [-2, 106]]) { k.px(x, y, '#ffd0dc'); k.px(x + 1, y, C.white); }
@@ -220,9 +220,9 @@ window.ZoneDesigns.hospital = (() => {
       /* Gardener waters the herbs; bees drift around the hives. */
       z.crew(122, 64, { look: 3, hat: 'straw', anim: run ? 'work' : 'idle', tool: 'watering', facing: -1, phase: .5, speed: 3 });
       if (run) for (let i = 0; i < 3; i++) { const q = (t * 2 + i / 3) % 1; k.px(113 - i, 58 + q * 7, C.water4); }
-      if (z.detail) for (let i = 0; i < 4; i++) { const a = t * (1.5 + i * .3) + i * 1.6; k.px(162 + Math.cos(a) * (8 + i * 3), 110 + Math.sin(a * 1.3) * 5, i % 2 ? C.gold3 : C.ink); }
+      if (z.detail) for (let i = 0; i < 4; i++) { const a = t * (1.5 + i * .3) + i * 1.6; k.px(136 + Math.cos(a) * (8 + i * 3), 108 + Math.sin(a * 1.3) * 5, i % 2 ? C.gold3 : C.ink); }
       /* Resting patients on the loungers. */
-      z.crew(-172, 60, { look: 0, anim: 'sit', state: 'idle' }); z.crew(-118, 60, { look: 5, anim: 'sit', state: err ? 'error' : 'idle' });
+      z.crew(-162, 60, { look: 0, anim: 'sit', state: 'idle' }); z.crew(-118, 60, { look: 5, anim: 'sit', state: err ? 'error' : 'idle' });
 
       if (wait) {
         // Patients wait on the steps to be seen.

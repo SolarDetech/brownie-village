@@ -48,8 +48,34 @@
   // Each village's inbox is its own post office and court: GGI for GKTC, DGI for Daghan.
   for (const z of zones) if (z.role === 'inbox') { const g = z.village === 'gktc'; z.agent = g ? 'GGI' : 'DGI'; z.name = (g ? 'GKTC' : 'Daghan') + ' Gelenler ve İzinler'; z.description = 'Post office and court in one. Letters arrive at the ' + (g ? 'GGI' : 'DGI') + ' counters, then go before the judge, who waits for your approval.'; }
   zones.push(arena);
-  const half = z => z.kind === 'arena' ? { w: 300, t: 225, b: 225 } : z.role === 'castle' ? { w: 262, t: 222, b: 212 } : z.role === 'library' ? { w: 260, t: 200, b: 150 } : { w: 200, t: 160, b: 150 };
-  zones.forEach(z => { const h = half(z); z.plot = { x: z.x - h.w, y: z.y - h.t, w: h.w * 2, h: h.t + h.b }; z.labelY = z.y + h.b - (z.kind === "arena" ? 34 : 20); });
+  // Plot extents (zone-local): w = half-width at the side points, t = top, b = bottom.
+  const half = z => footprint(z.kind === 'arena' ? 'colosseum' : z.role);
+  function footprint(role) { return role === 'colosseum' ? { w: 300, t: 225, b: 225 } : role === 'castle' ? { w: 262, t: 222, b: 212 } : role === 'library' ? { w: 280, t: 200, b: 150 } : { w: 206, t: 160, b: 150 }; }
+  // Every plot is a flat-top hexagon: short top and bottom edges, side points at mid-height. The slanted edges
+  // share one slope (0.4 px across per px down), so all plots have the same angles.
+  function hexOf(role) { const h = footprint(role), ym = (h.b - h.t) / 2, a = Math.round(h.w - .4 * (h.t + h.b) / 2); return [[-a, -h.t], [a, -h.t], [h.w, ym], [a, h.b], [-a, h.b], [-h.w, ym]]; }
+  // Grow a convex polygon outward by d px (vertices move along the corner bisectors).
+  function grow(pts, d) {
+    const n = pts.length, nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy); return [dy / l, -dx / l]; };
+    return pts.map((p, i) => { const a = nrm(pts[(i + n - 1) % n], p), b = nrm(p, pts[(i + 1) % n]), f = d / (1 + a[0] * b[0] + a[1] * b[1]); return [p[0] + (a[0] + b[0]) * f, p[1] + (a[1] + b[1]) * f]; });
+  }
+  function inPoly(pts, x, y) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, yi] = pts[i], [xj, yj] = pts[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+  // A pixel-exact clip path: the same scanline spans that k.poly fills, traced as one staircase outline.
+  const scan = P.kit(document.createElement('canvas').getContext('2d'));
+  function stairPath(pts) {
+    const rows = []; scan.spans(pts, (y, x0, x1) => rows.push([y, x0, x1])); const p = new Path2D();
+    rows.forEach(([y, x0], i) => { if (i) p.lineTo(x0, y); else p.moveTo(x0, y); p.lineTo(x0, y + 1); });
+    for (let i = rows.length - 1; i >= 0; i--) { const [y, , x1] = rows[i]; p.lineTo(x1, y + 1); p.lineTo(x1, y); }
+    p.closePath(); return p;
+  }
+  const clips = {};
+  zones.forEach(z => {
+    const h = half(z); z.plot = { x: z.x - h.w, y: z.y - h.t, w: h.w * 2, h: h.t + h.b }; z.labelY = z.y + h.b - (z.kind === "arena" ? 34 : 20);
+    if (z.kind === 'arena') return;
+    z.hexL = hexOf(z.role); z.hex = z.hexL.map(([x, y]) => [z.x + x, z.y + y]); z.clip = clips[z.role] ||= stairPath(z.hexL);
+    // Forest keeps this far from the plot: 14 px around, 36 px below (tree canopies rise over the bottom edge).
+    z.keepOut = grow(z.hex, 14).map(([x, y], i) => [x, i === 3 || i === 4 ? y + 22 : y]);
+  });
 
   // Solar fields in the woods, and the river datacenter with its stone suspension bridges on the main street (energy.js).
   const energy = window.Energy?.create({ M, RIVER, riverX, northStream, southStream, street: LANES_H[1], bridges: [...LANES_V, ...LANES_V.map(x => MIRROR - x)] });
@@ -106,8 +132,13 @@
   function clearOf(x, y) {
     // Areas that must stay free of forest.
     if (energy?.blocks(x, y)) return false;
-    for (const z of zones) { const p = z.plot; if (z.kind === 'arena') { if (((x - z.x) / 330) ** 2 + ((y - z.y - 10) / 250) ** 2 < 1) return false; continue; } if (x > p.x - 18 && x < p.x + p.w + 18 && y > p.y - 26 && y < p.y + p.h + 36) return false; }
+    if (Math.abs(x - arena.x) < 340 && Math.abs(y - arena.y) < 270 && ((x - arena.x) / 330) ** 2 + ((y - arena.y - 10) / 250) ** 2 < 1) return false;
+    if (nearPlot(x, y)) return false;
     if (Math.abs(x - riverX(y)) < 70) return false; if (Math.abs(y - northStream(x)) < 44 || Math.abs(y - southStream(x)) < 44) return false;
+    // The forest grows into each hexagon's cut corners (clear of the streets), so every plot reads as a hexagon.
+    for (const z of zones) { if (!z.hex) continue; const p = z.plot; if (x > p.x && x < p.x + p.w && y > p.y - 14 && y < p.y + p.h - 2) {
+      if ([...LANES_H, CIVIC_LANE, RES_LANE].some(l => y > l - 16 && y < l + 30) || LANES_V.some(l => Math.abs(x - l) < 26 || Math.abs(x - (MIRROR - l)) < 26)) return false;
+      return true; } }
     for (const v of [0, 1]) { const m = X => v ? MIRROR - X : X, xa = Math.min(m(VX0 - 20), m(VX1 + 15)), xb = Math.max(m(VX0 - 20), m(VX1 + 15));
       if (x > xa && x < xb && y > 600 + M && y < GREEN_B + 4) return false;                 // village streets
       const xc = Math.min(m(VX0 - 20), m(COLS[2] + 215)), xd = Math.max(m(VX0 - 20), m(COLS[2] + 215));
@@ -117,6 +148,28 @@
     }
     if (y > LANES_H[1] - 26 && y < LANES_H[1] + 26 && x > 600 + M && x < VX0 + 10) return false; if (y > LANES_H[1] - 26 && y < LANES_H[1] + 26 && x > MIRROR - VX0 - 10 && x < W) return false;
     return true;
+  }
+  // Inside a plot or its forest-free margin.
+  function nearPlot(x, y) { for (const z of zones) { if (!z.hex) continue; const p = z.plot; if (x > p.x - 16 && x < p.x + p.w + 16 && y > p.y - 16 && y < p.y + p.h + 38 && inPoly(z.keepOut, x, y)) return true; } return false; }
+  // The plot ground: trimmed lawn inside a stone kerb, lit on the top-left edges and shaded on the bottom-right.
+  function plotGround(k, z) {
+    const hx = z.hex, sh = (pts, dx, dy) => pts.map(([x, y]) => [x + dx, y + dy]), g3 = grow(hx, 3);
+    k.poly(grow(hx, 5), S(C.grass1, -.08));                                   // soft dark rim on the surrounding grass
+    k.poly(sh(g3, 1, 1), C.stone1); k.poly(sh(g3, -1, -1), C.stone5); k.poly(g3, C.stone3);
+    // Kerb joints every few px along each edge.
+    for (let i = 0; i < 6; i++) { const [x0, y0] = g3[i], [x1, y1] = g3[(i + 1) % 6], L = Math.hypot(x1 - x0, y1 - y0); for (let s = 5; s < L - 2; s += 9) k.px(x0 + (x1 - x0) * s / L, y0 + (y1 - y0) * s / L, C.stone2); }
+    k.poly(sh(hx, -1, -1), C.grass4); k.poly(sh(hx, 1, 1), S(C.grass3, -.14)); k.poly(hx, C.grass3); k.ditherPoly(hx, C.grass2, 1);
+    const p = z.plot, inner = grow(hx, -6); for (let i = 0; i < 140; i++) { const x = p.x + P.hash(i, p.x) * p.w, y = p.y + P.hash(p.y, i) * p.h; if (inPoly(inner, x, y)) Props.tuft(k, x, y, C.grass2, C.grass4); }
+  }
+  // While a zone paints, trees and bushes that would be cut by its hexagon edge are left out (the forest
+  // around the plot takes their place). (ox, oy) is where the zone centre sits on the canvas being drawn.
+  function trimmed(z, ox, oy, fn) {
+    if (!z.hexL) return fn();
+    const tree = Props.tree, bush = Props.bush;
+    const fits = (k, x0, y0, x1, y1) => { const m = k.c.getTransform(); return [[x0, y0], [x1, y0], [x0, y1], [x1, y1]].every(([x, y]) => inPoly(z.hexL, m.a * x + m.c * y + m.e - ox, m.b * x + m.d * y + m.f - oy)); };
+    Props.tree = (k, x, y, kind = 'oak', size = 1, v = 0) => { const s = Math.max(0, Math.min(3, size | 0)), pine = kind === 'pine', r = pine ? 8 + s * 3 : [8, 11, 14, 18][s], h = pine ? 27 + s * 9 : r * 2 + [6, 8, 10, 12][s] + (kind === 'birch' ? 5 : 0); if (fits(k, x - r, y - h, x + r, y + 1)) tree(k, x, y, kind, size, v); };
+    Props.bush = (k, x, y, ...a) => { if (fits(k, x - 7, y - 10, x + 7, y + 1)) bush(k, x, y, ...a); };
+    try { fn(); } finally { Props.tree = tree; Props.bush = bush; }
   }
   function bake() {
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H; const c = cv.getContext('2d'), k = P.kit(c);
@@ -129,7 +182,7 @@
       k.rect(xa, 128 + M, xb - xa, 370, C.grass3); k.dither(xa, 128 + M, xb - xa, 370, C.grass2, 1);
       k.rect(xa, WORK_T, xb - xa, 390, S(C.grass3, -.05)); k.dither(xa, WORK_T, xb - xa, 390, C.dirt3, 1);
     }
-    for (const z of zones) { if (z.kind === 'arena') continue; const p = z.plot; k.rect(p.x - 3, p.y - 3, p.w + 6, p.h + 6, C.grass1); k.rect(p.x - 1, p.y - 1, p.w + 2, p.h + 2, C.grass4); k.rect(p.x, p.y, p.w, p.h, C.grass3); k.dither(p.x, p.y, p.w, p.h, C.grass2, 1); for (let i = 0; i < 140; i++) Props.tuft(k, p.x + P.hash(i, p.x) * p.w, p.y + P.hash(p.y, i) * p.h, C.grass2, C.grass4); }
+    for (const z of zones) if (z.hex) plotGround(k, z);
     // Water: river, two streams, with banks, shallows and reeds.
     const bank = [[62, C.dirt2], [58, C.dirt3], [54, C.dirt4, 1], [50, C.water1], [42, C.water2], [30, C.water3, 1], [16, C.water3]];
     const sbank = [[34, C.dirt2], [31, C.dirt3], [28, C.dirt4, 1], [25, C.water1], [19, C.water2], [11, C.water3, 1]];
@@ -201,13 +254,20 @@
       trees.push([jx, jy, kind, Math.floor(P.hash(jy, jx * 2) * 3.2) + (edge ? 1 : 0), Math.floor(h * 97)]);
     }
     // Sparse orchards and bushes inside the village greens.
-    for (let i = 0; i < 260; i++) { const x = P.hash(i, 41) * W, y = P.hash(i, 42) * H; if (clearOf(x, y) || energy?.blocks(x, y)) continue; let ok = true; for (const z of zones) { const p = z.plot; if (x > p.x - 20 && x < p.x + p.w + 20 && y > p.y - 20 && y < p.y + p.h + 30) { ok = false; break; } } if (!ok || LANES_H.some(l => Math.abs(y - l) < 30) || Math.abs(x - riverX(y)) < 80) continue; if (LANES_V.some(l => Math.abs(x - l) < 30 || Math.abs(x - (MIRROR - l)) < 30)) continue; if (i % 3) Props.bush(k, x, y, i); else trees.push([x, y, i % 2 ? 'fruit' : 'blossom', 1, i]); }
+    for (let i = 0; i < 260; i++) { const x = P.hash(i, 41) * W, y = P.hash(i, 42) * H; if (clearOf(x, y) || energy?.blocks(x, y)) continue; if (nearPlot(x, y) || LANES_H.some(l => Math.abs(y - l) < 30) || Math.abs(x - riverX(y)) < 80) continue; if (LANES_V.some(l => Math.abs(x - l) < 30 || Math.abs(x - (MIRROR - l)) < 30)) continue; if (i % 3) Props.bush(k, x, y, i); else trees.push([x, y, i % 2 ? 'fruit' : 'blossom', 1, i]); }
+    // Low shrubs line each plot's lower slanted edges (tall trees there would hide the kerb).
+    const kerbs = zones.filter(z => z.hex).map(z => grow(z.hex, 6)), lanesY = [...LANES_H, CIVIC_LANE, RES_LANE], lanesX = [...LANES_V, ...LANES_V.map(l => MIRROR - l)];
+    for (const z of zones) { if (!z.hex) continue; for (const [a, b, dx] of [[z.hex[2], z.hex[3], 1], [z.hex[5], z.hex[4], -1]]) for (let s = .1; s < .95; s += .16) {
+      const x = Math.round(a[0] + (b[0] - a[0]) * s + dx * 12), y = Math.round(a[1] + (b[1] - a[1]) * s + 4);
+      if (kerbs.some(h => inPoly(h, x, y) || inPoly(h, x - 7, y - 10) || inPoly(h, x + 7, y - 10)) || lanesY.some(l => y > l - 14 && y < l + 26) || lanesX.some(l => Math.abs(x - l) < 22) || Math.abs(x - riverX(y)) < 70 || energy?.blocks(x, y)) continue;
+      trees.push([x, y, 'fn', q => Props.bush(q, x, y, (x * 7 + y) & 3)]);
+    } }
     // Solar rows and inverters are y-sorted with the trees so the canopy overlaps them correctly.
     if (energy) { trees.push(...energy.items()); energy.finish(trees); }
     trees.sort((a, b) => a[1] - b[1]).forEach(t => t[2] === 'fn' ? t[3](k) : treeAt(k, t[0], t[1], t[2], Math.min(3, t[3]), t[4]));
-    // Zone modules paint their static art.
-    for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; if (!d) continue; c.save(); c.translate(z.x, z.y); try { d.paint(k, z); } catch (e) { console.error(z.role, e); } c.restore(); }
-    for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; const fk = frontKey(z); if (!d?.front || fronts[fk]) continue; const f = document.createElement('canvas'), h = half(z); f.width = h.w * 2; f.height = h.t + h.b; const fc = f.getContext('2d'); fc.translate(h.w, h.t); try { d.front(P.kit(fc), z); } catch (e) { console.error(z.role, e); } fronts[fk] = { cv: f, ox: h.w, oy: h.t }; }
+    // Zone modules paint their static art, clipped to the hexagon so the cut corners stay forest.
+    for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; if (!d) continue; c.save(); c.translate(z.x, z.y); if (z.clip) c.clip(z.clip); try { trimmed(z, z.x, z.y, () => d.paint(k, z)); } catch (e) { console.error(z.role, e); } c.restore(); }
+    for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; const fk = frontKey(z); if (!d?.front || fronts[fk]) continue; const f = document.createElement('canvas'), h = half(z); f.width = h.w * 2; f.height = h.t + h.b; const fc = f.getContext('2d'); fc.translate(h.w, h.t); if (z.clip) fc.clip(z.clip); try { trimmed(z, h.w, h.t, () => d.front(P.kit(fc), z)); } catch (e) { console.error(z.role, e); } fronts[fk] = { cv: f, ox: h.w, oy: h.t }; }
     return cv;
   }
 
@@ -216,7 +276,7 @@
   const stateOf = (z, states) => states?.[z.id] || (z.kind === 'resource' ? states?.[z.village + '-kole'] : null) || (z.kind === 'resource' ? zones.find(q => q.id === z.village + '-kole').state : z.state);
   function flagPost(k, z, t, state) {
     // A roadside banner shows the state from afar: colour, icon and motion.
-    const x = z.plot.x + 14, y = z.plot.y + z.plot.h - 8, col = C[state] || C.idle;
+    const x = z.hex[4][0] + 12, y = z.hex[4][1] - 8, col = C[state] || C.idle;
     k.rect(x, y - 34, 2, 34, C.wood1); k.px(x, y - 35, C.gold3);
     const wave = state === 'off' ? 0 : Math.round(Math.sin(t * (state === 'error' ? 9 : 4)) * 1);
     for (let i = 0; i < 14; i++) { const wy = state === 'off' ? Math.min(i, 6) : Math.round(Math.sin(t * 4 - i * .5) * 1.2); k.rect(x + 2 + i, y - 33 + wy, 1, 11, i % 4 === 0 ? S(col, .2) : col); }
@@ -235,6 +295,13 @@
   }
   function along(pts, p) { const L = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1])); let d = p * L.reduce((a, b) => a + b, 0); for (let i = 0; i < L.length; i++) { if (d <= L[i] || i === L.length - 1) { const f = L[i] ? d / L[i] : 0; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f, Math.sign(pts[i + 1][0] - pts[i][0])]; } d -= L[i]; } return pts[pts.length - 1]; }
 
+  // Marching dashes around the selected plot (the arena keeps its rectangle).
+  function selectRing(c, z, t) {
+    const off = Math.floor(t * 10) % 8; c.fillStyle = '#fff2b0';
+    if (!z.hex) { const p = z.plot; for (let i = -off; i < p.w; i += 8) { c.fillRect(p.x + i, p.y - 3, 4, 2); c.fillRect(p.x + p.w - i - 4, p.y + p.h + 1, 4, 2); } for (let i = -off; i < p.h; i += 8) { c.fillRect(p.x + p.w + 1, p.y + i, 2, 4); c.fillRect(p.x - 3, p.y + p.h - i - 4, 2, 4); } return; }
+    const g = grow(z.hex, 7); let s = 0;
+    for (let i = 0; i < 6; i++) { const [x0, y0] = g[i], [x1, y1] = g[(i + 1) % 6], n = Math.round(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))); for (let j = 0; j < n; j++, s++) if ((s + 8 - off) % 8 < 4) c.fillRect(Math.round(x0 + (x1 - x0) * j / n) - 1, Math.round(y0 + (y1 - y0) * j / n) - 1, 2, 2); }
+  }
   function drawScene(c, t, v, opts, scale) {
     const k = P.kit(c), states = opts.states || {}, detail = scale >= .7, sel = opts.selectedId;
     energy?.animate(k, t, v, scale);
@@ -245,7 +312,8 @@
     for (const z of zones) {
       const p = z.plot; if (p.x > v.r || p.x + p.w < v.l || p.y > v.b + 40 || p.y + p.h < v.t - 70) continue;
       const d = window.ZoneDesigns?.[z.role], state = z.kind === 'arena' ? 'working' : stateOf(z, states);
-      if (state === 'off' && z.kind !== 'arena') k.alpha(.38, () => k.rect(p.x, p.y, p.w, p.h, '#141c3c'));
+      if (state === 'off' && z.hex) k.alpha(.38, () => k.poly(z.hex, '#141c3c'));
+      // The animated layer is not clipped: smoke, birds and sparks may rise past the plot edge (the art keeps inside).
       c.save(); c.translate(z.x, z.y);
       if (d) try {
         if (z.kind === 'arena') d.animate(k, t, window.Colosseum?.scene(t));
@@ -254,7 +322,7 @@
       c.restore();
       const f = fronts[frontKey(z)]; if (f) c.drawImage(f.cv, z.x - f.ox, z.y - f.oy);
       if (z.kind === 'agent' || z.kind === 'resource') flagPost(k, z, t, state);
-      if (sel === z.id) { const off = Math.floor(t * 10) % 8; c.fillStyle = '#fff2b0'; for (let i = -off; i < p.w; i += 8) { c.fillRect(p.x + i, p.y - 3, 4, 2); c.fillRect(p.x + p.w - i - 4, p.y + p.h + 1, 4, 2); } for (let i = -off; i < p.h; i += 8) { c.fillRect(p.x + p.w + 1, p.y + i, 2, 4); c.fillRect(p.x - 3, p.y + p.h - i - 4, 2, 4); } }
+      if (sel === z.id) selectRing(c, z, t);
     }
     // Köle crews commute between the workshop and the resource fields.
     for (const z of zones) {
@@ -320,9 +388,9 @@
   }
   function hitTest(x, y) {
     if (((x - arena.x) / 300) ** 2 + ((y - arena.y - 10) / 220) ** 2 <= 1) return arena;
-    return zones.find(z => z.kind !== 'arena' && x >= z.plot.x && x <= z.plot.x + z.plot.w && y >= z.plot.y && y <= z.plot.y + z.plot.h);
+    return zones.find(z => z.hex && x >= z.plot.x && x <= z.plot.x + z.plot.w && y >= z.plot.y && y <= z.plot.y + z.plot.h && inPoly(z.hex, x, y));
   }
   const titles = [[COLS[1], 598 + M, 'GKTC’S VILLAGE', 'THE WESTERN REALM'], [MIRROR - COLS[1], 598 + M, 'DAGHAN’S VILLAGE', 'ACROSS THE RIVER'], [COLS[1], 58 + M, 'THE CIVIC GROUNDS', 'PLAN · KNOW · RESTORE'], [MIRROR - COLS[1], 58 + M, 'THE CIVIC GROUNDS', 'PLAN · KNOW · RESTORE'], [COLS[1], WORK_T - 4, 'THE WORKING LANDS', 'TIMBER · ORE · HARVEST'], [MIRROR - COLS[1], WORK_T - 4, 'THE WORKING LANDS', 'TIMBER · ORE · HARVEST'], [arena.x, arena.y - 262, 'THE WESTERN WOODS', 'THE COLOSSEUM'], ...(energy ? [energy.title] : [])];
 
-  window.VillageWorld = { width: W, height: H, zones, render, renderView, hitTest, minimapCanvas, titles, stateOf, home: { gktc: [(VX0 + VX1) / 2, 1215 + M], daghan: [MIRROR - (VX0 + VX1) / 2, 1215 + M] }, energy: energy?.focus, ready: () => { if (!ground) ground = bake(); } };
+  window.VillageWorld = { width: W, height: H, zones, render, renderView, hitTest, footprint, hexOf, stairPath, plotGround, trimmed, minimapCanvas, titles, stateOf, home: { gktc: [(VX0 + VX1) / 2, 1215 + M], daghan: [MIRROR - (VX0 + VX1) / 2, 1215 + M] }, energy: energy?.focus, ready: () => { if (!ground) ground = bake(); } };
 })();

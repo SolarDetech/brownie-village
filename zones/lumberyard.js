@@ -219,9 +219,9 @@ window.ZoneDesigns.lumberyard = (() => {
       k.rect(8, 30, 3, 20, C.wood1); k.rect(8, 30, 1, 20, C.wood3); k.rect(4, 28, 11, 6, C.slate1); k.rect(5, 29, 9, 4, C.slate0); k.rect(6, 30, 4, 1, C.white); k.rect(6, 32, 6, 1, C.teal4);
 
       /* ---- Sapling nursery (south-west) ---- */
-      k.rect(-178, 100, 104, 30, C.dirt1); k.rect(-178, 100, 104, 1, C.dirt0);
-      for (let r = 0; r < 3; r++) { k.rect(-176, 106 + r * 9, 100, 2, C.dirt0); for (let i = 0; i < 9; i++) { const x = -172 + i * 11 + (r % 2) * 5, y = 107 + r * 9; sapling(k, x, y, (i + r) % 3); if ((i + r) % 4 === 0) { k.rect(x + 3, y - 8, 1, 8, C.wood3); k.px(x + 3, y - 8, C.wood4); } } }
-      Props.fence(k, -180, 99, 108); Props.fence(k, -180, 133, 44); Props.fence(k, -118, 133, 46);
+      k.rect(-150, 100, 76, 30, C.dirt1); k.rect(-150, 100, 76, 1, C.dirt0);   // narrowed to fit the hexagon's cut corner
+      for (let r = 0; r < 3; r++) { k.rect(-148, 106 + r * 9, 72, 2, C.dirt0); for (let i = 0; i < 6; i++) { const x = -144 + i * 11 + (r % 2) * 5, y = 107 + r * 9; sapling(k, x, y, (i + r) % 3); if ((i + r) % 4 === 0) { k.rect(x + 3, y - 8, 1, 8, C.wood3); k.px(x + 3, y - 8, C.wood4); } } }
+      Props.fence(k, -152, 99, 80); Props.fence(k, -152, 133, 30); Props.fence(k, -112, 133, 40);
       Props.sign(k, -64, 118, 'NEW', C.leaf1);
 
       /* ---- South-east: firewood cords, sawdust heap, grindstone, entrance sign ---- */

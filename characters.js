@@ -5,8 +5,8 @@
   const mod = (a, n) => ((a % n) + n) % n; // safe for negative time
 
   const ROLES = {
-    // A double lead: two figures drawn side by side as one sprite (see FIGS and drawPair). [figure, x offset]; drawn in this order.
-    sekreter: { title: 'The butler & the secretary', description: 'A silver-haired butler in white gloves and a black tailcoat stamps every letter, while his glamorous secretary, in cat-eye glasses and a wine-red suit, keeps the clipboard and hands him the next envelope.', pair: [['sek-butler', 9], ['sek-secretary', -9]], work: { n: 8, fps: 8 } },
+    // hand: glove colour (defaults to the skin).
+    sekreter: { title: 'The butler', description: 'An Alfred-like butler with silver hair and a grey moustache, in a black tailcoat, grey waistcoat with a watch chain, bow tie and white gloves. He brings every letter in on a silver salver and stamps it at his desk.', skin: C.skin3, hair: '#c4c4be', coat: '#24242e', trim: '#f4f2ec', pants: '#2a2a34', boots: '#0e0e12', hand: '#f4f2ec', work: { n: 8, fps: 8 } },
     girard: { title: 'The market ambassador', description: 'A broad merchant in a burgundy brocade coat and tasselled fez, flipping gold coins over a leather ledger.', skin: C.skin1, hair: '#2a1c16', coat: '#8c2f3a', trim: C.gold2, pants: '#3a2a24', boots: C.wood0, wide: true, work: { n: 10, fps: 9 } },
     'text-writer': { title: 'The ink scholar', description: 'A silver-bearded scholar in a long indigo robe, writing across an unrolled parchment with a sweeping quill.', skin: C.skin3, hair: '#dedad0', coat: '#5c5a8a', trim: '#e0cc92', pants: '#3e3c60', boots: C.wood0, robe: true, work: { n: 8, fps: 7 } },
     gazeteci: { title: 'The roving editor', description: 'A newsboy-capped reporter in a mustard trench coat, scribbling notes and snapping photos with a flash camera.', skin: C.skin2, hair: '#6a4428', coat: '#c29a48', trim: '#f2ead8', pants: '#46463a', boots: C.wood0, work: { n: 12, fps: 8 } },
@@ -15,19 +15,12 @@
     kole: { title: 'The master builder', description: 'A stocky smith in a lamp helmet, indigo overalls and leather apron, swinging a heavy hammer that throws sparks.', skin: C.skin1, hair: '#3a2a1c', coat: '#c8955a', trim: '#3e4f86', pants: '#34427a', boots: C.wood0, wide: true, work: { n: 8, fps: 9 } },
     'scum-master': { title: 'The head chef', description: 'A stern, moustached head chef who runs a strict Michelin-star brigade in a white double-breasted jacket, tall pleated toque and red neckerchief, tasting every fusion sauce from his spoon and calling each ticket down the line.', skin: C.skin2, hair: '#4a3020', coat: '#f2eee6', trim: C.red2, pants: '#2c2c34', boots: '#1c1c20', work: { n: 8, fps: 6 } }
   };
-  // Figures that only appear inside a double lead. hand: glove colour; lips: mouth colour; skirt/slim: pencil skirt and a narrower jacket.
-  const FIGS = {
-    'sek-butler': { skin: C.skin3, hair: '#c4c4be', coat: '#24242e', trim: '#f4f2ec', pants: '#2a2a34', boots: '#0e0e12', hand: '#f4f2ec' },
-    'sek-secretary': { skin: C.skin2, hair: '#7a3a22', coat: '#8a2a40', trim: '#f4e8d6', pants: '#8a2a40', boots: '#1c1216', lips: '#c8263a', skirt: true, slim: true }
-  };
-  const prof = role => ROLES[role] || FIGS[role];
 
   /* ---------- Body parts (facing right; feet at 0,0) ---------- */
   const limb = (q, x0, y0, x1, y1, col, hand) => { q.line(x0, y0, x1, y1, col, 3); q.line(x0 + 1, y0, x1 + 1, y1, S(col, -.18)); q.rect(x1 - 1, y1 - 1, 3, 3, hand); q.px(x1 - 1, y1 - 1, S(hand, .25)); };
 
   function legs(q, s, mode, f) {
     const pd = S(s.pants, -.25), b = s.boots;
-    if (s.skirt) return skirtLegs(q, s, mode, f);
     if (s.robe && mode !== 'sit') {
       const lift = mode === 'walk' ? [0, 1, 0, 1][f] : 0, tap = mode === 'tap' && f ? 1 : 0;
       q.rect(-5, -2, 4, 2, b); q.rect(2 + (mode === 'walk' ? [1, 0, -1, 0][f] : 0), -2 - lift - tap, 5, 2, b); q.px(6, -2 - tap, S(b, .4)); return;
@@ -44,33 +37,15 @@
     q.rect(-5 + bx, -8, 4, 6 - bl, pd); q.rect(-6 + bx, -2 - bl, 5, 2, S(b, -.1));
     q.rect(1 + fx, -8, 4, 6 - fl, s.pants); q.px(1 + fx, -8, S(s.pants, .2)); q.rect(1 + fx, -2 - fl - tap, 6, 2, b); q.px(6 + fx, -2 - fl - tap, S(b, .45));
   }
-  // Knee-length pencil skirt, sheer stockings and court heels (heel at the back, toe to the right).
-  function skirtLegs(q, s, mode, f) {
-    const sk = s.coat, skd = S(sk, -.3), leg = S(s.skin, -.08), legd = S(s.skin, -.24), b = s.boots;
-    const heel = (x, y) => { q.rect(x, y - 2, 4, 1, b); q.px(x, y - 1, b); q.rect(x + 2, y - 1, 2, 1, b); q.px(x + 3, y - 2, S(b, .5)); };
-    if (mode === 'sit') {
-      q.rect(-7, -5, 10, 2, C.wood3); q.rect(-7, -5, 10, 1, C.wood4); q.rect(-6, -3, 1, 3, C.wood1); q.rect(1, -3, 1, 3, C.wood1);
-      q.rect(-3, -9, 9, 4, sk); q.rect(-3, -6, 9, 1, skd); q.rect(-3, -9, 9, 1, S(sk, .15));
-      q.rect(4, -5, 2, 4, legd); q.rect(6, -5, 2, 4, leg); heel(5, 0); return;
-    }
-    let bx = 0, fx = 0, bl = 0, fl = 0, tap = 0;
-    if (mode === 'walk') { const st = [1, 0, -1, 0][f]; bx = -st; fx = st; bl = f === 3 ? 1 : 0; fl = f === 1 ? 1 : 0; }
-    if (mode === 'tap') tap = f ? 1 : 0;
-    if (mode === 'wide') { bx = -1; fx = 1; }
-    q.rect(-3 + bx, -5, 2, 4 - bl, legd); heel(-4 + bx, -bl);
-    q.rect(1 + fx, -5, 2, 4 - fl, leg); heel(fx, -fl - tap);
-    q.rect(-5, -10, 10, 5, sk); q.rect(-5, -10, 1, 5, S(sk, .2)); q.rect(3, -10, 2, 5, S(sk, -.18)); q.rect(-5, -6, 10, 1, skd); q.px(0, -7, skd);
-  }
-
   function torso(q, s, y, role) {
-    const w = s.wide ? 16 : s.slim ? 12 : 14, x = -w / 2, lt = S(s.coat, .22), dk = S(s.coat, -.22), dd = S(s.coat, -.38);
+    const w = s.wide ? 16 : 14, x = -w / 2, lt = S(s.coat, .22), dk = S(s.coat, -.22), dd = S(s.coat, -.38);
     const h = s.robe ? 19 : role === 'gazeteci' ? 15 : 12;
     q.rect(x, -20 + y, w, h, s.coat); q.rect(x, -20 + y, 1, h, lt); q.rect(x + 1, -20 + y, 3, 1, lt); q.rect(x + w - 2, -20 + y, 2, h, dk); q.rect(x, -21 + h + y, w, 1, dd);
     if (s.robe) { q.rect(x - 1, -8 + y, w + 2, 7, s.coat); q.rect(x - 1, -8 + y, 1, 7, lt); q.rect(x + w - 1, -8 + y, 2, 7, dk); q.rect(x - 1, -2 + y, w + 2, 1, s.trim); q.rect(0, -19 + y, 1, 17, dk); }
     if (s.wide) { q.rect(x - 1, -15 + y, w + 2, 6, s.coat); q.rect(x - 1, -15 + y, 1, 6, lt); q.rect(x + w - 1, -15 + y, 2, 6, dk); }
     const Y = y;
     switch (role) {
-      case 'sek-butler': {
+      case 'sekreter': {
         // Black tailcoat with satin lapels, white shirt front, black bow tie, dove-grey waistcoat with a gold watch chain.
         const sat = '#3c3c4c', vest = '#6a6a76';
         q.rect(0, -20 + Y, 5, 3, s.trim); q.rect(1, -17 + Y, 3, 2, s.trim); q.px(2, -15 + Y, s.trim);
@@ -80,15 +55,6 @@
         q.rect(0, -19 + Y, 2, 2, '#0e0e12'); q.px(2, -19 + Y, '#2a2a34'); q.rect(3, -19 + Y, 2, 2, '#0e0e12'); q.px(0, -19 + Y, '#34343e');
         q.px(-4, -17 + Y, s.trim); q.px(-3, -17 + Y, '#d4d0c6');
         q.rect(x, -10 + Y, 5, 1, dd); q.rect(5, -10 + Y, 2, 1, S(s.pants, -.1));
-        break; }
-      case 'sek-secretary': {
-        // Fitted wine-red jacket: cream blouse in the V, gold brooch, cinched waist and a small peplum over the pencil skirt.
-        q.rect(0, -20 + Y, 4, 2, s.trim); q.rect(1, -18 + Y, 2, 2, s.trim); q.px(1, -16 + Y, S(s.trim, -.1)); q.px(0, -20 + Y, C.white);
-        q.line(-1, -20 + Y, 1, -15 + Y, dk); q.line(5, -20 + Y, 2, -15 + Y, dk);
-        q.px(-3, -17 + Y, C.gold3); q.px(-2, -17 + Y, C.gold2); q.px(-3, -16 + Y, C.gold1);
-        q.px(2, -13 + Y, C.gold2); q.px(2, -11 + Y, C.gold2);
-        q.rect(x, -13 + Y, w, 1, dd); q.px(x, -12 + Y, dd); q.px(x + w - 1, -12 + Y, dd);
-        q.rect(x - 1, -10 + Y, w + 2, 2, s.coat); q.rect(x - 1, -10 + Y, 1, 2, lt); q.rect(x + w - 1, -10 + Y, 2, 2, dk); q.rect(x - 1, -9 + Y, w + 2, 1, dd);
         break; }
       case 'girard':
         q.rect(-2, -19 + Y, 4, 9, C.paper2); q.rect(-2, -19 + Y, 1, 9, C.paper); q.px(0, -17 + Y, C.gold2); q.px(0, -14 + Y, C.gold2); q.px(0, -11 + Y, C.gold2);
@@ -133,14 +99,7 @@
 
   function backLayer(q, s, y, role, sit) {
     if (role === 'text-writer' || role === 'bayes') { q.rect(-7, -32 + y, 4, 16, role === 'bayes' ? '#e8e4d8' : s.hair); q.px(-7, -17 + y, S(s.hair, -.2)); }
-    if (role === 'sek-butler') { const dk = S(s.coat, -.3); q.rect(-9, -13 + y, 3, sit ? 6 : 10, s.coat); q.rect(-9, -13 + y, 1, sit ? 6 : 10, S(s.coat, .2)); q.px(-7, (sit ? -8 : -4) + y, dk); q.px(-8, (sit ? -8 : -4) + y, dk); }
-    if (role === 'sek-secretary') {
-      // Long, wavy chestnut hair falling past her shoulders.
-      const h = s.hair, hd = S(h, -.28), hl = S(h, .22);
-      q.rect(-8, -25 + y, 4, 10, h); q.px(-9, -23 + y, h); q.px(-9, -19 + y, h); q.rect(-7, -15 + y, 3, 1, h); q.px(-8, -15 + y, hd);
-      q.px(-7, -22 + y, hd); q.px(-6, -18 + y, hd); q.px(-8, -17 + y, hd);
-      q.px(-8, -21 + y, hl); q.px(-7, -17 + y, hl);
-    }
+    if (role === 'sekreter') { const dk = S(s.coat, -.3); q.rect(-9, -13 + y, 3, sit ? 6 : 10, s.coat); q.rect(-9, -13 + y, 1, sit ? 6 : 10, S(s.coat, .2)); q.px(-7, (sit ? -8 : -4) + y, dk); q.px(-8, (sit ? -8 : -4) + y, dk); }
   }
 
   function head(q, s, y, role, eyes = 'open', mouth = 'smile', look = 0) {
@@ -155,7 +114,7 @@
     else if (eyes === 'wide') { q.rect(ex, hy + 5, 2, 3, C.white); q.px(ex + 1, hy + 6, C.ink); q.px(ex + 1, hy + 7, C.ink); q.rect(ex + 3, hy + 5, 2, 3, C.white); q.px(ex + 4, hy + 6, C.ink); q.px(ex + 4, hy + 7, C.ink); }
     else { q.rect(ex, hy + 6, 1, 2, C.ink); q.rect(ex + 3, hy + 6, 1, 2, C.ink); q.px(ex, hy + 6, '#5a4a44'); }
     q.px(6, hy + 8, skd); q.px(5 + look, hy + 9, '#e8907a');
-    const lip = s.lips || '#8a3a30';
+    const lip = '#8a3a30';
     if (mouth === 'smile') { q.px(2, hy + 9, lip); q.rect(3, hy + 10, 2, 1, lip); q.px(5, hy + 9, lip); }
     else if (mouth === 'flat') { q.rect(3, hy + 10, 2, 1, lip); }
     else if (mouth === 'o') { q.rect(3, hy + 9, 2, 2, '#5a1e1a'); }
@@ -163,7 +122,7 @@
     else if (mouth === 'grin') { q.rect(2, hy + 9, 4, 2, C.white); q.rect(2, hy + 10, 4, 1, lip); }
     const brow = (col, h = 1) => { q.rect(ex - 1, hy + 4, 2, h, col); q.rect(ex + 3, hy + 4, 2, h, col); };
     switch (role) {
-      case 'sek-butler': {
+      case 'sekreter': {
         // Silver hair combed straight back from a high forehead, grey brows and a trim grey moustache.
         const hl = S(hair, .35), st = '#e2e2dc';
         q.rect(-4, hy - 2, 6, 1, hair); q.rect(-6, hy - 1, 10, 1, hair); q.rect(-6, hy, 6, 1, hair); q.rect(-6, hy + 1, 4, 8, hair); q.rect(-2, hy + 2, 1, 3, hair);
@@ -171,17 +130,6 @@
         brow(S(hair, -.3));
         q.rect(2, hy + 8, 5, 1, st); q.px(2, hy + 9, st); q.px(6, hy + 9, st); q.px(4, hy + 8, S(hair, -.1));
         q.px(0, hy + 9, skd); q.px(1, hy + 10, skd);
-        break; }
-      case 'sek-secretary': {
-        // Long wavy chestnut hair with a side part, cat-eye glasses, red lipstick and a pearl stud.
-        const hl = S(hair, .22), F = '#5a1e2a', gy = eyes === 'wide' ? 1 : 0;
-        q.rect(-6, hy - 2, 10, 1, hair); q.rect(-7, hy - 1, 13, 2, hair); q.rect(-7, hy + 1, 5, 9, hair); q.rect(-2, hy + 1, 8, 1, hair); q.rect(3, hy + 2, 3, 1, hair); q.rect(-3, hy + 2, 2, 2, hair);
-        q.px(-8, hy + 3, hair); q.px(-8, hy + 7, hair);
-        q.rect(-5, hy - 2, 4, 1, hl); q.rect(0, hy - 1, 3, 1, hl); q.px(-6, hy + 4, hl); q.px(-5, hy + 8, hl);
-        q.px(-1, hy - 1, hd); q.px(-5, hy + 2, hd); q.px(-4, hy + 6, hd); q.px(-6, hy + 9, hd); q.px(5, hy + 2, hd);
-        if (mouth === 'smile' || mouth === 'flat') { q.rect(3, hy + 9, 2, 1, S(lip, .2)); q.px(4, hy + 10, S(lip, -.2)); }
-        q.rect(ex - 1, hy + 5 + gy, 6, 1, F); q.px(ex - 2, hy + 4 + gy, F); q.px(ex + 5, hy + 4 + gy, F); q.px(ex + 4, hy + 6 + gy, '#d8eef2'); q.px(ex + 1, hy + 6 + gy, '#d8eef2');
-        q.px(-2, hy + 8, '#f6f2ea');
         break; }
       case 'girard':
         q.rect(-6, hy + 2, 3, 6, hair); q.rect(-6, hy + 1, 13, 1, hair); brow(hair, 2);
@@ -252,39 +200,34 @@
   const ticket = (q, x, y) => { q.rect(x, y, 6, 8, C.paper); q.rect(x, y, 6, 1, C.white); q.rect(x + 1, y + 2, 4, 1, '#7a7264'); q.rect(x + 1, y + 4, 3, 1, '#7a7264'); q.px(x + 4, y + 6, C.red2); };
   // The butler's silver salver (held flat, level with the glove at x, y), with an optional sealed letter on it.
   const salver = (q, x, y, letter) => { q.rect(x - 4, y - 1, 10, 1, '#dde2e8'); q.rect(x - 3, y, 8, 1, '#9aa2ae'); q.px(x - 3, y - 1, C.white); q.px(x + 5, y - 1, '#aab2bc'); if (letter) { q.rect(x - 2, y - 4, 7, 3, C.paper); q.rect(x - 2, y - 4, 7, 1, C.white); q.px(x + 1, y - 3, C.red2); q.px(x + 2, y - 3, C.red1); } };
-  const clipboard = (q, x, y) => { q.rect(x - 3, y - 4, 7, 9, '#8a5a36'); q.rect(x - 3, y - 4, 1, 9, '#a8724a'); q.rect(x - 2, y - 3, 5, 7, C.paper); q.rect(x - 1, y - 5, 3, 2, '#c8ccd2'); q.px(x, y - 5, '#9aa2ae'); for (const r of [-1, 1, 3]) q.rect(x - 1, y + r, r === 3 ? 2 : 3, 1, '#8a8474'); q.px(x + 2, y + 3, C.red2); };
-  const fountainPen = (q, x, y) => { q.line(x, y, x + 2, y - 4, '#1c1418'); q.px(x + 2, y - 4, C.gold2); q.px(x, y, C.gold3); };
 
   /* ---------- Poses ---------- */
   // Hands: bh = back hand, fh = front hand (relative to feet). Items draw after arms.
   function pose(role, anim, f) {
     const p = { dy: 0, legs: 'stand', bh: [-7, -11], fh: [7, -11], eyes: 'open', mouth: 'smile', look: 0, item: null, backItem: null };
-    if (anim === 'idle' || anim === 'blink' || anim === 'chat') { p.dy = f ? 1 : 0; if (anim === 'blink') p.eyes = 'closed'; }
+    if (anim === 'idle' || anim === 'blink') { p.dy = f ? 1 : 0; if (anim === 'blink') p.eyes = 'closed'; }
     if (anim === 'stretch') { p.bh = [-6, -33]; p.fh = [6, -33]; p.eyes = 'happy'; p.mouth = 'o'; p.dy = -1; }
     if (anim === 'walk') { p.legs = 'walk'; p.dy = f % 2 ? -1 : 0; const sw = [2, 0, -2, 0][f]; p.bh = [-7 + sw, -11]; p.fh = [7 - sw, -11]; }
     if (anim === 'wait') { p.legs = 'tap'; p.bh = [-8, -13]; p.fh = [8, -22 + f]; p.mouth = 'flat'; p.look = 1; }
     if (anim === 'err') { p.bh = [-9, -29 - (f === 2 ? 1 : 0)]; p.fh = [9, -29 + (f === 1 ? 1 : 0)]; p.eyes = 'wide'; p.mouth = 'o'; p.legs = 'wide'; }
     if (anim === 'sleep') { p.legs = 'sit'; p.dy = 4 + (f ? 1 : 0); p.bh = [-3, -8]; p.fh = [4, -8]; p.eyes = 'closed'; p.mouth = 'flat'; }
     // Resting props, so each lead is recognisable when not working.
-    const rest = { 'sek-butler': q => salver(q, p.fh[0], p.fh[1] - 1, true), 'sek-secretary': q => clipboard(q, p.fh[0] + 1, p.fh[1]), girard: q => coin(q, p.fh[0], p.fh[1] - 2, 0), 'text-writer': q => quill(q, p.fh[0], p.fh[1]), gazeteci: q => notepad(q, p.fh[0] + 1, p.fh[1] - 1), bayes: q => { q.rect(p.fh[0], p.fh[1] - 12, 2, 13, C.gold1); q.px(p.fh[0], p.fh[1] - 12, C.gold4); q.rect(p.fh[0] - 1, p.fh[1] - 13, 4, 2, C.gold2); }, kandinsky: q => brush(q, p.fh[0], p.fh[1], 2, -6, '#9a5fac'), kole: q => hammer(q, p.fh[0], p.fh[1] + 2, -1.9), 'scum-master': q => ladle(q, p.fh[0], p.fh[1]) };
+    const rest = { sekreter: q => salver(q, p.fh[0], p.fh[1] - 1, true), girard: q => coin(q, p.fh[0], p.fh[1] - 2, 0), 'text-writer': q => quill(q, p.fh[0], p.fh[1]), gazeteci: q => notepad(q, p.fh[0] + 1, p.fh[1] - 1), bayes: q => { q.rect(p.fh[0], p.fh[1] - 12, 2, 13, C.gold1); q.px(p.fh[0], p.fh[1] - 12, C.gold4); q.rect(p.fh[0] - 1, p.fh[1] - 13, 4, 2, C.gold2); }, kandinsky: q => brush(q, p.fh[0], p.fh[1], 2, -6, '#9a5fac'), kole: q => hammer(q, p.fh[0], p.fh[1] + 2, -1.9), 'scum-master': q => ladle(q, p.fh[0], p.fh[1]) };
     if (anim !== 'work' && anim !== 'err' && anim !== 'stretch') p.item = rest[role];
     if (role === 'girard' && anim !== 'stretch' && anim !== 'err') p.backItem = q => ledger(q, p.bh[0] - 1, p.bh[1] - 2);
     if (role === 'kandinsky' && anim !== 'stretch' && anim !== 'err') p.backItem = q => palette(q, p.bh[0] - 3, p.bh[1] - 1);
-    // The double lead's figures: the butler carries his salver level at chest height (and presents it while waiting)
-    // and straightens his bow tie instead of stretching; the secretary hugs her clipboard while waiting and chats (anim 'chat').
-    if (role === 'sek-butler') {
-      if (anim === 'tie') { p.fh = [3, -19]; p.eyes = 'closed'; p.item = null; }
-      else if (anim === 'idle' || anim === 'blink' || anim === 'chat' || anim === 'walk') p.fh = [8, -15];
-    }
-    if (role === 'sek-secretary') {
-      if (anim === 'wait') p.fh = [5, -15];
-      if (anim === 'chat') { p.mouth = f ? 'o' : 'smile'; p.eyes = f ? 'open' : 'happy'; }
+    // The butler carries his salver level at chest height (and presents it while waiting), straightens his bow tie
+    // instead of stretching, and sends letters flying when flustered.
+    if (role === 'sekreter') {
+      if (anim === 'stretch') { p.bh = [-7, -11]; p.fh = [3, -19]; p.eyes = 'closed'; p.mouth = 'smile'; p.dy = 0; }
+      else if (anim === 'idle' || anim === 'blink' || anim === 'walk') p.fh = [8, -15];
+      if (anim === 'err') p.item = q => { for (const [x, y] of [[[-13, -38], [12, -42]], [[-15, -42], [14, -39]], [[-12, -44], [15, -37]]][f]) envelope(q, x, y); };
     }
     if (anim !== 'work') return p;
     // Role-specific work cycles.
     switch (role) {
-      case 'sek-butler': {
-        // Stamps the letter on the desk (0-4), tosses it to the out-tray (5-6), and takes the next one from the secretary behind him (5-7).
+      case 'sekreter': {
+        // Stamps the letter on the desk (0-4), tosses it to the out-tray (5-6), and takes the next one from the salver on the side table behind him (5-7).
         const ups = [[7, -27], [7, -29], [8, -15], [8, -15], [8, -17], [10, -20], [9, -14], [7, -24]][f];
         p.bh = [[8, -13], [8, -13], [8, -13], [8, -13], [8, -13], [-9, -14], [-9, -14], [3, -14]][f]; p.fh = ups; p.dy = f === 2 || f === 3 ? 1 : 0; p.eyes = f === 2 ? 'happy' : 'open';
         p.item = q => {
@@ -294,17 +237,6 @@
           const [hx, hy] = ups; q.rect(hx - 1, hy - 5, 3, 4, C.wood2); q.rect(hx - 2, hy - 1, 5, 2, C.red1); q.px(hx - 1, hy - 5, C.wood4);
           if (f === 2) { q.px(4, -13, C.white); q.px(14, -13, C.white); q.px(5, -10, C.white); q.px(13, -10, C.white); }
           if (f >= 3 && f < 5) q.px(10, -12, C.red2), q.px(11, -12, C.red2);
-        };
-        break; }
-      case 'sek-secretary': {
-        // Notes each letter on her clipboard (0-3), then hands the next envelope forward to the butler (4-5).
-        const hand = [[5, -13], [7, -14], [6, -12], [7, -13], [8, -17], [10, -15], [8, -14], [5, -13]][f], sk = FIGS[role].skin;
-        p.bh = [4, -15]; p.fh = hand; p.look = f < 4 ? 1 : 0; p.eyes = f === 5 ? 'happy' : 'open';
-        p.item = q => {
-          clipboard(q, 3, -15);
-          if (f < 4) q.rect(3, -12 + (f % 2), Math.min(4, 1 + f), 1, '#4a4060');
-          q.rect(hand[0] - 1, hand[1] - 1, 3, 3, sk); q.px(hand[0] - 1, hand[1] - 1, S(sk, .25));
-          if (f === 4 || f === 5) envelope(q, hand[0] + 2, hand[1] - 1); else fountainPen(q, hand[0], hand[1]);
         };
         break; }
       case 'girard': {
@@ -352,7 +284,7 @@
   }
 
   function drawLead(q, role, anim, f) {
-    const s = prof(role), p = pose(role, anim, f), y = p.dy, sit = anim === 'sleep';
+    const s = ROLES[role], p = pose(role, anim, f), y = p.dy, sit = anim === 'sleep';
     const sleeve = S(s.coat, -.12), hand = s.hand || s.skin;
     backLayer(q, s, y, role, sit);
     const shB = [-6, -18 + y], shF = [5, -18 + y];
@@ -366,20 +298,6 @@
     if (anim === 'err') { const d = [[9, -38], [11, -36], [10, -40]][f]; q.px(d[0], d[1], '#bfe6ff'); q.px(d[0], d[1] + 1, '#8fc7ef'); q.px(-9 - f, -37 + f, '#bfe6ff'); }
   }
 
-  // A double lead: each figure is drawn at its x offset. dir -1 turns both round in place (they keep their sides).
-  // 'work' and 'chat' face them towards each other (the whole sprite is flipped for facing -1 instead).
-  function drawPair(q, role, anim, f, dir) {
-    for (const [fig, ox] of ROLES[role].pair) {
-      const her = fig === 'sek-secretary', mirror = anim === 'chat' ? !her : anim === 'work' ? false : dir < 0;
-      let a = anim, g = f;
-      if (her) { if (anim === 'blink') a = 'idle'; if (anim === 'idle' || anim === 'sleep' || anim === 'chat') g = 1 - f; if (anim === 'walk') g = (f + 2) % 4; }
-      else if (anim === 'stretch') a = 'tie';
-      q.c.save(); q.c.translate(mirror ? ox + 1 : ox, 0); if (mirror) q.c.scale(-1, 1); drawLead(q, fig, a, g); q.c.restore();
-    }
-    // Flustered: letters fly up between them.
-    if (anim === 'err') for (const [x, y] of [[[-17, -38], [16, -42]], [[-19, -42], [18, -39]], [[-16, -44], [19, -37]]][f]) envelope(q, x, y);
-  }
-
   // Timeline for each state. Returns the animation frame and body motion for time t.
   function frameFor(role, state, t, opts) {
     const s = ROLES[role], seed = role.length * 1.37;
@@ -391,13 +309,34 @@
     if (state === 'off') return { anim: 'sleep', f: mod(Math.floor(t * 1.1), 2) };
     const c = (t + seed) % 9;
     if (c > 7.4 && c < 8.4) return { anim: 'stretch', f: 0 };
-    if (s.pair && c > 5 && c < 6.6) return { anim: 'chat', f: mod(Math.floor(t * 3), 2) };
     const blink = (t + seed) % 3.4 < .14;
     return { anim: blink ? 'blink' : 'idle', f: mod(Math.floor(t * 1.6), 2), flip: c > 5 && c < 6.6 };
   }
 
   function leadSprite(role, anim, f) { return P.sprite(`lead|${role}|${anim}|${f}`, 50, 64, 25, 60, q => drawLead(q, role, anim, f)); }
-  function pairSprite(role, anim, f, dir) { return P.sprite(`lead|${role}|${anim}|${f}|${dir}`, 66, 64, 33, 60, q => drawPair(q, role, anim, f, dir)); }
+  // On the map the leads are drawn 1.5× their art size. The art is drawn crisp at 3×, box-filtered down by 2 (so every
+  // art pixel covers one full pixel and shares one with its neighbour), its alpha snapped, and outlined 1px like P.sprite.
+  const BIG = 1.5, big = new Map();
+  function bigLeadSprite(role, anim, f) {
+    const key = `${role}|${anim}|${f}`; let s = big.get(key); if (s) return s;
+    const w = 50, h = 64, W = Math.ceil(w * BIG) + 2, H = Math.ceil(h * BIG) + 2, X = Math.round(25 * BIG) + 1, Y = Math.round(60 * BIG) + 1;
+    const hi = document.createElement('canvas'); hi.width = W * 2; hi.height = H * 2; const hc = hi.getContext('2d');
+    hc.translate(X * 2, Y * 2); hc.scale(3, 3); drawLead(P.kit(hc), role, anim, f);
+    const src = hc.getImageData(0, 0, W * 2, H * 2).data, lo = document.createElement('canvas'); lo.width = W; lo.height = H;
+    const lc = lo.getContext('2d'), img = lc.createImageData(W, H), d = img.data;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let r = 0, g = 0, b = 0, n = 0;
+      for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) { const i = ((y * 2 + dy) * W * 2 + x * 2 + dx) * 4; if (src[i + 3] < 128) continue; r += src[i]; g += src[i + 1]; b += src[i + 2]; n++; }
+      if (n < 2) continue;
+      const o = (y * W + x) * 4; d[o] = r / n; d[o + 1] = g / n; d[o + 2] = b / n; d[o + 3] = 255;
+    }
+    lc.putImageData(img, 0, 0);
+    const out = document.createElement('canvas'); out.width = W; out.height = H; const oc = out.getContext('2d');
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) oc.drawImage(lo, dx, dy);
+    oc.globalCompositeOperation = 'source-in'; oc.fillStyle = C.ink; oc.fillRect(0, 0, W, H);
+    oc.globalCompositeOperation = 'source-over'; oc.drawImage(lo, 0, 0);
+    s = { canvas: out, ox: X - 1, oy: Y - 1 }; big.set(key, s); return s;
+  }
 
   /* ---------- State indicators ---------- */
   const ICON = {
@@ -430,13 +369,13 @@
     else if (state === 'error') glyph(k, ICON.ex, X - 1, Y + 2, C.white);
   };
 
-  // rx/ry: ring size (a double lead gets a wider one).
-  function stateRing(k, x, y, t, state, rx = 12, ry = 4) {
+  // rx/ry: ring size (sc: the lead's drawing scale).
+  function stateRing(k, x, y, t, state, sc = 1) {
     if (state === 'off') return;
-    const col = C[state] || C.idle;
+    const col = C[state] || C.idle, rx = Math.round(12 * sc), ry = Math.round(4 * sc);
     if (state === 'waiting' || state === 'error') {
       const sp = state === 'error' ? 1.6 : 1, q = (t * sp) % 1;
-      k.alpha(1 - q, () => k.ring(x, y, rx + q * 10, ry + q * 4, col));
+      k.alpha(1 - q, () => k.ring(x, y, rx + q * 10 * sc, ry + q * 4 * sc, col));
       k.alpha(.35, () => k.ellipse(x, y, rx, ry, col));
       k.ring(x, y, rx, ry, col);
     } else if (state === 'working') {
@@ -447,23 +386,16 @@
   }
 
   /* ---------- Public: draw a lead ---------- */
+  // opts: { facing, pose: 'walk'|'talk', indicator, scale: 1 draws the art-size sprite (portraits) instead of the 1.5× map sprite }
   function lead(k, role, x, y, t, state = 'idle', opts = {}) {
     if (!ROLES[role]) return;
-    const fr = frameFor(role, state, t, opts), pair = ROLES[role].pair;
-    if (pair) {
-      // One ring, one shadow per figure, one sprite for both.
-      const joint = fr.anim === 'work' || fr.anim === 'chat', left = opts.facing === -1;
-      stateRing(k, x, y + 1, t, state, 24, 5);
-      for (const [, ox] of pair) k.ellipse(x + ox + 1, y, 8, 2, C.shadow);
-      k.blit(pairSprite(role, fr.anim, fr.f, !joint && left ? -1 : 1), x + (fr.dx || 0), y, joint && left);
-    } else {
-      const flip = (opts.facing === -1) !== !!fr.flip;
-      stateRing(k, x, y + 1, t, state);
-      k.ellipse(x + 1, y, 9, 2, C.shadow);
-      const s = leadSprite(role, fr.anim, fr.f);
-      k.blit(s, x + (fr.dx || 0), y, flip);
-    }
-    if (opts.indicator !== false) Characters_indicator(k, x, y - (role === 'bayes' ? 64 : 58), t, state);
+    const fr = frameFor(role, state, t, opts), flip = (opts.facing === -1) !== !!fr.flip, sc = opts.scale === 1 ? 1 : BIG;
+    stateRing(k, x, y + 1, t, state, sc);
+    k.ellipse(x + 1, y, Math.round(9 * sc), Math.round(2 * sc), C.shadow);
+    k.blit(sc === 1 ? leadSprite(role, fr.anim, fr.f) : bigLeadSprite(role, fr.anim, fr.f), x + Math.round((fr.dx || 0) * sc), y, flip);
+    // The bubble clears the tallest hats (the astronomer's and the chef's); the Z's of a dozing lead start just above his head.
+    const top = sc === 1 ? (role === 'bayes' ? 64 : 58) : ({ bayes: 96, 'scum-master': 87 }[role] || 80) - (state === 'off' ? 8 : 0);
+    if (opts.indicator !== false) Characters_indicator(k, x, y - top, t, state);
   }
 
   /* ---------- Small crew and citizens ---------- */
@@ -542,9 +474,9 @@
     const c = canvas.getContext('2d'), k = P.kit(c), W = canvas.width, H = canvas.height, sc = Math.max(1, Math.floor(Math.min(W / 50, H / 72)));
     c.imageSmoothingEnabled = false; c.clearRect(0, 0, W, H);
     c.save(); c.translate(Math.round(W / 2), Math.round(H - 6 * sc)); c.scale(sc, sc);
-    k.ellipse(0, 1, ROLES[role]?.pair ? 26 : 14, 4, '#00000022'); lead(k, role, 0, 0, t, state, { indicator: true }); c.restore();
+    k.ellipse(0, 1, 14, 4, '#00000022'); lead(k, role, 0, 0, t, state, { indicator: true, scale: 1 }); c.restore();
   }
 
-  window.AgentCharacters = { profiles: ROLES, lead, crew, indicator: (...a) => Characters_indicator(...a), portrait, roles: Object.keys(ROLES), frameFor };
+  window.AgentCharacters = { profiles: ROLES, scale: BIG, lead, crew, indicator: (...a) => Characters_indicator(...a), portrait, roles: Object.keys(ROLES), frameFor };
   var Characters_indicator;
 })();

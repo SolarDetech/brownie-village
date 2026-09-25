@@ -2,11 +2,11 @@
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.girard = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const LEAD = { x: 76, y: 76 }, REST = { x: -112, y: 130 };   // at the map table on the deal court; bench when off
+  const LEAD = { x: 74, y: 84 }, REST = { x: -112, y: 130 };   // at the map table on the deal court; bench when off
   const MAP = { x: 92, y: 62, w: 56 };                           // map table (bottom-left, width)
   const SCALE = { x: 170, y: 52 };                               // brass balance on its pedestal
   // Neon agency (the converted counting house): facade, holo billboard frame, desk screens.
-  const AG = { x: 96, y: -38, w: 88, h: 52 }, BB = { x: 108, y: -138, w: 64, h: 34 };
+  const AG = { x: 96, y: -38, w: 88, h: 52 }, BB = { x: 100, y: -138, w: 64, h: 34 };
   const N = { floor: '#1b1926', floor2: '#252336', wall: '#2c2838', steel: '#3a3850', steelHi: '#55526e', glass: '#0c1220', ink: '#121118',
     pink: '#ff4fa8', cyan: '#3ff0ff', violet: '#a86cff', amber: '#ffb938', red: '#ff3a3a' };
   const SCREENS = [{ x: 102, y: -15, w: 14, h: 9 }, { x: 122, y: -15, w: 11, h: 9, crt: true }, { x: 140, y: -18, w: 18, h: 11, big: true }, { x: 162, y: -15, w: 12, h: 9 }];
@@ -14,7 +14,7 @@ window.ZoneDesigns.girard = (() => {
   const BURG = '#8c2f3a', SAFFRON = '#e07a2a';
   const STALLS = [
     { x: -182, y: 16, w: 40, col: C.red2, kind: 'fruit' }, { x: -132, y: 16, w: 40, col: C.gold1, kind: 'spice' },
-    { x: -182, y: 76, w: 40, col: C.teal2, kind: 'cloth' }, { x: -132, y: 76, w: 40, col: C.plum2, kind: 'pots' }
+    { x: -174, y: 76, w: 40, col: C.teal2, kind: 'cloth' }, { x: -124, y: 76, w: 40, col: C.plum2, kind: 'pots' }
   ];
   const HALL_WIN = [[-60, -72], [-40, -72], [26, -72], [46, -72]];
   const soot = (k, x, y, t, n, col) => { for (let i = 0; i < n; i++) { const q = (t * .5 + i / n) % 1, r = 2 + q * 6, px = x + Math.sin(q * 4 + i * 2) * 4 + q * 8, py = y - q * 32; k.alpha((1 - q) * .9, () => { k.circle(px, py, r, col); k.circle(px - 1, py - 1, Math.max(1, r - 2), S(col, .15)); }); } };
@@ -170,7 +170,7 @@ window.ZoneDesigns.girard = (() => {
     // Holographic billboard: projector beam, translucent panel, growing bars and a growth arrow.
     if (live) {
       const B = BB, flick = err ? (Math.floor(t * 9) % 3 === 0 ? .1 : .3) : .28;
-      k.alpha(.12, () => k.poly([[137, -101], [143, -101], [B.x + B.w - 2, B.y + B.h], [B.x + 2, B.y + B.h]], N.cyan));
+      k.alpha(.12, () => k.poly([[129, -101], [135, -101], [B.x + B.w - 2, B.y + B.h], [B.x + 2, B.y + B.h]], N.cyan));
       k.alpha(flick, () => k.rect(B.x, B.y, B.w, B.h, err ? N.red : wait ? N.amber : N.cyan));
       k.alpha(.5, () => { for (let y = B.y + 1; y < B.y + B.h; y += 3) k.rect(B.x, y, B.w, 1, '#0b0f1a'); });
       if (err) {
@@ -236,9 +236,9 @@ window.ZoneDesigns.girard = (() => {
       for (let i = 0; i < 10; i++) Props.flower(k, -180 + P.hash(i, 2) * 360, -146 + P.hash(i, 5) * 10, ['#f2c14e', '#e46c52', '#f6ecd0'][i % 3]);
 
       // Warehouse: timber store with an open barn door, then cargo and a derrick crane.
-      Props.building(k, -186, -40, { w: 72, h: 40, roofH: 22, roof: C.wood2, wall: C.plaster1, mat: 'timber', door: { x: 26, w: 20, h: 26, color: C.wood3, open: true }, windows: [{ x: 6, y: 8, w: 8, h: 7 }, { x: 58, y: 8, w: 8, h: 7 }] });
-      k.rect(-158, -60, 18, 4, '#3a2c20'); Props.sack(k, -156, -64, C.plaster1); Props.crate(k, -148, -63, 7);
-      k.rect(-172, -94, 32, 9, C.ink); k.rect(-171, -93, 30, 7, C.wood3); k.text('CARGO', -170, -92, C.paper);
+      Props.building(k, -166, -40, { w: 54, h: 40, roofH: 22, roof: C.wood2, wall: C.plaster1, mat: 'timber', door: { x: 18, w: 20, h: 26, color: C.wood3, open: true }, windows: [{ x: 6, y: 8, w: 8, h: 7 }, { x: 42, y: 8, w: 8, h: 7 }] });   // narrowed to clear the hexagon edge
+      k.rect(-146, -60, 18, 4, '#3a2c20'); Props.sack(k, -144, -64, C.plaster1); Props.crate(k, -136, -63, 7);
+      k.rect(-160, -94, 32, 9, C.ink); k.rect(-159, -93, 30, 7, C.wood3); k.text('CARGO', -158, -92, C.paper);
       Props.crate(k, -112, -38); Props.crate(k, -112, -47, 8); Props.barrel(k, -92, -36); Props.sack(k, -80, -30, C.plaster1); Props.sack(k, -188, -28, '#b8a276');
       k.rect(CRANE.x - 1, CRANE.y - 70, 4, 70, C.wood2); k.rect(CRANE.x - 1, CRANE.y - 70, 1, 70, C.wood4); k.rect(CRANE.x - 5, CRANE.y - 2, 12, 3, C.wood1);
       k.rect(CRANE.jib - 2, CRANE.y - 70, CRANE.x - CRANE.jib + 6, 3, C.wood2); k.rect(CRANE.jib - 2, CRANE.y - 70, CRANE.x - CRANE.jib + 6, 1, C.wood4);
@@ -258,6 +258,7 @@ window.ZoneDesigns.girard = (() => {
       for (let i = 0; i < 3; i++) k.rect(-80 + i * 2, -38 + i * 2, 160 - i * 4, 2, [C.stone4, C.stone3, C.stone2][i]);
       k.rect(-14, -79, 28, 9, C.ink); k.rect(-13, -78, 26, 7, BURG); k.text('BOURSE', -11, -77, C.gold3);
 
+      k.at(-12, 0, () => {   // the agency sits 12 px in from the hexagon edge (its animation is shifted to match)
       // Neon marketing agency: the old counting house turned cyberpunk. Dark steel floor plates first.
       k.rect(90, -40, 98, 60, N.floor); for (let x = 90; x < 188; x += 12) k.rect(x, -40, 1, 60, N.floor2); for (let y = -40; y < 20; y += 10) k.rect(90, y, 98, 1, N.floor2);
       for (let x = 92; x < 188; x += 12) for (let y = -38; y < 20; y += 10) k.px(x, y, N.steel);
@@ -273,7 +274,7 @@ window.ZoneDesigns.girard = (() => {
       k.rect(100, -99, 13, 9, N.steelHi); k.rect(100, -99, 13, 1, '#8a88a0'); for (let i = 0; i < 4; i++) k.rect(102 + i * 3, -97, 1, 6, N.steel);
       k.rect(166, -95, 12, 3, N.steel); k.rect(167, -95, 10, 1, N.steelHi); k.rect(171, -95, 2, 1, '#ffd84a');
       k.rect(180, -122, 1, 32, N.steel); k.rect(178, -112, 5, 1, N.steel); k.rect(177, -104, 7, 1, N.steel);
-      k.rect(116, -101, 2, 11, N.steel); k.rect(162, -101, 2, 11, N.steel); k.rect(135, -101, 10, 4, N.steelHi); k.rect(137, -102, 6, 1, '#8a88a0');
+      k.rect(108, -101, 2, 11, N.steel); k.rect(154, -101, 2, 11, N.steel); k.rect(127, -101, 10, 4, N.steelHi); k.rect(129, -102, 6, 1, '#8a88a0');
       k.alpha(.55, () => k.rect(BB.x, BB.y, BB.w, BB.h, '#0b0f1a'));
       for (const [cx, cy, dx, dy] of [[BB.x - 1, BB.y - 1, 1, 1], [BB.x + BB.w, BB.y - 1, -1, 1], [BB.x - 1, BB.y + BB.h, 1, -1], [BB.x + BB.w, BB.y + BB.h, -1, -1]]) { k.rect(Math.min(cx, cx + dx * 5), cy, 6, 1, N.steelHi); k.rect(cx, Math.min(cy, cy + dy * 5), 1, 6, N.steelHi); }
       k.rect(185, -92, 1, 68, N.ink); k.rect(186, -92, 1, 68, N.steel);                                     // data cable up the facade
@@ -296,11 +297,12 @@ window.ZoneDesigns.girard = (() => {
       k.path([[124, 6], [121, 12], [127, 15], [133, 13]], N.ink); k.path([[140, -38], [140, -33], [128, -28], [118, -22], [112, -10]], N.ink);
       k.circle(133, 14, 2, N.steel); k.px(133, 14, N.ink);
       for (const x of [80]) Props.pot(k, x, -30); Props.lamp(k, 86, -8, false);
+      });
 
       // Market stalls with striped awnings and goods, plus spare stock around them.
       STALLS.forEach(s => stall(k, s));
-      Props.crate(k, -92, 8, 8); Props.sack(k, -186, 22, C.gold1); Props.sack(k, -92, 64, SAFFRON); Props.barrel(k, -186, 82); Props.crate(k, -88, 76, 8);
-      k.rect(-176, 98, 30, 8, C.red1); k.rect(-175, 99, 28, 6, C.gold1); k.dither(-175, 99, 28, 6, C.red2, 1); k.rect(-126, 98, 30, 8, C.teal1); k.rect(-125, 99, 28, 6, C.teal3); k.dither(-125, 99, 28, 6, C.gold2, 1);
+      Props.crate(k, -92, 8, 8); Props.sack(k, -186, 22, C.gold1); Props.sack(k, -92, 64, SAFFRON); Props.barrel(k, -178, 86); Props.crate(k, -88, 76, 8);
+      k.rect(-158, 98, 30, 8, C.red1); k.rect(-157, 99, 28, 6, C.gold1); k.dither(-157, 99, 28, 6, C.red2, 1); k.rect(-124, 98, 30, 8, C.teal1); k.rect(-123, 99, 28, 6, C.teal3); k.dither(-123, 99, 28, 6, C.gold2, 1);
       Props.lamp(k, -70, 20, false); Props.lamp(k, 40, 20, false);
       Props.sign(k, 52, 8, 'SOUK', C.teal1); Props.barrel(k, 8, -14); Props.sack(k, 20, -10, C.gold1); for (let i = 0; i < 3; i++) { const ax = -58 + i * 8; k.ellipse(ax + 3, -12, 4, 1, C.shadow); k.ellipse(ax + 2, -17, 3, 5, C.terra2); k.rect(ax + 1, -24, 3, 3, C.terra1); k.px(ax, -19, C.terra4); }
       // Deal court: planked dais, patterned rug, map table, chairs and a brass balance.
@@ -320,13 +322,13 @@ window.ZoneDesigns.girard = (() => {
 
       // Caravan corner: covered wagon with rugs and jars, and a tethered donkey.
       Props.cart(k, 78, 126, (q, x, y) => { q.rect(x + 1, y - 8, 20, 8, C.teal2); q.rect(x + 1, y - 8, 20, 2, C.teal3); q.rect(x + 3, y - 12, 6, 4, C.red1); q.rect(x + 11, y - 13, 4, 5, C.terra3); q.ellipse(x + 13, y - 13, 2, 1, C.terra2); q.rect(x + 16, y - 11, 5, 3, C.gold2); });
-      const dx = 142, dy = 128;
+      const dx = 118, dy = 128;
       k.ellipse(dx + 4, dy + 1, 12, 2, C.shadow);
       for (const lx of [-6, -3, 6, 9]) k.rect(dx + lx, dy - 7, 2, 7, lx % 2 ? '#6a625a' : '#7e766c');
       k.ellipse(dx + 1, dy - 10, 10, 5, '#8a8278'); k.ellipse(dx, dy - 12, 8, 3, '#a09888'); k.rect(dx - 4, dy - 16, 10, 3, C.red1); k.rect(dx - 4, dy - 16, 10, 1, C.gold2);
       k.rect(dx + 9, dy - 18, 4, 8, '#8a8278'); k.rect(dx + 10, dy - 20, 7, 5, '#8a8278'); k.rect(dx + 15, dy - 17, 3, 3, '#c8c0b0'); k.px(dx + 13, dy - 19, C.ink); k.rect(dx + 10, dy - 24, 2, 4, '#7e766c'); k.rect(dx + 13, dy - 24, 2, 4, '#6a625a');
       k.rect(dx - 10, dy - 11, 2, 5, '#5a524a'); k.rect(dx + 26, dy - 18, 2, 18, C.wood1); k.line(dx + 17, dy - 16, dx + 26, dy - 12, C.wood3);
-      for (let i = 0; i < 3; i++) Props.sack(k, 168 + i * 7, 128 - (i % 2) * 5, [C.plaster1, C.gold1, '#b8a276'][i]);
+      for (let i = 0; i < 3; i++) Props.sack(k, 124 + i * 7, 102 - (i % 2) * 3, [C.plaster1, C.gold1, '#b8a276'][i]);
       Props.tree(k, -176, 140, 'orange', 1, 1); Props.bench(k, -136, 132, 20); Props.bush(k, -64, 118, 1); Props.bush(k, -40, 132, 2); Props.bush(k, 36, 124, 0);
       Props.pot(k, -30, 108); Props.pot(k, 26, 108);
     },
@@ -357,7 +359,7 @@ window.ZoneDesigns.girard = (() => {
         k.rect(-30, 2, 20, 8, C.ink); k.rect(-29, 3, 18, 6, C.waiting); k.text('HOLD', -28, 4, C.ink);
       }
       // The neon agency: signs, holo billboard, screens, marketers and the drone.
-      agency(k, t, state, z);
+      k.at(-12, 0, () => agency(k, t, state, z));
       // Closed market: canvas covers over the goods when off.
       if (!live) STALLS.forEach(s => cover(k, s));
       if (err) { for (const [x, y, c] of [[-150, 26, C.red2], [-144, 30, SAFFRON], [-136, 24, C.red2], [-122, 32, C.leaf3], [-100, 28, C.gold2]]) { k.rect(x, y, 2, 2, c); k.px(x, y, S(c, .4)); } }
@@ -365,7 +367,7 @@ window.ZoneDesigns.girard = (() => {
       // Crew: porter, shopper, trade partner and a hawker.
       if (run) {
         const p = (t * .08) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2;
-        z.crew(-146 + q * 56, -24, { look: 1, hat: 'bandana', hatColor: C.red2, anim: 'walk', carry: back ? '' : 'box', facing: back ? -1 : 1, phase: .2 });
+        z.crew(-136 + q * 46, -24, { look: 1, hat: 'bandana', hatColor: C.red2, anim: 'walk', carry: back ? '' : 'box', facing: back ? -1 : 1, phase: .2 });
         const p2 = (t * .06 + .3) % 1, b2 = p2 > .5, q2 = b2 ? (1 - p2) * 2 : p2 * 2;
         z.crew(-176 + q2 * 84, 40, { look: 4, hat: 'scarf', hatColor: C.gold2, anim: 'walk', carry: b2 ? 'food' : '', facing: b2 ? -1 : 1, phase: .6 });
         z.crew(158, 76, { look: 2, hat: 'none', anim: 'work', tool: 'pen', facing: -1, phase: .1 });

@@ -9,8 +9,8 @@ window.ZoneDesigns.kandinsky = (() => {
   const LEAD = { x: 16, y: 60 };                 // painting at the big easel
   const EASEL = { x: 46, y: 42, w: 28, h: 22 };   // the lead's canvas (feet at x,y)
   const FX = -80, FY = 38;                         // colour fountain centre
-  const VATS = [[-174, 104, '#c4483a'], [-150, 108, '#e0b44a'], [-126, 104, '#3a6fb0']];
-  const KILN = { x: 156, y: -44 };
+  const VATS = [[-144, 104, '#c4483a'], [-124, 108, '#e0b44a'], [-104, 104, '#3a6fb0']];
+  const KILN = { x: 150, y: -44 };
   const REST = { x: -30, y: 118 };                 // the lead's bench spot when off
   const CAN = { x: EASEL.x - (EASEL.w >> 1), y: EASEL.y - 10 - EASEL.h };
 
@@ -237,7 +237,7 @@ window.ZoneDesigns.kandinsky = (() => {
     });
   }
   // Scaffold around the unfinished statue (block feet at x, y). Back half is static; front half is drawn over the block.
-  const HC = { x: 138, y: 130 }, EMP = { x: 178, y: 81 }, PLANK = HC.y - 16;
+  const HC = { x: 130, y: 128 }, EMP = { x: 160, y: 81 }, PLANK = HC.y - 16;
   function scaffold(k, front) {
     const pole = (px, y0, y1) => { k.rect(px, y1, 2, y0 - y1, C.wood2); k.rect(px, y1, 1, y0 - y1, C.wood4); k.rect(px + 1, y1, 1, y0 - y1, C.wood1); };
     if (!front) {
@@ -286,18 +286,18 @@ window.ZoneDesigns.kandinsky = (() => {
 
       /* ---- Atelier barn (top left) ---- */
       Props.tree(k, -176, -118, 'dark', 1, 0);
-      const barn = Props.building(k, -184, -40, { w: 108, h: 48, roofH: 30, roof: C.plum2, wall: C.plaster2, mat: 'timber', foundation: 4,
-        windows: [{ x: 8, y: 10, w: 11, h: 16, arch: true }, { x: 26, y: 10, w: 11, h: 16, arch: true }, { x: 88, y: 10, w: 11, h: 16, arch: true }],
-        door: { x: 48, w: 18, h: 22, color: C.plum1, open: true }, chimney: { x: 16, h: 10 } });
+      const barn = Props.building(k, -160, -40, { w: 88, h: 48, roofH: 30, roof: C.plum2, wall: C.plaster2, mat: 'timber', foundation: 4,   // narrowed to clear the hexagon edge
+        windows: [{ x: 6, y: 10, w: 11, h: 16, arch: true }, { x: 62, y: 10, w: 11, h: 16, arch: true }, { x: 76, y: 10, w: 11, h: 16, arch: true }],
+        door: { x: 24, w: 18, h: 22, color: C.plum1, open: true }, chimney: { x: 8, h: 10 } });
       // North skylights on the roof slope.
       for (let i = 0; i < 4; i++) { const x = -136 + i * 15; k.rect(x - 1, barn.roofTop + 4, 13, 18, C.wood0); k.rect(x, barn.roofTop + 5, 11, 16, C.glass); k.rect(x, barn.roofTop + 5, 11, 2, C.white); k.rect(x + 5, barn.roofTop + 5, 1, 16, C.wood1); k.rect(x, barn.roofTop + 13, 11, 1, C.wood1); k.rect(x + 6, barn.roofTop + 14, 5, 7, S(C.glass, -.15)); }
       // Glimpse inside the open door: a canvas on the wall and a warm floor.
       k.rect(-133, -58, 14, 16, '#3a2c28'); art(k, -131, -56, 10, 8, 4, '#f3e6c1'); k.rect(-135, -44, 16, 3, C.wood2);
       Props.hangingSign(k, -114, -80, 'ART', C.plum1);
       // Paint drips on the barn front and a rainbow bunting under the eaves.
-      for (let i = 0; i < 27; i++) { const x = -182 + i * 4, y = -86 + (i % 2); k.rect(x, y, 3, 2, HUES[i % 8]); k.px(x + 1, y + 2, S(HUES[i % 8], -.2)); }
+      for (let i = 0; i < 22; i++) { const x = -158 + i * 4, y = -86 + (i % 2); k.rect(x, y, 3, 2, HUES[i % 8]); k.px(x + 1, y + 2, S(HUES[i % 8], -.2)); }
       // Canvases leaning against the barn wall, flower pots by the door.
-      for (let i = 0; i < 3; i++) art(k, -180 + i * 9, -50 - (i % 2) * 2, 8, 11 + (i % 2) * 2, 20 + i, i === 1 ? '#dfe8ef' : C.paper);
+      for (let i = 0; i < 3; i++) art(k, -156 + i * 9, -50 - (i % 2) * 2, 8, 11 + (i % 2) * 2, 20 + i, i === 1 ? '#dfe8ef' : C.paper);
       for (const x of [-148, -110, -96]) Props.pot(k, x, -36);
 
       /* ---- Mural wall (top centre) ---- */
@@ -341,7 +341,7 @@ window.ZoneDesigns.kandinsky = (() => {
 
       /* ---- Kiln (far top right) ---- */
       k.ellipse(KILN.x + 18, KILN.y + 1, 18, 3, C.shadow);
-      k.rect(KILN.x + 20, KILN.y - 44, 7, 30, C.terra1); k.rect(KILN.x + 20, KILN.y - 44, 2, 30, C.terra3); k.rect(KILN.x + 19, KILN.y - 46, 9, 3, C.stone3); k.rect(KILN.x + 21, KILN.y - 45, 5, 1, C.stone0);
+      k.rect(KILN.x + 20, KILN.y - 34, 7, 20, C.terra1); k.rect(KILN.x + 20, KILN.y - 34, 2, 20, C.terra3); k.rect(KILN.x + 19, KILN.y - 36, 9, 3, C.stone3); k.rect(KILN.x + 21, KILN.y - 35, 5, 1, C.stone0);   // short stack, clear of the hexagon edge
       k.ellipse(KILN.x + 15, KILN.y - 12, 16, 14, C.terra1); k.ellipse(KILN.x + 14, KILN.y - 13, 15, 13, C.terra2); k.ellipse(KILN.x + 10, KILN.y - 18, 8, 6, C.terra3); k.px(KILN.x + 7, KILN.y - 21, C.terra4);
       for (let r = 0; r < 4; r++) for (let i = 0; i < 6; i++) k.px(KILN.x + 3 + i * 5 + (r % 2) * 2, KILN.y - 22 + r * 5, C.terra1);
       k.rect(KILN.x - 2, KILN.y - 3, 34, 4, C.stone2); k.rect(KILN.x - 2, KILN.y - 3, 34, 1, C.stone4);
@@ -398,12 +398,14 @@ window.ZoneDesigns.kandinsky = (() => {
       k.poly([[-188, 60], [-106, 58], [-100, 136], [-188, 138]], C.dirt2); k.ditherPoly([[-188, 60], [-106, 58], [-100, 136], [-188, 138]], C.dirt3, 1);
       for (let i = 0; i < 12; i++) splat(k, -182 + P.hash(i, 90) * 76, 64 + P.hash(i, 91) * 70, ART[i % 8], 1);
       // Shelf of pigment jars under a little tiled roof.
+      k.at(14, 0, () => {   // kept inside the hexagon's cut corner
       k.rect(-184, 52, 58, 5, C.terra1); for (let x = -184; x < -126; x += 4) { k.rect(x, 52, 2, 4, C.terra3); k.px(x, 52, C.terra4); } k.rect(-184, 56, 58, 1, C.terra0);
       for (const x of [-182, -130]) k.rect(x, 57, 3, 26, C.wood1);
       for (let r = 0; r < 3; r++) {
         const y = 64 + r * 8; k.rect(-182, y, 55, 2, C.wood3); k.rect(-182, y + 2, 55, 1, C.wood0);
         for (let i = 0; i < 9; i++) { const c = ART[(i + r * 3) % 9], x = -179 + i * 6; k.rect(x, y - 5, 4, 5, C.glass); k.rect(x, y - 3, 4, 3, c); k.rect(x, y - 6, 4, 1, C.wood2); k.px(x, y - 5, C.white); }
       }
+      });
       // Three dye vats (liquid surfaces animate).
       for (const [x, y, c] of VATS) {
         k.ellipse(x + 2, y + 9, 11, 3, C.shadow); k.rect(x - 9, y - 1, 19, 10, C.wood2); k.rect(x - 9, y - 1, 3, 10, C.wood3); k.rect(x + 7, y - 1, 3, 10, C.wood1);
@@ -413,11 +415,13 @@ window.ZoneDesigns.kandinsky = (() => {
         k.rect(x + 8, y + 1, 1, 7, S(c, -.1)); k.ellipse(x + 9, y + 9, 3, 1, c);
       }
       // Grinding stone, powder sacks and scattered pots.
+      k.at(8, 0, () => {
       k.ellipse(-116, 94, 8, 3, C.shadow); k.rect(-123, 86, 14, 7, C.stone2); k.rect(-123, 86, 14, 2, C.stone4); k.ellipse(-116, 86, 6, 2, '#c4483a'); k.rect(-117, 78, 2, 8, C.wood3); k.rect(-118, 77, 4, 2, C.wood2);
-      Props.sack(k, -184, 118, '#e0b44a'); Props.sack(k, -174, 124, '#c9b388'); Props.sack(k, -134, 122, '#5f86c8');
-      k.rect(-182, 116, 6, 2, '#f2c14e'); k.rect(-132, 120, 6, 2, '#7fb0e8');
-      for (let i = 0; i < 5; i++) paintPot(k, -160 + i * 7, 132, HUES[(i * 3) % 8]);
-      Props.barrel(k, -112, 110);
+      });
+      Props.sack(k, -150, 126, '#e0b44a'); Props.sack(k, -140, 130, '#c9b388'); Props.sack(k, -134, 122, '#5f86c8');
+      k.rect(-148, 122, 6, 2, '#f2c14e'); k.rect(-132, 120, 6, 2, '#7fb0e8');
+      for (let i = 0; i < 5; i++) paintPot(k, -144 + i * 7, 132, HUES[(i * 3) % 8]);
+      Props.barrel(k, -160, 96);
 
       /* ---- Roman sculpture court (bottom right): gravel, cypresses, an olive, marble on plinths ---- */
       const court = [[100, 48], [188, 42], [190, 140], [96, 140], [90, 98]];
@@ -428,8 +432,8 @@ window.ZoneDesigns.kandinsky = (() => {
         return h < .14 ? '#e0d8c4' : h > .78 ? '#b8ad96' : (x + y * 3) % 7 === 0 ? '#c3b9a2' : '#cec5ae';
       });
       k.path(court.concat([court[0]]), C.stone1, 1); k.path([[101, 47], [187, 41]], C.stone4, 1);
-      cypress(k, 104, 70, 46, 5); cypress(k, 186, 58, 40, 4); cypress(k, 158, 60, 34, 4);
-      olive(k, 138, 76);
+      cypress(k, 104, 70, 46, 5); cypress(k, 178, 56, 40, 4); cypress(k, 146, 52, 30, 4);
+      olive(k, 134, 74);
       // Goddess on her plinth (laurel relief), the emperor on a tall SPQR plinth.
       let top = plinth(k, 116, 84, 16, 16, null, true); k.blit(goddess(), 116, top + 1);
       top = plinth(k, EMP.x, EMP.y, 20, 18, 'SPQR'); k.blit(emperor(), EMP.x - 1, top + 1);
@@ -440,7 +444,7 @@ window.ZoneDesigns.kandinsky = (() => {
       for (let i = 0; i < 16; i++) { const x = HC.x - 12 + P.hash(i, 3) * 30, y = HC.y - 1 + P.hash(i, 4) * 8; k.px(x, y, i % 3 ? MB[1] : MB[3]); if (i % 4 === 0) k.px(x + 1, y, MB[4]); }
       k.rect(HC.x - 26, HC.y + 2, 9, 4, C.wood2); k.rect(HC.x - 26, HC.y + 2, 9, 1, C.wood4); k.rect(HC.x - 25, HC.y + 1, 5, 1, C.stone1); k.rect(HC.x - 20, HC.y, 3, 2, C.wood3); k.px(HC.x - 24, HC.y + 1, C.stone4);
       // Discus-thrower on a low base; the senator's bust on an Ionic column.
-      top = plinth(k, 106, 134, 22, 8, null); k.blit(discobolus(), 106, top + 1);
+      top = plinth(k, 100, 136, 22, 8, null); k.blit(discobolus(), 100, top + 1);
       const cx = 181, cb = 138;
       k.ellipse(cx + 4, cb + 1, 9, 2, C.shadow);
       k.rect(cx - 7, cb - 9, 14, 9, MB[2]); k.rect(cx - 7, cb - 9, 14, 1, MB[0]); k.rect(cx + 4, cb - 9, 3, 9, MB[4]); k.rect(cx - 7, cb - 1, 14, 1, MB[5]); k.text('CATO', cx - 8, cb - 7, MB[1]); k.text('CATO', cx - 8, cb - 8, MB[6]);
@@ -505,9 +509,9 @@ window.ZoneDesigns.kandinsky = (() => {
       if (err) { const [x, y, c] = VATS[1]; k.ellipse(x + 2, y + 16, 13, 4, S(c, -.15)); k.ellipse(x, y + 15, 10, 3, c); k.rect(x - 9, y + 1, 2, 12, c); k.px(x + 10, y + 20, c); Props.smoke(k, x, y - 4, t * 1.4, 3, '#8a8478'); }
 
       /* Kiln fire and smoke. */
-      if (run) { Props.fire(k, KILN.x + 15, KILN.y - 3, t, 1); k.alpha(.35 + Math.sin(t * 9) * .1, () => k.rect(KILN.x + 8, KILN.y - 13, 14, 10, C.gold3)); Props.smoke(k, KILN.x + 23, KILN.y - 48, t, 4); }
-      else if (state === 'idle' || wait) { k.rect(KILN.x + 12, KILN.y - 6, 6, 2, C.red1); k.px(KILN.x + 14, KILN.y - 7, C.red3); Props.smoke(k, KILN.x + 23, KILN.y - 48, t * .4, 2); }
-      else if (err) { Props.smoke(k, KILN.x + 23, KILN.y - 48, t * 1.3, 6, '#4a4642'); Props.smoke(k, KILN.x + 15, KILN.y - 14, t * 1.1, 3, '#6a6660'); if (Math.floor(t * 8) % 2) { k.px(KILN.x + 11 + Math.floor(t * 20) % 9, KILN.y - 14 - Math.floor(t * 30) % 6, C.gold3); k.px(KILN.x + 18 - Math.floor(t * 17) % 7, KILN.y - 16 - Math.floor(t * 23) % 5, C.red3); } }
+      if (run) { Props.fire(k, KILN.x + 15, KILN.y - 3, t, 1); k.alpha(.35 + Math.sin(t * 9) * .1, () => k.rect(KILN.x + 8, KILN.y - 13, 14, 10, C.gold3)); Props.smoke(k, KILN.x + 23, KILN.y - 38, t, 4); }
+      else if (state === 'idle' || wait) { k.rect(KILN.x + 12, KILN.y - 6, 6, 2, C.red1); k.px(KILN.x + 14, KILN.y - 7, C.red3); Props.smoke(k, KILN.x + 23, KILN.y - 38, t * .4, 2); }
+      else if (err) { Props.smoke(k, KILN.x + 23, KILN.y - 38, t * 1.3, 6, '#4a4642'); Props.smoke(k, KILN.x + 15, KILN.y - 14, t * 1.1, 3, '#6a6660'); if (Math.floor(t * 8) % 2) { k.px(KILN.x + 11 + Math.floor(t * 20) % 9, KILN.y - 14 - Math.floor(t * 30) % 6, C.gold3); k.px(KILN.x + 18 - Math.floor(t * 17) % 7, KILN.y - 16 - Math.floor(t * 23) % 5, C.red3); } }
 
       if (err) { k.blit(fallenCanvas(), -22, 26); for (let i = 0; i < 3; i++) splat(k, -34 + i * 12, 26 + (i % 2) * 3, HUES[i * 2], 2); }
 
@@ -537,7 +541,7 @@ window.ZoneDesigns.kandinsky = (() => {
       if (live && !err) { const p = (t * .35) % 1; if (p < .18) { const gx = EMP.x - 5 + Math.round(p * 40), gy = EMP.y - 48 + Math.round(p * 18); k.px(gx, gy, C.white); if (p > .05 && p < .13) { k.px(gx - 1, gy, MB[0]); k.px(gx + 1, gy, MB[0]); k.px(gx, gy - 1, MB[0]); k.px(gx, gy + 1, MB[0]); } } }
       if (err) { const f = (t * .6) % 1; if (z.detail) pigeon(k, EMP.x - 1 + Math.round(f * 30), EMP.y - 60 - Math.round(f * 26), 1, Math.floor(t * 12) % 2 + 2); }
       else pigeon(k, EMP.x + 1, EMP.y - 59, 1, live && Math.floor(t * 1.7) % 3 === 0 ? 1 : 0);
-      if (live && !err) pigeon(k, 181, 86, -1, Math.floor(t * .9) % 4 === 1 ? 1 : 0);
+      if (live && !err) pigeon(k, 163, 86, -1, Math.floor(t * .9) % 4 === 1 ? 1 : 0);
 
       /* State lamp on the pavilion post and the waiting pile. */
       const lampOn = live && (!err || Math.floor(t * 4) % 2);

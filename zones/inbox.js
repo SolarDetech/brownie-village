@@ -11,17 +11,17 @@ window.ZoneDesigns.inbox = (() => {
   const vil = z => (z && z.village === 'daghan') ? 'daghan' : 'gktc';
   const code = v => v === 'daghan' ? 'DGI' : 'GGI';
 
-  const WINS = [{ x: -180, w: 22 }, { x: -154, w: 22 }, { x: -128, w: 22 }];   // counter windows (top -76, sill -60)
+  const WINS = [{ x: -156, w: 22 }, { x: -130, w: 22 }];   // counter windows (top -76, sill -60)
   const PAR = { x: -76, w: 32 };                                                // parcel window (top -72, sill -58)
   const DOOR = { x: -102, w: 18 };
   const TOTEM = { x: -30, w: 16 };
-  const COLS = [36, 64, 92, 120, 148, 176];
+  const COLS = [48, 70, 92, 120, 142, 164];
   const JUDGE = { x: 110, y: -25 };
   const BENCH = { x: 78, w: 64, y: -36 };                                       // top surface y..y+4, front panel to -12
   const TABLE = { x: 62, y: 22, w: 34 };                                        // stamping table, top at 14
   const CART_A = [-16, 50], CART_B = [44, 36];
   const VAN = { x: -126, y: 110 };
-  const STATUE = { x: 152, y: 108 };
+  const STATUE = { x: 128, y: 106 };
   const QUEUE = [[-170, -2], [-158, -1], [-146, -2], [-134, -1], [-122, -2], [-110, -1]];
   const GAL = [[156, 7], [176, 21], [160, 21], [170, 35]];
   const SCAT = [[-58, 50], [-36, 58], [-6, 36], [14, 56], [30, 46], [-92, 44], [-2, 74], [40, 68], [-120, 50], [20, 24], [70, 44], [-64, 72]];
@@ -179,18 +179,18 @@ window.ZoneDesigns.inbox = (() => {
       Props.tree(k, 8, -98, 'oak', 1, 2); Props.bush(k, -4, -48, 1); Props.bush(k, 18, -50, 0);
 
       /* ---- Post office (left): flat roof, yellow fascia with navy name, counter windows ---- */
-      k.rect(-188, -118, 154, 20, C.stone2); k.dither(-188, -118, 154, 20, C.stone1, 1); k.rect(-188, -118, 154, 1, C.stone4); k.rect(-188, -118, 1, 20, C.stone3); k.rect(-35, -118, 1, 20, C.stone1);
-      for (const x of [-176, -158]) { k.rect(x, -115, 13, 9, C.stone3); k.rect(x, -115, 13, 1, C.stone5); k.rect(x + 12, -115, 1, 9, C.stone1); k.circle(x + 6, -111, 3, C.stone1); k.circle(x + 6, -111, 1, C.stone2); }
+      k.rect(-164, -118, 130, 20, C.stone2); k.dither(-164, -118, 130, 20, C.stone1, 1); k.rect(-164, -118, 130, 1, C.stone4); k.rect(-164, -118, 1, 20, C.stone3); k.rect(-35, -118, 1, 20, C.stone1);
+      for (const x of [-152, -134]) { k.rect(x, -115, 13, 9, C.stone3); k.rect(x, -115, 13, 1, C.stone5); k.rect(x + 12, -115, 1, 9, C.stone1); k.circle(x + 6, -111, 3, C.stone1); k.circle(x + 6, -111, 1, C.stone2); }
       k.rect(-60, -132, 1, 18, C.slate1); k.rect(-64, -128, 9, 1, C.slate1); k.rect(-63, -124, 7, 1, C.slate1); k.px(-60, -133, C.red2);
       k.rect(-110, -113, 30, 6, N1); k.rect(-110, -113, 30, 1, NL); for (let i = 0; i < 6; i++) k.rect(-108 + i * 5, -111, 3, 3, '#5a78c8');
-      Props.building(k, -186, -40, { w: 150, h: 58, style: 'flat', wall: WALL, foundation: 4 });
-      k.rect(-188, -100, 154, 19, Y); k.rect(-188, -100, 154, 1, YL); k.rect(-188, -99, 1, 17, YL); k.rect(-35, -99, 1, 17, Y1);
-      k.rect(-188, -83, 154, 2, N); k.rect(-186, -81, 150, 1, S(WALL, -.2));
-      horn(k, -182, -96, N, 2);
-      k.text(txt, -160, -96, N, 2);
-      k.text('GELENLER VE IZINLER', -132, -94, N);
-      k.rect(-132, -88, 75, 1, Y1);
-      k.rect(-186, -48, 150, 4, N); k.rect(-186, -48, 150, 1, NL);
+      Props.building(k, -162, -40, { w: 126, h: 58, style: 'flat', wall: WALL, foundation: 4 });   // narrowed to clear the hexagon edge
+      k.rect(-164, -100, 130, 19, Y); k.rect(-164, -100, 130, 1, YL); k.rect(-164, -99, 1, 17, YL); k.rect(-35, -99, 1, 17, Y1);
+      k.rect(-164, -83, 130, 2, N); k.rect(-162, -81, 126, 1, S(WALL, -.2));
+      horn(k, -158, -96, N, 2);
+      k.text(txt, -136, -96, N, 2);
+      k.text('GELENLER VE IZINLER', -110, -94, N);
+      k.rect(-110, -88, 75, 1, Y1);
+      k.rect(-162, -48, 126, 4, N); k.rect(-162, -48, 126, 1, NL);
       WINS.forEach((w, i) => {
         k.rect(w.x - 2, -78, w.w + 4, 18, N); k.rect(w.x - 2, -78, w.w + 4, 1, NL);
         k.rect(w.x, -76, w.w, 16, '#34466e'); k.dither(w.x, -76, w.w, 16, '#3e5282', 1);
@@ -203,7 +203,7 @@ window.ZoneDesigns.inbox = (() => {
       k.rect(DOOR.x - 2, -76, DOOR.w + 4, 36, N); k.rect(DOOR.x - 2, -76, DOOR.w + 4, 1, NL);
       for (const dx of [0, 10]) { k.rect(DOOR.x + dx, -74, 8, 34, '#8fb4cc'); k.line(DOOR.x + dx + 1, -60, DOOR.x + dx + 6, -72, '#c8e0ec'); k.rect(DOOR.x + dx + (dx ? 1 : 6), -58, 1, 5, C.stone4); }
       k.rect(DOOR.x - 4, -40, DOOR.w + 8, 2, N0);
-      Props.pot(k, -186, -38); Props.pot(k, -38, -38);
+      Props.pot(k, -162, -38); Props.pot(k, -38, -38);
       // Queue stanchions with navy belts.
       for (let i = 0; i < 6; i++) { const x = -180 + i * 14; k.ellipse(x + 1, -12, 3, 1, C.shadow); k.rect(x, -20, 2, 8, C.stone1); k.px(x, -20, C.stone4); k.rect(x - 1, -21, 4, 2, C.stone3); if (i < 5) { k.line(x + 2, -18, x + 7, -16, N); k.line(x + 7, -16, x + 14, -18, N); } }
 
@@ -217,24 +217,25 @@ window.ZoneDesigns.inbox = (() => {
       for (let i = 0; i < 3; i++) k.text(txt[i], tx + 5, -106 + i * 13, N, 2);
       k.rect(tx, -62, TOTEM.w, 3, N);
 
+      k.at(-14, 0, () => {   // courthouse and tribunal sit 14 px west, clear of the hexagon edge (the judge follows)
       /* ---- Courthouse (right): steps, columns, entablature, pediment with scales ---- */
-      k.rect(30, -46, 160, 3, C.shadow);
-      k.rect(34, -106, 152, 48, C.stone2); k.dither(34, -106, 152, 10, C.stone1, 0); k.rect(34, -106, 152, 2, C.stone1);
-      for (const c of [54, 82, 138, 166]) { k.rect(c - 4, -96, 9, 28, C.stone0); k.rect(c - 3, -95, 7, 26, C.glassDark); k.rect(c - 3, -96, 7, 1, C.stone0); k.rect(c, -95, 1, 26, C.stone0); k.px(c - 3, -95, C.glass); k.rect(c - 5, -68, 11, 2, C.stone3); }
+      k.rect(44, -46, 132, 3, C.shadow);
+      k.rect(48, -106, 124, 48, C.stone2); k.dither(48, -106, 124, 10, C.stone1, 0); k.rect(48, -106, 124, 2, C.stone1);
+      for (const c of [63, 85, 135, 157]) { k.rect(c - 4, -96, 9, 28, C.stone0); k.rect(c - 3, -95, 7, 26, C.glassDark); k.rect(c - 3, -96, 7, 1, C.stone0); k.rect(c, -95, 1, 26, C.stone0); k.px(c - 3, -95, C.glass); k.rect(c - 5, -68, 11, 2, C.stone3); }
       k.rect(99, -94, 22, 36, C.stone0); k.rect(100, -93, 20, 35, '#7a5a2e'); k.rect(100, -93, 20, 1, '#a07a44');
       for (const dx of [2, 12]) { k.rect(100 + dx, -90, 6, 12, '#5e4420'); k.rect(100 + dx, -74, 6, 12, '#5e4420'); k.rect(100 + dx, -90, 6, 1, '#a07a44'); }
       k.rect(110, -93, 1, 35, '#3a2810'); k.px(108, -76, C.gold3); k.px(112, -76, C.gold3);
       k.rect(97, -100, 26, 6, C.stone3); k.rect(97, -100, 26, 1, C.stone5);
-      k.rect(28, -50, 162, 4, C.stone2); k.rect(28, -50, 162, 2, C.stone4); k.rect(28, -50, 162, 1, C.stone5);
-      k.rect(31, -54, 156, 4, C.stone2); k.rect(31, -54, 156, 2, C.stone4); k.rect(31, -54, 156, 1, C.stone5);
-      k.rect(33, -58, 152, 4, C.stone3); k.rect(33, -58, 152, 2, C.stone4); k.rect(33, -58, 152, 1, C.stone5);
+      k.rect(42, -50, 134, 4, C.stone2); k.rect(42, -50, 134, 2, C.stone4); k.rect(42, -50, 134, 1, C.stone5);
+      k.rect(45, -54, 128, 4, C.stone2); k.rect(45, -54, 128, 2, C.stone4); k.rect(45, -54, 128, 1, C.stone5);
+      k.rect(47, -58, 124, 4, C.stone3); k.rect(47, -58, 124, 2, C.stone4); k.rect(47, -58, 124, 1, C.stone5);
       COLS.forEach(x => column(k, x, -106, -58));
-      k.rect(30, -116, 160, 10, C.stone4); k.rect(30, -116, 160, 1, C.stone5); k.rect(30, -107, 160, 1, C.stone1);
-      for (let x = 31; x < 189; x += 4) k.rect(x, -108, 2, 1, C.stone2);
+      k.rect(44, -116, 132, 10, C.stone4); k.rect(44, -116, 132, 1, C.stone5); k.rect(44, -107, 132, 1, C.stone1);
+      for (let x = 45; x < 175; x += 4) k.rect(x, -108, 2, 1, C.stone2);
       k.textCenter('ADALET SARAYI', 110, -114, C.slate1);
-      k.poly([[30, -116], [110, -143], [190, -116]], C.stone4);
-      k.poly([[44, -118], [110, -139], [176, -118]], C.stone3);
-      k.line(30, -116, 110, -143, C.stone5); k.line(110, -143, 190, -116, C.stone2); k.rect(30, -117, 160, 1, C.stone2);
+      k.poly([[44, -116], [110, -143], [176, -116]], C.stone4);
+      k.poly([[58, -118], [110, -139], [162, -118]], C.stone3);
+      k.line(44, -116, 110, -143, C.stone5); k.line(110, -143, 176, -116, C.stone2); k.rect(44, -117, 132, 1, C.stone2);
       scales(k, 110, -129, C.gold0, C.gold2);
 
       /* ---- Tribunal dais: planks, high-backed chair, flag socket ---- */
@@ -244,6 +245,7 @@ window.ZoneDesigns.inbox = (() => {
       k.rect(102, -68, 17, 3, C.wood2); k.px(102, -69, C.gold3); k.px(118, -69, C.gold3);
       k.rect(103, -66, 15, 30, C.wood0); k.rect(104, -65, 13, 29, '#7a1e24'); k.rect(104, -65, 13, 2, '#a0323a'); k.rect(116, -65, 1, 29, '#5a1418');
       for (let y = -61; y < -40; y += 5) for (let x = 106; x < 116; x += 4) k.px(x + ((y / 5) % 2 ? 2 : 0), y, '#4a1014');
+      });
 
       /* ---- Stamping table, notice board and public gallery ---- */
       Props.table(k, TABLE.x, TABLE.y, TABLE.w, 8, C.wood3);
@@ -266,16 +268,18 @@ window.ZoneDesigns.inbox = (() => {
       k.rect(-188, 64, 136, 64, '#5a5a60'); k.dither(-188, 64, 136, 64, '#66666c', 1); k.rect(-188, 64, 136, 1, C.stone3); k.rect(-188, 127, 136, 1, C.stone1);
       for (const x of [-160, -92]) for (let y = 70; y < 124; y += 8) k.rect(x, y, 2, 5, Y1);
       k.rect(-150, 124, 50, 2, Y1);
+      k.at(16, 0, () => {   // kept inside the hexagon's cut corner
       k.rect(-186, 66, 18, 22, '#8a8e96'); for (let i = 0; i < 18; i += 3) k.rect(-186 + i, 66, 1, 22, '#6c7078'); for (let j = 0; j < 22; j += 4) k.rect(-186, 66 + j, 18, 1, '#6c7078');
       Props.crate(k, -185, 78, 8); Props.crate(k, -177, 80, 7); k.rect(-184, 70, 9, 6, BOX); k.rect(-184, 70, 9, 1, S(BOX, .25));
       Props.sack(k, -164, 76, '#9aa4b8'); Props.sack(k, -156, 80, '#aab2c2');
+      });
       Props.bench(k, -86, 80, 18); Props.crate(k, -66, 70, 9); k.rect(-65, 69, 7, 3, BOX);
 
       /* ---- Post boxes, lamps and gardens ---- */
       postBox(k, -44, 106); postBox(k, -30, 106);
       Props.lamp(k, -24, 130, false); Props.lamp(k, 24, 130, false);
-      Props.hedge(k, -188, 130, 150, 6);
-      Props.hedge(k, 30, 130, 158, 6);
+      Props.hedge(k, -146, 130, 108, 6);
+      Props.hedge(k, 30, 130, 116, 6);
       k.ellipse(STATUE.x, STATUE.y - 2, 30, 13, C.stone3); k.ellipse(STATUE.x, STATUE.y - 3, 28, 11, C.stone4); k.ring(STATUE.x, STATUE.y - 3, 28, 11, C.stone2);
       Props.flowerBed(k, STATUE.x - 34, STATUE.y + 10, 20, 8, ['#e46c52', '#f2c14e', '#f6ecd0'], 3); Props.flowerBed(k, STATUE.x + 14, STATUE.y + 10, 20, 8, ['#e46c52', '#f6ecd0', '#c3a2c0'], 8);
       justice(k, STATUE.x, STATUE.y);
@@ -292,12 +296,14 @@ window.ZoneDesigns.inbox = (() => {
         k.rect(w.x - 4, s - 1, w.w + 8, 3, N); k.rect(w.x - 4, s - 1, w.w + 8, 1, NL); k.rect(w.x - 2, s + 2, w.w + 4, 1, S(WALL, -.22));
       }
       k.rect(PAR.x + 3, -63, 7, 5, BOX); k.rect(PAR.x + 3, -63, 7, 1, S(BOX, .25)); k.rect(PAR.x + 6, -63, 1, 5, S(BOX, -.25));
+      k.at(-14, 0, () => {
       const b = BENCH;
       k.rect(b.x + 2, -12, b.w, 2, C.shadow);
       k.rect(b.x, -32, b.w, 20, C.wood2); k.rect(b.x, -32, 1, 20, C.wood3); k.rect(b.x + b.w - 1, -32, 1, 20, C.wood1); k.rect(b.x, -13, b.w, 1, C.wood1);
       k.rect(b.x, -32, b.w, 2, '#7a1e24');
       for (const px of [b.x + 4, b.x + 18, b.x + b.w - 30, b.x + b.w - 16]) { k.rect(px, -28, 12, 13, C.wood1); k.rect(px + 1, -27, 10, 11, C.wood3); k.rect(px + 1, -27, 10, 1, C.wood4); }
       k.circle(110, -21, 6, C.gold0); k.circle(110, -21, 5, C.gold1); scales(k, 110, -22, C.gold0, C.gold3);
+      });
     },
     animate(k, t, state, z) {
       const v = vil(z), txt = code(v), run = state === 'working', idle = state === 'idle', wait = state === 'waiting', err = state === 'error', off = state === 'off', live = !off;
@@ -307,7 +313,7 @@ window.ZoneDesigns.inbox = (() => {
       const lc = off ? C.glassDark : err ? (blink ? C.error : C.red0) : wait ? (blink ? C.waiting : S(C.waiting, -.35)) : C[state];
       k.rect(TOTEM.x + 4, -129, 8, 5, C.ink); k.rect(TOTEM.x + 5, -128, 6, 3, lc);
       if ((err || wait) && blink) k.alpha(.3, () => k.circle(TOTEM.x + 8, -127, 6, lc));
-      const fx = 156, fy = -40, ft = live ? t : 0;
+      const fx = 142, fy = -40, ft = live ? t : 0;
       Props.banner(k, fx, fy, C.red2, ft, 12);
       if (z.detail) { const w2 = Math.round(Math.sin(ft * 3 - 2 * .6) * 1.5), w4 = Math.round(Math.sin(ft * 3 - 4 * .6) * 1.5); k.px(fx + 3, fy - 17 + w2, C.white); k.px(fx + 3, fy - 16 + w2, C.white); k.px(fx + 4, fy - 18 + w2, C.white); k.px(fx + 4, fy - 15 + w2, C.white); k.px(fx + 5, fy - 17 + w4, C.white); }
 
@@ -350,11 +356,12 @@ window.ZoneDesigns.inbox = (() => {
       if (err) z.crew(cx + 20, cy - 2, { look: 2, hat: 'cap', hatColor: N, anim: 'idle', facing: -1 });
       if (run && cp > .4 && cp < .5) for (let i = 0; i < 3; i++) {
         const q = Math.min(1, Math.max(0, (cp - .4) / .1 * 1.6 - i * .3));
-        if (q > 0 && q < 1) k.blit(envS(i % 2 ? N : C.red2), CART_B[0] + (86 - CART_B[0]) * q, CART_B[1] - 20 + (-42 - CART_B[1] + 20) * q - Math.sin(q * Math.PI) * 16);
+        if (q > 0 && q < 1) k.blit(envS(i % 2 ? N : C.red2), CART_B[0] + (72 - CART_B[0]) * q, CART_B[1] - 20 + (-42 - CART_B[1] + 20) * q - Math.sin(q * Math.PI) * 16);
       }
 
       /* The judge at the bench: reads (idle), gavel raised (waiting), strikes (working). */
       const g = (t * .9) % 1, cyc = Math.floor(t * .9), okV = P.hash(cyc, 7) > .35;
+      k.at(-14, 0, () => {   // the courthouse sits 14 px west
       let pose = 'read';
       if (run) pose = g < .4 ? 'read' : g > .72 && g < .86 ? 'strike' : 'raise';
       else if (wait) pose = 'raise';
@@ -371,6 +378,7 @@ window.ZoneDesigns.inbox = (() => {
       const lamp = wait ? (Math.floor(t * 2.5) % 2 ? C.waiting : S(C.waiting, -.3)) : err ? (blink ? C.error : C.red0) : live ? C.glassLit : C.glassDark;
       k.rect(135, -37, 7, 1, C.gold0); k.rect(138, -42, 1, 5, C.gold1); k.rect(135, -46, 7, 4, lamp); k.rect(135, -46, 7, 1, S(lamp, .3)); k.rect(134, -42, 9, 1, C.gold1);
       if ((wait || err) && blink) k.alpha(.3, () => k.circle(138, -44, 7, lamp));
+      });
 
       /* Stamping table: the clerk stamps each letter green (approved) or red (rejected). */
       const ty = TABLE.y - 8, sx = TABLE.x + 16;
