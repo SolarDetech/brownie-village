@@ -29,7 +29,7 @@
   }
   function center(x, y, scale) { camera.scale = scale; camera.x = width / 2 - x * scale; camera.y = height / 2 - y * scale; clampCamera(); positionLabels(); }
   function fit() { viewMode = 'both'; center(world.width / 2, world.height / 2, fitScale()); }
-  function fitVillage(v = 'gktc') { viewMode = v; const [x, y] = world.home[v]; center(x, y - 20, Math.min((width - (width < 650 ? 20 : 120)) / (width < 650 ? 900 : 1560), (height - 110) / 1800)); }
+  function fitVillage(v = 'gktc') { viewMode = v; const [x, y] = world.home[v]; center(x, y - 20, Math.min((width - (width < 650 ? 20 : 120)) / (width < 650 ? 900 : 1700), (height - 110) / 2000)); }
   function focus(z) {
     viewMode = 'custom'; const available = width - ($('#drawer').hidden || width < 760 ? 0 : 400);
     const scale = Math.max(.5, Math.min(4, available / (z.kind === 'arena' ? 680 : 470), (height - 120) / (z.kind === 'arena' ? 520 : 380)));

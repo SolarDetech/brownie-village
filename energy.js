@@ -42,11 +42,11 @@
       { x: 270, y: 640, rows: 3, mods: 22, side: 1, stream: 'n', bank: 1 },                // above the Colosseum
       { x: 300, y: -60, rows: 3, mods: 22, side: 1, stream: 'n', bank: 1, cross: true },   // north-west woods
       { x: 236, y: 1400, rows: 3, mods: 22, side: 1, stream: 's', bank: -1 },              // below the Colosseum
-      { x: 250, y: 2330, rows: 3, mods: 20, side: 1, stream: 's', bank: -1, cross: true }, // south-west woods
-      { x: 2150, y: 1810, rows: 3, mods: 22, side: 1, river: 1 },                          // below GGI's orchard
-      { x: 2912, y: 1810, rows: 3, mods: 22, side: -1, river: -1 },                        // below DGI's orchard
-      { x: 2912, y: 580, rows: 4, mods: 24, side: -1, river: -1 },                         // by Daghan's Healing Gardens
-      { x: 2130, y: 580, rows: 4, mods: 24, side: 1, river: 1 },                           // by GKTC's Healing Gardens
+      { x: 250, y: 2420, rows: 3, mods: 20, side: 1, stream: 's', bank: -1, cross: true }, // south-west woods
+      { x: 2120, y: 1880, rows: 3, mods: 22, side: 1, river: 1 },                          // below GGI's orchard
+      { x: 2942, y: 1880, rows: 3, mods: 22, side: -1, river: -1 },                        // below DGI's orchard
+      { x: 2922, y: 520, rows: 4, mods: 24, side: -1, river: -1 },                         // by Daghan's Healing Gardens
+      { x: 2120, y: 520, rows: 4, mods: 24, side: 1, river: 1 },                           // by GKTC's Healing Gardens
       { x: 4540, y: 1380, rows: 3, mods: 14, side: -1, stream: 's', bank: -1 }             // eastern woods
     ];
     const fields = FIELDS.map((f, i) => {

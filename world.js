@@ -5,15 +5,16 @@
   const P = window.Pixel, C = P.C, S = P.shade;
   // M is the forest margin around the whole map: every layout coordinate below is shifted by it.
   const M = 180, W = 4810 + M * 2, H = 2430 + M * 2, RIVER = 2660 + M, MIRROR = RIVER * 2;
-  // Each village is a Civ-style honeycomb: every district is one flat-top hex tile, and tiles share their edges.
-  // Column c (0 = west, 3 = by the river) steps TX west of the riverside column X3; odd columns sit half a tile lower.
-  // Y0 is the mid-height of row 0 in the even columns. Daghan's village mirrors GKTC's across the river.
-  const TX = 350, TY = 310, X3 = RIVER - 425, Y0 = 697;
+  // Each village is a Civ-style honeycomb: every district is one flat-top hex tile, and a 44 px lane (a cobbled road
+  // lined with trees) runs between neighbouring tiles. Column c (0 = west, 3 = by the river) steps TX west of the
+  // riverside column X3; odd columns sit half a tile lower. Y0 is the mid-height of row 0 in the even columns.
+  // Daghan's village mirrors GKTC's across the river.
+  const TX = 390, TY = 354, X3 = RIVER - 425, Y0 = 598;
   const tile = (c, r) => [X3 - (3 - c) * TX, Y0 + r * TY + (c % 2) * TY / 2 + 5];   // zone centre (the hex mid-height is 5 px above it)
   const SY = Y0 + 2 * TY + TY / 2;                                                  // the castle row: the stone bridges cross the river here
-  const WEST = X3 - 3 * TX - 144, CX = X3 - 1.5 * TX, TOP = Y0 - TY / 2, BOT = Y0 + 5 * TY;                           // top and bottom of the honeycomb
-  const northStream = x => 180 + M + Math.round(Math.sin((x - M) / 210) * 10 + Math.sin((x - M) / 67) * 3);
-  const southStream = x => 2240 + M + Math.round(Math.sin((x - M) / 190 + 1) * 10 + Math.sin((x - M) / 59) * 3);
+  const WEST = X3 - 3 * TX - 144, CX = X3 - 1.5 * TX, TOP = Y0 - 155, BOT = Y0 + 4 * TY + TY / 2 + 155;   // top and bottom of the honeycomb
+  const northStream = x => 120 + M + Math.round(Math.sin((x - M) / 210) * 10 + Math.sin((x - M) / 67) * 3);
+  const southStream = x => 2310 + M + Math.round(Math.sin((x - M) / 190 + 1) * 10 + Math.sin((x - M) / 59) * 3);
   const riverX = y => RIVER + Math.round(Math.sin((y - M) / 170) * 16 + Math.sin((y - M) / 53) * 4);
 
   // [role, agent, name, tile column, tile row, description]
@@ -79,19 +80,25 @@
     const h = z.park ? footprint('park') : half(z); z.plot = { x: z.x - h.w, y: z.y - h.t, w: h.w * 2, h: h.t + h.b }; z.labelY = z.y + h.b - (z.kind === "arena" ? 34 : 20);
     if (z.kind === 'arena') return;
     z.hexL = hexOf(z.role); z.hex = z.hexL.map(([x, y]) => [z.x + x, z.y + y]); z.clip = clips[z.role] ||= stairPath(z.hexL);
-    // Forest keeps this far from the plot: 14 px around, 36 px below (tree canopies rise over the bottom edge).
-    z.keepOut = grow(z.hex, 14).map(([x, y], i) => [x, i === 3 || i === 4 ? y + 22 : y]);
+    // Forest keeps this far from the plot: the lane width around, 22 px more below (tree canopies rise over the bottom edge).
+    z.keepOut = grow(z.hex, 23).map(([x, y], i) => [x, i === 3 || i === 4 ? y + 22 : y]);
   });
   const tiles = [...zones.filter(z => z.hex), ...parks];
   // Edge i of a hexagon (vertex i to i + 1) faces the tile at this offset; an edge with no tile behind it is on the village rim.
   const SIDE = [[0, -TY], [TX, -TY / 2], [TX, TY / 2], [0, TY], [-TX, TY / 2], [-TX, -TY / 2]];
   const tileKey = (x, y) => Math.round(x) + ',' + Math.round(y), byPos = new Map(tiles.map(z => [tileKey(z.x, z.y), z]));
   tiles.forEach(z => { z.next = SIDE.map(([dx, dy]) => byPos.get(tileKey(z.x + dx, z.y + dy)) || null); });
-  // Each village's outline: its rim edges chained into one clockwise polygon.
-  const outlines = ['gktc', 'daghan'].map(v => {
-    const out = new Map(); for (const z of tiles) if (z.village === v) z.hex.forEach((a, i) => { if (!z.next[i]) out.set(tileKey(...a), [a, z.hex[(i + 1) % 6]]); });
-    const pts = [], first = out.keys().next().value; let key = first; do { const [a, b] = out.get(key); pts.push(a); key = tileKey(...b); } while (key !== first && pts.length <= out.size); return pts;
+  // The lanes: one per shared edge, along the centre line between the two tiles. u runs along the lane and nrm points
+  // from the first tile to the second. Junctions are where lane ends meet (three tiles, or two on the village rim).
+  const lanes = [];
+  for (const z of tiles) z.hex.forEach((a, i) => {
+    const n = z.next[i]; if (!n || tiles.indexOf(n) < tiles.indexOf(z)) return; const b = z.hex[(i + 1) % 6], na = n.hex[(i + 4) % 6], nb = n.hex[(i + 3) % 6];
+    const A = [(a[0] + na[0]) / 2, (a[1] + na[1]) / 2], B = [(b[0] + nb[0]) / 2, (b[1] + nb[1]) / 2], dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy);
+    lanes.push({ A, B, L, u: [dx / L, dy / L], nrm: [dy / L, -dx / L] });
   });
+  const junctions = [];
+  for (const p of lanes.flatMap(l => [l.A, l.B])) { const j = junctions.find(q => Math.hypot(q.x - p[0], q.y - p[1]) < 30); if (j) { j.sx += p[0]; j.sy += p[1]; j.n++; } else junctions.push({ x: p[0], y: p[1], sx: p[0], sy: p[1], n: 1 }); }
+  junctions.forEach(j => { j.x = j.sx / j.n; j.y = j.sy / j.n; });
 
   // Solar fields in the woods, and the river datacenter with its stone suspension bridges on the main street (energy.js).
   const energy = window.Energy?.create({ M, RIVER, riverX, northStream, southStream, street: SY, bridges: [] });
@@ -176,12 +183,30 @@
     const hx = z.hex, sh = (pts, dx, dy) => pts.map(([x, y]) => [x + dx, y + dy]);
     kerb(k, hx); k.poly(sh(hx, -1, -1), C.grass4); k.poly(sh(hx, 1, 1), S(C.grass3, -.14)); lawn(k, z);
   }
-  // Where two tiles meet: a low stone edging, 3 px wide, centred on the shared edge (drawn once per edge).
-  function seams(k) {
-    for (const z of tiles) z.hex.forEach((a, i) => {
-      const n = z.next[i]; if (!n || tiles.indexOf(n) < tiles.indexOf(z)) return; const b = z.hex[(i + 1) % 6];
-      k.line(a[0], a[1], b[0], b[1], C.stone2, 3); k.line(a[0], a[1] - 1, b[0], b[1] - 1, C.stone4, 1); k.line(a[0], a[1] + 1, b[0], b[1] + 1, C.stone1, 1);
-    });
+  // A lane's road as a quad, w px either side of its centre line and ext px past each end (into the junctions).
+  function laneQuad(l, w, ext) {
+    const [ux, uy] = l.u, [nx, ny] = l.nrm, a = [l.A[0] - ux * ext, l.A[1] - uy * ext], b = [l.B[0] + ux * ext, l.B[1] + uy * ext];
+    return [[a[0] + nx * w, a[1] + ny * w], [b[0] + nx * w, b[1] + ny * w], [b[0] - nx * w, b[1] - ny * w], [a[0] - nx * w, a[1] - ny * w]];
+  }
+  // The cobbled roads between the tiles, with a dark edging, and round junctions.
+  function paintLanes(k) {
+    const pat = cobblePat(k);
+    for (const l of lanes) k.poly(laneQuad(l, 10, 6), C.stone1); for (const j of junctions) k.circle(j.x, j.y, 13, C.stone1);
+    for (const l of lanes) { const q = laneQuad(l, 8, 6); k.poly(q, C.stone3); k.poly(q, pat); } for (const j of junctions) { k.circle(j.x, j.y, 11, C.stone3); k.circle(j.x, j.y, 11, pat); }
+    for (const l of lanes) for (let d = 4; d < l.L; d += 5) { const x = l.A[0] + l.u[0] * d, y = l.A[1] + l.u[1] * d, h = P.hash(x, y); if (h < .3) k.px(x + l.nrm[0] * (h * 40 - 6), y + l.nrm[1] * (h * 40 - 6), C.stone4); }
+    // Flowers on the upper verge (the lower verge holds the avenue trees).
+    for (const l of lanes) { const s = l.nrm[1] > 0 ? -1 : 1; for (let d = 10; d < l.L - 6; d += 13) { const x = l.A[0] + l.u[0] * d + l.nrm[0] * s * 15, y = l.A[1] + l.u[1] * d + l.nrm[1] * s * 15; if (P.hash(x, y) < .5) Props.flower(k, x, y, ['#f6ecd0', '#f2c14e', '#c3a2c0', '#e98aa0'][(d / 13 | 0) % 4]); else Props.tuft(k, x, y, C.grass1, C.grass3); } }
+  }
+  // Avenue trees, lamps and bushes on each lane's lower verge, so they overlap the road rather than a district.
+  function laneItems() {
+    const out = [];
+    for (const l of lanes) { const s = l.nrm[1] > 0 ? 1 : -1; for (let d = 20, j = 0; d < l.L - 16; d += 30, j++) {
+      const x = Math.round(l.A[0] + l.u[0] * d + l.nrm[0] * s * 15), y = Math.round(l.A[1] + l.u[1] * d + l.nrm[1] * s * 15), h = P.hash(x, y);
+      if (j % 4 === 2) out.push([x, y, 'fn', q => Props.lamp(q, x, y, true)]);
+      else if (j % 4 === 3) out.push([x, y, 'fn', q => Props.bush(q, x, y, (x + y) & 3)]);
+      else out.push([x, y, h < .35 ? 'birch' : h < .5 ? 'blossom' : 'oak', 0, Math.floor(h * 97)]);
+    } }
+    return out;
   }
   // While a zone paints, trees and bushes that would be cut by its hexagon edge are left out (the forest
   // around the plot takes their place). (ox, oy) is where the zone centre sits on the canvas being drawn.
@@ -198,9 +223,9 @@
     c.fillStyle = c.createPattern(grassTile(), 'repeat'); c.fillRect(0, 0, W, H);
     // Large, soft meadow variation.
     for (let i = 0; i < 520; i++) { const x = P.hash(i, 11) * W, y = P.hash(i, 12) * H, r = 30 + P.hash(i, 13) * 90; k.ditherEllipse(x, y, r, r * .6, i % 3 ? C.grass3 : C.grass1, i % 2 ? 1 : 0); }
-    // The honeycombs: a stone kerb around each village, then every tile's lawn.
-    for (const o of outlines) kerb(k, o);
-    for (const z of tiles) lawn(k, z);
+    // The honeycombs: every tile's lawn inside a stone kerb, and the lanes between the tiles.
+    for (const z of tiles) plotGround(k, z);
+    paintLanes(k);
     // Water: river, two streams, with banks, shallows and reeds.
     const bank = [[62, C.dirt2], [58, C.dirt3], [54, C.dirt4, 1], [50, C.water1], [42, C.water2], [30, C.water3, 1], [16, C.water3]];
     const sbank = [[34, C.dirt2], [31, C.dirt3], [28, C.dirt4, 1], [25, C.water1], [19, C.water2], [11, C.water3, 1]];
@@ -254,11 +279,11 @@
       trees.push([jx, jy, kind, Math.floor(P.hash(jy, jx * 2) * 3.2) + (edge ? 1 : 0), Math.floor(h * 97)]);
     }
     // Solar rows and inverters are y-sorted with the trees so the canopy overlaps them correctly.
+    trees.push(...laneItems());
     if (energy) { trees.push(...energy.items()); energy.finish(trees); }
     trees.sort((a, b) => a[1] - b[1]).forEach(t => t[2] === 'fn' ? t[3](k) : treeAt(k, t[0], t[1], t[2], Math.min(3, t[3]), t[4]));
     // Zone modules paint their static art, clipped to the hexagon so the cut corners stay forest.
     for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; if (!d) continue; c.save(); c.translate(z.x, z.y); if (z.clip) c.clip(z.clip); try { trimmed(z, z.x, z.y, () => d.paint(k, z)); } catch (e) { console.error(z.role, e); } c.restore(); }
-    seams(k);
     for (const z of zones) { const d = window.ZoneDesigns?.[z.role]; const fk = frontKey(z); if (!d?.front || fronts[fk]) continue; const f = document.createElement('canvas'), h = half(z); f.width = h.w * 2; f.height = h.t + h.b; const fc = f.getContext('2d'); fc.translate(h.w, h.t); if (z.clip) fc.clip(z.clip); try { trimmed(z, h.w, h.t, () => d.front(P.kit(fc), z)); } catch (e) { console.error(z.role, e); } fronts[fk] = { cv: f, ox: h.w, oy: h.t }; }
     return cv;
   }
@@ -281,9 +306,10 @@
     else { k.px(ix, iy + 2, C.white); k.px(ix + 2, iy + 2, C.white); k.px(ix + 4, iy + 2, C.white); }
   }
   function kolePath(z) {
-    // The worksites border Köle's tile. Out of Köle's gate, along the shared edge, and into the worksite.
-    const home = zones.find(q => q.id === z.village + '-kole'), s = Math.sign(z.x - home.x), gate = [home.x, home.y + 140];
-    return s ? [gate, [home.x + s * 140, home.y + 146], [z.x - s * 150, z.y - 5]] : [gate, [z.x, z.y - 110]];
+    // The worksites border Köle's tile. Out of Köle's gate onto the lane below, along it to the corner junction,
+    // and into the worksite (the mine is straight across the lane).
+    const home = zones.find(q => q.id === z.village + '-kole'), s = Math.sign(z.x - home.x), gate = [home.x, home.y + 140], lane = home.y + 150 + (TY - 310) / 2;
+    return s ? [gate, [home.x, lane], [home.x + s * 157, lane], [z.x - s * 150, z.y - 5]] : [gate, [z.x, z.y - 110]];
   }
   function along(pts, p) { const L = pts.slice(1).map((b, i) => Math.hypot(b[0] - pts[i][0], b[1] - pts[i][1])); let d = p * L.reduce((a, b) => a + b, 0); for (let i = 0; i < L.length; i++) { if (d <= L[i] || i === L.length - 1) { const f = L[i] ? d / L[i] : 0; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f, Math.sign(pts[i + 1][0] - pts[i][0])]; } d -= L[i]; } return pts[pts.length - 1]; }
 
