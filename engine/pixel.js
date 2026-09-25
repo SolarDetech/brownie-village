@@ -3,6 +3,14 @@
 (() => {
   const P = {};
 
+  // Off-screen canvases (sprites, caches, the terrain bake) stay in CPU memory. With GPU acceleration, Chrome gives
+  // each of the thousands of small sprite canvases its own GPU surface, and the first bake took ~40 s instead of ~1 s.
+  // On-page canvases (the map, the minimap) keep the default so they still draw on the GPU.
+  const getContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (type, opts) {
+    return getContext.call(this, type, type === '2d' && !this.isConnected ? { willReadFrequently: true, ...opts } : opts);
+  };
+
   // One shared palette keeps every district in the same visual family. Light comes from the top left.
   P.C = {
     ink:'#2a211c', inkSoft:'#40342c', shadow:'#1d2a2248', shadowSoft:'#1d2a2230',
