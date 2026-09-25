@@ -19,18 +19,10 @@ Set `perVillage: true` on the design when `front()` differs per village (it is t
 ## Coordinates and footprint
 
 - Units are **art pixels**. Origin is the zone centre. y grows downward. Integers only.
-- Every plot is a **flat-top hexagon**: short top and bottom edges, side points at mid-height. All plots share one edge slope (0.4 px across per px down), so they have the same angles. Vertices (zone-local, clockwise from top-left), from `VillageWorld.hexOf(role)`:
-
-  | zone | vertices | half-width at height y |
-  |---|---|---|
-  | agent, service, resource | (−144,−160) (144,−160) (206,−5) (144,150) (−144,150) (−206,−5) | 206 − 0.4·\|y + 5\| |
-  | castle | (−175,−222) (175,−222) (262,−5) (175,212) (−175,212) (−262,−5) | 262 − 0.4·\|y + 5\| |
-  | Grand Library | (−210,−200) (210,−200) (280,−25) (210,150) (−210,150) (−280,−25) | 280 − 0.4·\|y + 25\| |
-  | Colosseum | keeps its ellipse (rx 300, ry 225) | |
-
-- Keep all art inside the hexagon. Static art (`paint`, `front`) is **clipped to the hexagon**, so anything past the edge is cut off. Trees and bushes (`Props.tree`, `Props.bush`) that would cross the edge are left out, and the forest fills the cut corners. Buildings must sit fully inside the edge. Near the four corners, check the half-width at each building's top and bottom. The castle's side walls follow the slanted edges.
+- Every plot is one tile of a **Civilization-style honeycomb**: a flat-top hexagon with short top and bottom edges and side points at mid-height. All district tiles have the same size, and neighbouring tiles share their edges (there are no roads between them). Vertices (zone-local, clockwise from top-left), from `VillageWorld.hexOf(role)`: (−144,−160) (144,−160) (206,−5) (144,150) (−144,150) (−206,−5). The half-width at height y is 206 − 0.4·|y + 5|. The Colosseum is not a tile: it keeps its ellipse (rx 300, ry 225) in the western woods.
+- Keep all art inside the hexagon. Static art (`paint`, `front`) is **clipped to the hexagon**, so anything past the edge is cut off. Trees and bushes (`Props.tree`, `Props.bush`) that would cross the edge are left out. Buildings must sit fully inside the edge. Near the four corners, check the half-width at each building's top and bottom.
 - `animate` is not clipped, so smoke, birds and sparks can rise past the edge. Keep crew and moving objects inside it.
-- The world draws the grass plot (a stone kerb, lit on the top-left edges and shaded on the bottom-right) under the zone, and a dirt path that arrives at the **bottom centre (0, 140)** (castle (0, 200)). Keep a walkable entrance there. The state flag stands just inside the bottom-left corner, at (−132, 142).
+- The world draws the tile's lawn under the zone, a low stone edging on every shared edge, and a stone kerb around each village's outer edge. The art of the neighbouring tiles touches yours at the edge. Keep a walkable gate at the **bottom centre (0, 140)**; Köle crews leave Köle's tile there. The state flag stands just inside the bottom-left corner, at (−132, 142).
 - Camera: 3/4 top-down view (like Stardew Valley). Light comes from the **top left**; shadows fall to the bottom right (`C.shadow`).
 - Things lower on screen are "in front". Place actors in open ground (plazas, yards) so buildings never need to be drawn over them. Use `front(k)` for the few things that must overlap actors.
 

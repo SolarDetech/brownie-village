@@ -12,7 +12,7 @@
 <script>
 /* ?zone=name  &village=gktc|daghan  &state=working|idle|waiting|error|off|all  &scale=2  &t=seconds (freezes time)  &w=420&h=340 */
 const P = Pixel, C = P.C;
-const scale = +(Q.get('scale') || 2), W = +(Q.get('w') || (ZONE === 'castle' ? 560 : ZONE === 'colosseum' ? 620 : ZONE === 'library' ? 580 : 420)), H = +(Q.get('h') || (ZONE === 'castle' ? 470 : ZONE === 'colosseum' ? 460 : ZONE === 'library' ? 420 : 340));
+const scale = +(Q.get('scale') || 2), W = +(Q.get('w') || (ZONE === 'colosseum' ? 620 : 420)), H = +(Q.get('h') || (ZONE === 'colosseum' ? 460 : 340));
 const states = (Q.get('state') || 'all') === 'all' ? ['working', 'idle', 'waiting', 'error', 'off'] : [Q.get('state')];
 const frozen = Q.has('t') ? +Q.get('t') : null;
 const design = window.ZoneDesigns[ZONE], VILLAGE = Q.get('village') || 'gktc', ZINFO = { village: VILLAGE, role: ZONE };
@@ -24,7 +24,6 @@ function plot(k) {
   k.rect(-W / 2, -H / 2, W, H, C.grass2);
   for (let i = 0; i < 900; i++) { const x = -W / 2 + P.hash(i, 3) * W, y = -H / 2 + P.hash(i, 9) * H; Props.tuft(k, x, y, C.grass1, C.grass3); }
   if (PZ) VillageWorld.plotGround(k, PZ); else { k.rect(-FP.w, -FP.t, FP.w * 2, FP.t + FP.b, C.grass3); k.dither(-FP.w, -FP.t, FP.w * 2, FP.t + FP.b, C.grass2, 1); }
-  k.rect(-18, FP.b - 10, 36, H / 2, C.dirt3); k.rect(-18, FP.b - 10, 2, H / 2, C.dirt2);
 }
 const trim = fn => PZ ? VillageWorld.trimmed(PZ, W / 2, H / 2, fn) : fn();
 const layers = states.map(state => {

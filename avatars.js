@@ -144,10 +144,10 @@
   /* ---------- State ---------- */
   const world = () => window.VillageWorld;
   const avatars = [
-    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-70, 172], greet: 'MEGAZORD!' },
-    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [70, 172], greet: 'GOJO SENSEI!' }
+    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-88, 138], greet: 'MEGAZORD!' },
+    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [88, 138], greet: 'GOJO SENSEI!' }
   ];
-  const KEY = 'brownie-avatars-v2'; // v2: the map gained a 180 px margin, so v1 positions are stale
+  const KEY = 'brownie-avatars-v3'; // v3: the villages became honeycombs, so older positions are stale
   function init() {
     if (init.done || !world()) return; init.done = true;
     let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { }

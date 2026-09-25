@@ -29,10 +29,10 @@
   }
   function center(x, y, scale) { camera.scale = scale; camera.x = width / 2 - x * scale; camera.y = height / 2 - y * scale; clampCamera(); positionLabels(); }
   function fit() { viewMode = 'both'; center(world.width / 2, world.height / 2, fitScale()); }
-  function fitVillage(v = 'gktc') { viewMode = v; const [x, y] = world.home[v]; center(x, y - 40, Math.min((width - (width < 650 ? 20 : 120)) / (width < 650 ? 900 : 1900), (height - 110) / 1360)); }
+  function fitVillage(v = 'gktc') { viewMode = v; const [x, y] = world.home[v]; center(x, y - 20, Math.min((width - (width < 650 ? 20 : 120)) / (width < 650 ? 900 : 1560), (height - 110) / 1800)); }
   function focus(z) {
     viewMode = 'custom'; const available = width - ($('#drawer').hidden || width < 760 ? 0 : 400);
-    const scale = Math.max(.5, Math.min(4, available / (z.kind === 'arena' ? 680 : z.role === 'castle' ? 580 : z.role === 'library' ? 580 : 470), (height - 120) / (z.kind === 'arena' ? 520 : z.role === 'castle' ? 480 : z.role === 'library' ? 420 : 380)));
+    const scale = Math.max(.5, Math.min(4, available / (z.kind === 'arena' ? 680 : 470), (height - 120) / (z.kind === 'arena' ? 520 : 380)));
     camera.scale = scale; camera.x = available / 2 - z.x * scale; camera.y = height / 2 - z.y * scale; clampCamera(); positionLabels();
   }
   function zoom(factor, px = width / 2, py = height / 2) { const next = Math.max(fitScale() * .85, Math.min(6, camera.scale * factor)), ratio = next / camera.scale; camera.x = px - (px - camera.x) * ratio; camera.y = py - (py - camera.y) * ratio; camera.scale = next; viewMode = 'custom'; clampCamera(); positionLabels(); }
@@ -70,8 +70,8 @@
   function hideWelcome() { $('#welcome').hidden = true; }
 
   /* ---------- Art views ---------- */
-  const spanFor = z => z.kind === 'arena' ? 640 : z.role === 'castle' ? 580 : z.role === 'library' ? 560 : 440;
-  function crop(c, z, span = spanFor(z)) { world.renderView(c, elapsed, { cx: z.x, cy: z.y + (z.kind === 'arena' ? 0 : z.role === 'library' ? -22 : -4), w: span, states }); }
+  const spanFor = z => z.kind === 'arena' ? 640 : 440;
+  function crop(c, z, span = spanFor(z)) { world.renderView(c, elapsed, { cx: z.x, cy: z.y + (z.kind === 'arena' ? 0 : -4), w: span, states }); }
   function art(z, cls = 'drawer-art') { const c = node('canvas', cls); c.width = 880; c.height = 560; c.setAttribute('aria-label', z.name + ' pixel-art environment'); crop(c, z); return c; }
 
   /* ---------- Drawers & modals ---------- */

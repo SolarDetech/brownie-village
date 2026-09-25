@@ -65,8 +65,11 @@ Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed
 
 ## Additions (round 4)
 
-- **Hexagon districts.** Every plot is a flat-top hexagon with a stone kerb; the forest grows into the cut
-  corners and zone art is clipped to the hexagon (`VillageWorld.hexOf`, see `zones/DESIGN-CONTRACT.md`).
+- **Honeycomb villages.** Each village is a Civilization-style honeycomb: every district is one hex tile
+  of the same size, and tiles share their edges (no street grid). A pond park and an orchard fill the riverside
+  column, a stone kerb runs around each village, Köle crews walk across the shared edges to the worksites, and
+  a woodland track leads to the Colosseum. Zone art is clipped to its tile (`VillageWorld.hexOf`, see
+  `zones/DESIGN-CONTRACT.md`).
 - **Bigger figures.** Agent leads are drawn 1.5× (rendered at 3× and filtered down); the founder avatars and
   the Atatürk statue are re-sculpted at 1.5× resolution (`Pixel.sculptScaled` in `engine/sculpt.js`).
 - **Sekreter.** The lead is an Alfred-like butler; a young footman serves the tea.

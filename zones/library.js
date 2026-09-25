@@ -1,8 +1,14 @@
-/* The Grand Library · Documents and KPIs, as a Seljuk / Anatolian turquoise-tile medrese: a ribbed turquoise dome over
-   a tiled iwan portal (muqarnas niche, 8-pointed stars, square Kufic and knotwork), two tiled minarets, the archive
-   arcade (west, book cabinets under small domes), the KPI gallery (east, charts as tile panels and an illuminated page,
-   Seljuk kümbet), a star-tiled court with a şadırvan, and miniature-style gardens: calligrapher, çini painter, weaver,
-   readers and a teacher on kilims among cypresses, a palm and tulips. No lead. */
+/* The Grand Library · Documents and KPIs, on the standard district hexagon. One building row along the back
+   (base line y −30): in the middle a Seljuk / Anatolian turquoise-tile medrese, a ribbed turquoise dome on a Kufic
+   drum over the tiled iwan portal (muqarnas niche, 8-pointed stars, square Kufic, knotwork, Rumi scrolls) between
+   sandstone flanks with Kufic and griffin panels; one tiled minaret on the west; the archive arcade (west, three
+   book-cabinet bays under small domes). On the east the KPI arcade (two chart bays: tile bars and an illuminated
+   page) fuses the medrese with a marble Greek library in the manner of Celsus (two storeys, Ionic columns, statue
+   niches, bronze doors, pediment) at a turquoise tile seam. In front a star-tiled court with a şadırvan, and
+   miniature-style gardens: west the calligrapher and çini painter on a kilim, the weaver at her loom and the kiln;
+   east readers on a kilim, a teacher with students under a palm, a tulip bar chart, a marble sundial gauge and
+   Greek scholars on the steps. Garden wall with a tiled gate at the bottom centre; the flag corner is left open.
+   No lead. */
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.library = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
@@ -15,10 +21,12 @@ window.ZoneDesigns.library = (() => {
   const OR = ['#8e3318', '#c4502a', '#e8743c', '#f5a066'];                                    // coral / orange
   const LEATHER = ['#8e3a2a', CB[1], TQ[2], '#b98a2c', '#3d6a3a', OR[1], '#5a2a4a'];
   const F = { x: 0, y: 50 };                             // şadırvan centre
-  const GX = [96, 117], GS = -50, PX = 134;              // KPI arcade bay centres, arch spring line, passage
-  const SUN = { x: 222, y: 4 };                           // marble sundial gauge by the Greek steps
-  const AX = [-173, -148, -123, -98];                    // archive bays
-  const LAMPS = [[0, -54], ...AX.map(x => [x, -55])];    // hanging kandils
+  const GX = [73, 91], GS = -46;                         // KPI arcade bay centres, arch spring line
+  const SUN = { x: 178, y: 4 };                          // marble sundial gauge by the Greek steps
+  const AX = [-148, -123, -98];                          // archive bays
+  const KILN = { x: -112, y: 62 };                       // çini kiln (firing mouth at the bottom)
+  const MIN = -74;                                       // minaret axis
+  const LAMPS = [[0, -50], ...AX.map(x => [x, -51])];    // hanging kandils
   const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
   const BY = [.125, .625, .875, .375], bay = (x, y) => BY[((y & 1) << 1) | (x & 1)];
   const tone = (r, v, x, y) => r[clamp(Math.floor(v + bay(x, y)), 0, r.length - 1)];
@@ -117,6 +125,7 @@ window.ZoneDesigns.library = (() => {
   function archFrame(k, cx, ys, hw, yb) { k.poly(archPts(cx, ys, hw + 2, yb), TQ[2]); k.poly(archPts(cx, ys, hw + 1, yb), GL[2]); k.poly(archPts(cx, ys, hw + 1, yb).map(([x, y]) => [x + 1, y]), TQ[1]); }
   // Hanging kandil (oil lamp) on a chain.
   function kandil(k, x, y, top) { k.rect(x, top, 1, y - top - 2, C.gold0); k.rect(x - 2, y - 2, 5, 1, C.gold1); k.rect(x - 2, y - 1, 5, 3, C.glassLit); k.px(x - 1, y, C.gold4); k.rect(x - 1, y + 2, 3, 1, C.gold1); k.px(x, y + 3, C.gold2); }
+  // Tiled minaret: shaft of glazed bands (79 px), şerefe balcony at base − 97, alem tip at base − 127.
   function minaret(k, cx, base) {
     const x0 = cx - 5, y1 = base - 12;
     // Plinth.
@@ -124,16 +133,16 @@ window.ZoneDesigns.library = (() => {
     k.rect(cx - 7, y1, 15, 12, SD[3]); k.rect(cx - 7, y1, 15, 2, SD[4]); k.rect(cx - 7, base - 2, 15, 2, SD[1]); k.rect(cx + 6, y1, 2, 12, SD[1]);
     for (let x = cx - 5; x < cx + 6; x += 4) { k.rect(x, y1 + 4, 3, 5, CB[1]); k.px(x + 1, y1 + 6, TQ[4]); }
     // Shaft bands, bottom to top.
-    bannai(k, x0, y1 - 14, 10, 14, 6);
-    kufic(k, x0, y1 - 21, 10, GL[2], CB[1], cx);
-    k.rect(x0, y1 - 23, 10, 2, GL[2]); k.rect(x0, y1 - 22, 10, 1, TQ[3]);
-    k.rectTex(x0, y1 - 45, 10, 22, (x, y) => { const z = (y + Math.abs(((x - x0) % 6) - 3)) % 6; return z < 2 ? TQ[4] : z < 4 ? TQ[2] : z === 4 ? GL[2] : TQ[1]; });
-    braid(k, x0, y1 - 50, 10, false, GL[2], TQ[4], CB[1]);
-    k.rectTex(x0, y1 - 70, 10, 20, (x, y) => { const s = star(x, y, 10, x0, y1 - 70); return [GL[1], TQ[3], CB[1], CB[2], TQ[4]][s]; });
-    kufic(k, x0, y1 - 77, 10, GL[2], CB[1], cx + 3);
-    k.rectTex(x0, y1 - 93, 10, 16, (x, y) => { const l = lattice(x - x0, y, 4); return l === 1 ? CB[1] : l === 2 ? GL[2] : (y % 2 ? TQ[3] : TQ[2]); });
+    bannai(k, x0, y1 - 12, 10, 12, 6);
+    kufic(k, x0, y1 - 19, 10, GL[2], CB[1], cx);
+    k.rect(x0, y1 - 21, 10, 2, GL[2]); k.rect(x0, y1 - 20, 10, 1, TQ[3]);
+    k.rectTex(x0, y1 - 35, 10, 14, (x, y) => { const z = (y + 120 + Math.abs(((x - x0) % 6) - 3)) % 6; return z < 2 ? TQ[4] : z < 4 ? TQ[2] : z === 4 ? GL[2] : TQ[1]; });
+    braid(k, x0, y1 - 40, 10, false, GL[2], TQ[4], CB[1]);
+    k.rectTex(x0, y1 - 60, 10, 20, (x, y) => { const s = star(x, y, 10, x0, y1 - 60); return [GL[1], TQ[3], CB[1], CB[2], TQ[4]][s]; });
+    kufic(k, x0, y1 - 67, 10, GL[2], CB[1], cx + 3);
+    k.rectTex(x0, y1 - 79, 10, 12, (x, y) => { const l = lattice(x - x0, y, 4); return l === 1 ? CB[1] : l === 2 ? GL[2] : (y % 2 ? TQ[3] : TQ[2]); });
     // Muqarnas balcony (şerefe) and railing.
-    const by = y1 - 99;
+    const by = y1 - 85;
     k.rect(cx - 6, by + 4, 13, 2, TQ[1]); for (let x = cx - 6; x < cx + 7; x += 2) { k.px(x, by + 4, GL[2]); k.px(x + 1, by + 5, CB[1]); }
     k.rect(cx - 7, by, 15, 4, TQ[3]); for (let x = cx - 7; x < cx + 8; x += 3) { k.rect(x, by + 2, 2, 2, TQ[1]); k.px(x, by + 2, GL[2]); }
     k.rect(cx - 7, by - 3, 15, 3, SD[4]); for (let x = cx - 6; x < cx + 7; x += 2) k.px(x, by - 2, CB[1]); k.rect(cx - 7, by - 3, 15, 1, GL[2]);
@@ -145,25 +154,11 @@ window.ZoneDesigns.library = (() => {
     k.polyTex([[cx - 5, by - 15], [cx + 6, by - 15], [cx + .5, by - 26]], (x, y) => (x - cx + 20) % 3 === 0 ? TQ[1] : x < cx ? TQ[4] : x < cx + 3 ? TQ[3] : TQ[2]);
     k.rect(cx, by - 29, 1, 4, C.gold1); k.px(cx, by - 30, C.gold3); k.px(cx - 1, by - 28, C.gold2); k.px(cx + 1, by - 28, C.gold2);
     // Cylinder light over the lower shaft.
-    k.rect(x0, y1 - 93, 2, 93, LIT); k.rect(x0 + 7, y1 - 93, 3, 93, DK); k.rect(x0 + 9, y1 - 93, 1, 93, DK);
-  }
-  // Seljuk kümbet (octagonal tomb-tower form) with a pleated cone roof: the archive's record tower.
-  function kumbet(k, cx, yb, w, h, ch) {
-    const y0 = yb - h;
-    k.rect(cx - w + 3, yb, w * 2 + 2, 3, C.shadow);
-    k.rect(cx - w, y0, w * 2 + 1, h, SD[3]); k.rect(cx - w, y0, 4, h, SD[4]); k.rect(cx + w - 4, y0, 5, h, SD[2]); k.rect(cx + w, y0, 1, h, SD[1]);
-    for (const x of [cx - 6, cx + 6]) k.rect(x, y0, 1, h, SD[1]);
-    kufic(k, cx - w, y0 + 1, w * 2 + 1, GL[2], CB[1], 5, 7); braid(k, cx - w, y0 + 8, w * 2 + 1, false, GL[2], TQ[4], TQ[1]);
-    k.rect(cx - 5, y0 + 15, 11, 11, TQ[2]); k.rectTex(cx - 4, y0 + 16, 9, 9, (x, y) => [GL[2], TQ[3], CB[1], CB[2], TQ[4]][star(x, y, 9, cx - 4, y0 + 16)]);
-    k.poly(archPts(cx, yb - 9, 5, yb), TQ[2]); k.poly(archPts(cx, yb - 9, 4, yb), CB[0]); k.rect(cx - 3, yb - 4, 7, 4, '#2a1c12'); k.rect(cx - 2, yb - 3, 2, 2, C.paper); k.rect(cx + 1, yb - 3, 2, 2, C.paper2);
-    k.rect(cx - w + 2, y0 + 30, 3, 6, CB[0]); k.rect(cx + w - 4, y0 + 30, 3, 6, CB[0]);
-    k.rect(cx - w - 1, y0 - 2, w * 2 + 3, 3, TQ[1]); k.rect(cx - w - 1, y0 - 2, w * 2 + 3, 1, TQ[4]);
-    k.polyTex([[cx - w - 1, y0 - 2], [cx + w + 2, y0 - 2], [cx + .5, y0 - 2 - ch]], (x, y) => { const m = (x - cx + 44) % 4; return m === 0 ? TQ[1] : x < cx - 4 ? TQ[4] : x < cx + 4 ? TQ[3] : TQ[2]; });
-    k.rect(cx, y0 - ch - 6, 1, 4, C.gold1); k.px(cx, y0 - ch - 7, C.gold3);
+    k.rect(x0, y1 - 79, 2, 79, LIT); k.rect(x0 + 7, y1 - 79, 3, 79, DK); k.rect(x0 + 9, y1 - 79, 1, 79, DK);
   }
   /* ---------- The Greek partner: a marble library in the manner of Celsus ---------- */
   const MB = ['#7e7a74', '#a9a39a', '#cbc5ba', '#e4dfd4', '#f4f1ea', '#fffdf8'];      // marble
-  const GK = { cx: 196, x0: 150, x1: 242 };
+  const GK = { cx: 139, x0: 108, x1: 170 };
   function ionic(k, cx, y0, y1, w) {         // y0 = shaft top (capital above it), y1 = floor
     const x = cx - (w >> 1), h = y1 - y0 - 2;
     k.rect(x + w, y0, 2, h, DK); k.rect(x - 1, y1 - 2, w + 2, 2, MB[4]); k.rect(x - 1, y1 - 1, w + 2, 1, MB[1]);
@@ -177,42 +172,43 @@ window.ZoneDesigns.library = (() => {
     k.line(cx - 2, y - 16, cx + 2, y - 8, MB[2]); k.circle(cx, y - 20, 2, MB[4]); k.px(cx - 1, y - 21, MB[5]); k.rect(cx + 1, y - 13, 3, 2, MB[5]); k.px(cx + 3, y - 12, MB[1]);
   }
   function greekLibrary(k) {
-    const { cx, x0, x1 } = GK;
+    const { cx, x0, x1 } = GK, u0 = x0 + 5, u1 = x1 - 5;      // the upper storey is set back 5 px on each side
     // Roof ridge running back behind the pediment.
-    k.polyTex([[x0 + 2, -118], [cx, -136], [x1 - 2, -118], [x1 - 2, -124], [cx, -142], [x0 + 2, -124]], (x, y) => (y + Math.abs(x - cx) * .4) % 3 < 1 ? C.terra1 : x < cx ? C.terra3 : C.terra2);
+    k.polyTex([[u0 + 2, -106], [cx, -121], [u1 - 2, -106], [u1 - 2, -111], [cx, -126], [u0 + 2, -111]], (x, y) => (y + 300 + Math.abs(x - cx) * .4) % 3 < 1 ? C.terra1 : x < cx ? C.terra3 : C.terra2);
     // Pediment with a relief: the seated Muse of wisdom with a scroll, her owl, reclining readers.
-    k.poly([[x0, -117], [cx, -135], [x1, -117]], MB[4]); k.poly([[x0 + 8, -118], [cx, -132], [x1 - 8, -118]], MB[2]);
-    k.line(x0, -117, cx, -135, MB[5]); k.line(cx, -135, x1, -117, MB[1]);
-    k.rect(cx - 3, -127, 6, 8, MB[4]); k.circle(cx, -128, 2, MB[5]); k.rect(cx + 3, -123, 5, 2, MB[5]); k.rect(cx - 5, -120, 11, 2, MB[3]);
-    k.ellipse(cx + 12, -121, 2, 3, MB[4]); k.px(cx + 11, -123, MB[0]); k.px(cx + 13, -123, MB[0]);
-    for (const s of [-1, 1]) { k.ellipse(cx + s * 26, -120, 8, 2, MB[4]); k.circle(cx + s * 34, -121, 2, MB[5]); k.rect(cx + s * 20 - 2, -122, 4, 2, MB[5]); }
-    for (const [x, y] of [[cx, -139], [x0 + 1, -120], [x1 - 1, -120]]) { k.rect(x - 1, y, 3, 3, C.gold1); k.px(x, y - 1, C.gold3); k.px(x - 1, y - 1, C.gold2); k.px(x + 1, y - 1, C.gold2); }
+    k.poly([[u0, -105], [cx, -120], [u1, -105]], MB[4]); k.poly([[u0 + 7, -106], [cx, -117], [u1 - 7, -106]], MB[2]);
+    k.line(u0, -105, cx, -120, MB[5]); k.line(cx, -120, u1, -105, MB[1]);
+    k.rect(cx - 2, -113, 5, 6, MB[4]); k.circle(cx, -114, 1, MB[5]); k.rect(cx + 3, -110, 4, 1, MB[5]); k.rect(cx - 4, -108, 9, 2, MB[3]);
+    k.ellipse(cx + 9, -108, 1, 2, MB[4]); k.px(cx + 9, -110, MB[0]);
+    for (const s of [-1, 1]) { k.ellipse(cx + s * 13, -107, 4, 1, MB[4]); k.px(cx + s * 17, -108, MB[5]); k.rect(cx + s * 11 - 1, -108, 2, 1, MB[5]); }
+    for (const [x, y] of [[cx, -123], [u0 + 2, -108], [u1 - 2, -108]]) { k.rect(x - 1, y, 3, 3, C.gold1); k.px(x, y - 1, C.gold3); k.px(x - 1, y - 1, C.gold2); k.px(x + 1, y - 1, C.gold2); }
     // Upper entablature with the turquoise tile trim of the Seljuk partner.
-    k.rect(x0, -117, x1 - x0, 4, MB[4]); k.rect(x0, -117, x1 - x0, 1, MB[5]); for (let x = x0 + 1; x < x1; x += 2) k.px(x, -116, MB[1]); k.rect(x0, -114, x1 - x0, 1, TQ[3]);
+    k.rect(u0, -105, u1 - u0, 4, MB[4]); k.rect(u0, -105, u1 - u0, 1, MB[5]); for (let x = u0 + 1; x < u1; x += 2) k.px(x, -104, MB[1]); k.rect(u0, -102, u1 - u0, 1, TQ[3]);
     // Upper storey: scroll shelves (armaria) between small Ionic columns.
-    k.rectTex(x0 + 6, -113, x1 - x0 - 12, 21, (x, y) => (y + 113) % 5 === 4 || (x + ((y + 113) / 5 | 0) * 4) % 11 === 0 ? MB[2] : MB[3]);
-    for (const [a, b] of [[166, 176], [186, 207], [216, 226]]) {
-      k.rect(a - 1, -111, b - a + 2, 18, MB[1]);
-      k.rectTex(a, -110, b - a, 16, (x, y) => { const ly = (y + 110) % 4; if (ly === 3) return C.wood2; const lx = (x - a) % 3; return lx === 2 ? '#2a1c12' : ly === 0 ? '#3a2a1c' : P.hash(x, y) < .15 ? C.paper2 : C.paper; });
-      k.rect(a, -110, b - a, 2, '#1a120c80');
+    k.rectTex(u0, -101, u1 - u0, 18, (x, y) => (y + 101) % 5 === 4 || (x + ((y + 101) / 5 | 0) * 4) % 11 === 0 ? MB[2] : MB[3]);
+    for (const [a, b] of [[cx - 20, cx - 11], [cx - 6, cx + 6], [cx + 11, cx + 20]]) {
+      k.rect(a - 1, -99, b - a + 2, 14, MB[1]);
+      k.rectTex(a, -98, b - a, 12, (x, y) => { const ly = (y + 98) % 4; if (ly === 3) return C.wood2; const lx = (x - a) % 3; return lx === 2 ? '#2a1c12' : ly === 0 ? '#3a2a1c' : P.hash(x, y) < .15 ? C.paper2 : C.paper; });
+      k.rect(a, -98, b - a, 2, '#1a120c80');
     }
-    for (const x of [161, 181, 211, 231]) ionic(k, x, -106, -92, 4);
-    k.rect(x0 + 6, -94, x1 - x0 - 12, 2, MB[4]);
+    for (const x of [cx - 23, cx - 8, cx + 8, cx + 23]) ionic(k, x, -94, -83, 4);
+    k.rect(u0, -85, u1 - u0, 2, MB[4]); k.rect(u1 - 2, -101, 2, 16, DK);
     // Lower entablature: cornice with dentils, a turquoise meander frieze, the architrave.
-    k.rect(x0 - 4, -92, x1 - x0 + 8, 2, MB[5]); for (let x = x0 - 3; x < x1 + 4; x += 2) k.px(x, -90, MB[1]);
-    k.rect(x0 - 3, -89, x1 - x0 + 6, 4, TQ[3]); for (let x = x0 - 3; x < x1 + 3; x++) { const m = (x + 200) % 6; k.px(x, -88 + (m < 3 ? 0 : 2) - (m === 1 || m === 4 ? 0 : 0), m === 0 || m === 3 ? GL[2] : TQ[3]); if (m === 1 || m === 2) k.px(x, -88, GL[2]); if (m === 4 || m === 5) k.px(x, -86, GL[2]); }
-    k.rect(x0 - 3, -85, x1 - x0 + 6, 1, CB[1]); k.rect(x0 - 2, -84, x1 - x0 + 4, 3, MB[4]); k.rect(x0 - 2, -82, x1 - x0 + 4, 1, MB[2]);
+    k.rect(x0 - 3, -83, x1 - x0 + 6, 2, MB[5]); k.rect(x0 - 3, -81, x1 - x0 + 6, 1, MB[3]); for (let x = x0 - 2; x < x1 + 3; x += 2) k.px(x, -81, MB[1]);
+    k.rect(x0 - 2, -80, x1 - x0 + 4, 4, TQ[3]);
+    for (let x = x0 - 2; x < x1 + 2; x++) { const m = (x + 200) % 6; k.px(x, m < 3 ? -79 : -77, GL[2]); if (m === 0 || m === 3) k.px(x, -78, GL[2]); }
+    k.rect(x0 - 2, -76, x1 - x0 + 4, 1, CB[1]); k.rect(x0 - 1, -75, x1 - x0 + 2, 3, MB[4]); k.rect(x0 - 1, -73, x1 - x0 + 2, 1, MB[2]);
     // Lower storey: ashlar, statue niches, bronze doors, Ionic columns.
-    k.rectTex(x0, -81, x1 - x0, 41, (x, y) => { const ry = y + 81, row = ry / 6 | 0, rx = x - x0 + (row % 2) * 7; return ry % 6 === 5 || rx % 14 === 13 ? MB[2] : ry % 6 === 0 ? MB[4] : P.hash(rx / 14 | 0, row) < .3 ? MB[4] : MB[3]; });
-    for (const nx of [166, 226]) { k.rect(nx - 6, -76, 13, 32, MB[4]); k.rect(nx - 5, -72, 11, 28, MB[1]); k.ellipse(nx, -72, 5, 4, MB[1]); k.rect(nx - 4, -72, 9, 28, MB[0]); k.ellipse(nx, -72, 4, 3, MB[0]); statue(k, nx, -46); k.rect(nx - 6, -44, 13, 2, MB[4]); }
-    k.rect(cx - 10, -76, 21, 3, MB[5]); k.poly([[cx - 11, -76], [cx, -81], [cx + 11, -76]], MB[4]); k.rect(cx - 9, -73, 19, 33, MB[4]);
-    k.rect(cx - 7, -71, 15, 31, C.gold0); k.rect(cx - 7, -71, 7, 31, C.glassLit); k.rect(cx - 7, -71, 7, 3, C.gold2);
-    for (let y = -66; y < -42; y += 4) { k.rect(cx - 6, y, 5, 2, C.paper); k.px(cx - 2, y, C.paper2); }
-    k.rect(cx + 1, -71, 7, 31, C.gold1); k.rect(cx + 1, -71, 1, 31, C.gold3); for (let y = -68; y < -42; y += 5) for (const x of [cx + 3, cx + 6]) k.px(x, y, C.gold3); k.rect(cx + 2, -58, 5, 1, C.gold0);
-    for (const x of [157, 176, 216, 235]) ionic(k, x, -78, -40, 6);
-    k.rect(x1 - 2, -81, 2, 41, DK);
+    k.rectTex(x0, -72, x1 - x0, 36, (x, y) => { const ry = y + 72, row = ry / 6 | 0, rx = x - x0 + (row % 2) * 7; return ry % 6 === 5 || rx % 14 === 13 ? MB[2] : ry % 6 === 0 ? MB[4] : P.hash(rx / 14 | 0, row) < .3 ? MB[4] : MB[3]; });
+    for (const nx of [cx - 18, cx + 18]) { k.rect(nx - 5, -68, 11, 28, MB[4]); k.rect(nx - 4, -65, 9, 25, MB[1]); k.ellipse(nx, -65, 4, 3, MB[1]); k.rect(nx - 3, -65, 7, 25, MB[0]); k.ellipse(nx, -65, 3, 2, MB[0]); statue(k, nx, -42); k.rect(nx - 5, -41, 11, 2, MB[4]); }
+    k.poly([[cx - 9, -67], [cx, -72], [cx + 9, -67]], MB[4]); k.rect(cx - 8, -67, 17, 2, MB[5]); k.rect(cx - 7, -65, 15, 29, MB[4]);
+    k.rect(cx - 5, -63, 11, 27, C.gold0); k.rect(cx - 5, -63, 5, 27, C.glassLit); k.rect(cx - 5, -63, 5, 3, C.gold2);
+    for (let y = -58; y < -40; y += 4) { k.rect(cx - 4, y, 3, 2, C.paper); k.px(cx - 2, y, C.paper2); }
+    k.rect(cx + 1, -63, 5, 27, C.gold1); k.rect(cx + 1, -63, 1, 27, C.gold3); for (let y = -60; y < -40; y += 5) for (const x of [cx + 3, cx + 5]) k.px(x, y, C.gold3); k.rect(cx + 2, -50, 3, 1, C.gold0);
+    for (const x of [cx - 26, cx - 11, cx + 11, cx + 26]) ionic(k, x, -69, -36, 5);
+    k.rect(x1 - 2, -72, 2, 36, DK);
     // Stepped stylobate.
-    for (let i = 0; i < 3; i++) { const hw = 50 + i * 2 + (i ? 1 : 0), y = -40 + i * 4; k.rect(cx - hw, y, hw * 2, 4, i % 2 ? MB[3] : MB[4]); k.rect(cx - hw, y, hw * 2, 1, MB[5]); k.rect(cx - hw, y + 3, hw * 2, 1, MB[1]); }
+    for (let i = 0; i < 3; i++) { const hw = 33 + i * 2 + (i ? 1 : 0), y = -36 + i * 4; k.rect(cx - hw, y, hw * 2, 4, i % 2 ? MB[3] : MB[4]); k.rect(cx - hw, y, hw * 2, 1, MB[5]); k.rect(cx - hw, y + 3, hw * 2, 1, MB[1]); }
   }
   // Scholar in a chiton and himation. pose: read (standing, open scroll), sit (on a step, scroll on the lap).
   function drawGreek(q, o, pose, f) {
@@ -368,31 +364,40 @@ window.ZoneDesigns.library = (() => {
     mark(k, x, y - 18, t, state, ph);
   }
 
+  // Position along a polyline at fraction p (0–1) of its length: [x, y, heading left].
+  function along(pts, p) {
+    let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+    let d = p * L;
+    for (let i = 1; i < pts.length; i++) { const [ax, ay] = pts[i - 1], [bx, by] = pts[i], l = Math.hypot(bx - ax, by - ay); if (d <= l) return [Math.round(ax + (bx - ax) * d / l), Math.round(ay + (by - ay) * d / l), bx < ax]; d -= l; }
+    const e = pts[pts.length - 1]; return [e[0], e[1], false];
+  }
+  const COURIER = [[6, 146], [6, 106], [40, 106], [40, -20], [84, -20]];   // gate → court → terrace → KPI gallery
+
   return {
     paint(k) {
       /* Ground: meadow grass. */
-      k.rectTex(-250, -190, 500, 330, (x, y) => { const h = P.hash(x, y); return h < .1 ? C.grass2 : h > .9 ? C.grass4 : C.grass3; });
-      for (let i = 0; i < 60; i++) Props.tuft(k, -246 + P.hash(i, 51) * 492, -186 + P.hash(i, 52) * 316, C.grass1, C.grass4);
+      k.rectTex(-210, -162, 420, 314, (x, y) => { const h = P.hash(x, y); return h < .1 ? C.grass2 : h > .9 ? C.grass4 : C.grass3; });
+      for (let i = 0; i < 44; i++) Props.tuft(k, -200 + P.hash(i, 51) * 400, -156 + P.hash(i, 52) * 300, C.grass1, C.grass4);
 
-      /* Cypresses and palms behind the buildings. */
-      for (const [x, y, h] of [[-244, -118, 34], [-200, -104, 30], [-240, -150, 30], [-190, -140, 36], [-150, -128, 30], [-182, -84, 30], [-160, -88, 36], [-134, -92, 30], [-98, -90, 34], [98, -90, 34], [124, -92, 30], [104, -130, 36], [132, -138, 30], [150, -150, 28], [246, -140, 32], [226, -156, 28], [244, -104, 30]]) k.blit(cypress(h), x, y);
-      k.blit(palm(), -114, -96); k.blit(palm(), -205, -150); k.blit(palm(), 116, -98);
+      /* Cypresses and a palm behind and beside the buildings (all inside the hexagon). */
+      for (const [x, y, h] of [[-172, -30, 28], [-152, -92, 30], [-132, -128, 24], [-88, -90, 32], [84, -90, 30], [100, -98, 32], [124, -126, 22]]) k.blit(cypress(h), x, y);
+      k.blit(palm(), -122, -96);
 
       /* Great dome on its drum. */
-      drum(k, 0, -122, 26, 20);
-      dome(k, 0, -122, 24, 32, 36, 18);
-      k.rect(0, -166, 1, 8, C.gold1); k.circle(0, -161, 1, C.gold2); k.px(0, -162, C.gold4); k.px(-1, -166, C.gold2); k.px(1, -167, C.gold2);
+      drum(k, 0, -118, 26, 20);
+      dome(k, 0, -118, 23, 29, 30, 18);
+      k.rect(0, -156, 1, 8, C.gold1); k.circle(0, -151, 1, C.gold2); k.px(0, -152, C.gold4); k.px(-1, -156, C.gold2); k.px(1, -157, C.gold2);
 
-      /* West wing: the archive arcade under three small domes. */
-      const WX = -186, WW = 100, WB = -34, WT = -80;
+      /* West wing: the archive arcade, three book-cabinet bays under small domes. */
+      const WX = -161, WW = 75, WB = -30, WT = -76;
       k.rect(WX, WT - 8, WW, 8, SD[4]); k.dither(WX, WT - 8, WW, 8, SD[3], 1); k.rect(WX, WT - 8, WW, 1, SD[5]);
-      for (const x of [-161, -136, -111]) { k.rect(x - 8, WT - 12, 17, 6, TQ[2]); k.rect(x - 8, WT - 12, 17, 1, GL[2]); for (let i = x - 7; i < x + 9; i += 3) k.px(i, WT - 9, CB[1]); k.rect(x + 5, WT - 12, 4, 6, DK); dome(k, x, WT - 12, 7, 9, 11, 8); k.rect(x, WT - 26, 1, 3, C.gold1); k.px(x, WT - 27, C.gold3); }
+      for (const x of AX) { k.rect(x - 8, WT - 12, 17, 6, TQ[2]); k.rect(x - 8, WT - 12, 17, 1, GL[2]); for (let i = x - 7; i < x + 9; i += 3) k.px(i, WT - 9, CB[1]); k.rect(x + 5, WT - 12, 4, 6, DK); dome(k, x, WT - 12, 7, 9, 11, 8); k.rect(x, WT - 26, 1, 3, C.gold1); k.px(x, WT - 27, C.gold3); }
       bannai(k, WX, WT, WW, WB - WT);
       kufic(k, WX, WT, WW, GL[2], CB[1], 1); braid(k, WX, WT + 7, WW, false, GL[2], TQ[4], TQ[1]);
       for (const cx of AX) {
         archFrame(k, cx, GS, 9, WB - 4);
         k.polyTex(archPts(cx, GS, 9, WB - 4), (x, y) => {
-          const ry = y - (GS - 12), row = Math.floor((y + 60) / 7), ly = (y + 60) % 7;
+          const ry = y - (GS - 12), row = Math.floor((y + 56) / 7), ly = (y + 56) % 7;
           if (ry < 3) return '#1e140e';
           if (ly === 6) return C.wood3; if (ly === 0) return C.wood1;
           const cub = Math.floor((x - cx + 10) / 6), lx = (x - cx + 10) % 6;
@@ -402,45 +407,39 @@ window.ZoneDesigns.library = (() => {
           return LEATHER[Math.floor(P.hash(x, row) * LEATHER.length)];
         });
         k.polyTex(archPts(cx, GS, 9, WB - 4), (x, y) => (x - cx > 5 || y < GS - 6) && (x + y) % 2 ? '#1a0e0880' : null);
-        kandil(k, cx, -55, GS - 12);
+        kandil(k, cx, -51, GS - 12);
         k.rect(cx - 12, WB - 4, 24, 4, SD[3]); k.rect(cx - 12, WB - 4, 24, 1, SD[5]);
       }
       k.rect(WX, WB - 4, WW, 4, SD[3]); k.rect(WX, WB - 4, WW, 1, SD[4]); k.rect(WX, WB - 1, WW, 1, SD[1]);
       k.rect(WX + WW - 2, WT - 8, 2, WB - WT + 8, DK);
 
-      /* Kümbet record tower closing the archive at the west end. */
-      kumbet(k, -222, -34, 15, 50, 28);
-
-      /* East link: the KPI arcade (two chart bays and a through passage) fusing the hall with the Greek library. */
-      const EX = 84, EW = 58;
+      /* East link: the KPI arcade (a chart bay and an illuminated-page bay) fusing the hall with the Greek library. */
+      const EX = 62, EW = 39;
       k.rect(EX, WT - 8, EW, 8, SD[4]); k.dither(EX, WT - 8, EW, 8, SD[3], 1); k.rect(EX, WT - 8, EW, 1, SD[5]);
-      for (let x = EX; x < EX + EW - 2; x += 5) { k.rect(x, WT - 12, 3, 4, TQ[3]); k.px(x, WT - 12, TQ[5]); k.rect(x + 2, WT - 11, 1, 3, TQ[1]); }
+      for (let x = EX + 1; x < EX + EW - 2; x += 5) { k.rect(x, WT - 12, 3, 4, TQ[3]); k.px(x, WT - 12, TQ[5]); k.rect(x + 2, WT - 11, 1, 3, TQ[1]); }
       bannai(k, EX, WT, EW, WB - WT);
       kufic(k, EX, WT, EW, GL[2], CB[1], 7); braid(k, EX, WT + 7, EW, false, GL[2], TQ[4], TQ[1]);
-      k.rect(EX + 8, WT - 8, 21, 9, C.gold0); k.rect(EX + 9, WT - 7, 19, 7, CB[1]); k.textCenter('KPI', EX + 18, WT - 6, C.gold3);
+      k.rect(EX + 10, WT - 8, 21, 9, C.gold0); k.rect(EX + 11, WT - 7, 19, 7, CB[1]); k.textCenter('KPI', EX + 20, WT - 6, C.gold3);
       for (const cx of GX) {
-        archFrame(k, cx, GS, 9, WB - 4);
-        k.poly(archPts(cx, GS, 9, WB - 4), '#1c1410');
-        k.polyTex(archPts(cx, GS, 8, WB - 4), (x, y) => [TQ[1], TQ[2], CB[0], CB[1], TQ[3]][star(x, y, 8, cx - 12, GS - 16)]);
-        k.rect(cx - 8, -58, 17, 18, C.gold1); k.rect(cx - 7, -57, 15, 17, GL[2]); k.rect(cx - 7, -57, 15, 1, C.white);
-        k.rect(cx + 9, -57, 1, 17, DK2); k.rect(cx - 11, WB - 4, 23, 4, SD[3]); k.rect(cx - 11, WB - 4, 23, 1, SD[5]);
+        archFrame(k, cx, GS, 8, WB - 4);
+        k.poly(archPts(cx, GS, 8, WB - 4), '#1c1410');
+        k.polyTex(archPts(cx, GS, 7, WB - 4), (x, y) => [TQ[1], TQ[2], CB[0], CB[1], TQ[3]][star(x, y, 8, cx - 12, GS - 16)]);
+        k.rect(cx - 7, -54, 15, 18, C.gold1); k.rect(cx - 6, -53, 13, 17, GL[2]); k.rect(cx - 6, -53, 13, 1, C.white);
+        k.rect(cx + 8, -53, 1, 17, DK2); k.rect(cx - 10, WB - 4, 21, 4, SD[3]); k.rect(cx - 10, WB - 4, 21, 1, SD[5]);
       }
-      // Passage through to the Greek court: a lit corridor with steps.
-      archFrame(k, PX, GS + 4, 5, WB - 4); k.poly(archPts(PX, GS + 4, 5, WB - 4), '#2a1c12');
-      k.rect(PX - 3, -44, 7, 8, C.glassLit); k.rect(PX - 2, -47, 5, 3, C.gold3); k.rect(PX - 4, -38, 9, 1, SD[4]); k.rect(PX - 4, -36, 9, 1, SD[3]); kandil(k, PX, -54, GS - 2);
       // Chart furniture: tile baseline, an illuminated page with gold margins.
-      k.rect(GX[0] - 6, -42, 13, 1, CB[1]);
-      const pg = GX[1]; k.rect(pg - 6, -56, 13, 15, C.paper); k.rect(pg - 6, -56, 13, 1, C.gold2); k.rect(pg - 6, -42, 13, 1, C.gold2); k.rect(pg - 6, -56, 1, 15, C.gold2); k.rect(pg + 6, -56, 1, 15, C.gold2);
-      for (let y = -53; y < -44; y += 3) for (let x = pg - 4; x < pg + 5; x += 2) k.px(x, y, C.paper2);
-      k.rect(pg - 4, -55, 9, 1, CB[2]); k.px(pg, -56, OR[1]);
+      k.rect(GX[0] - 6, -38, 13, 1, CB[1]);
+      const pg = GX[1]; k.rect(pg - 5, -52, 11, 15, C.paper); k.rect(pg - 5, -52, 11, 1, C.gold2); k.rect(pg - 5, -38, 11, 1, C.gold2); k.rect(pg - 5, -52, 1, 15, C.gold2); k.rect(pg + 5, -52, 1, 15, C.gold2);
+      for (let y = -49; y < -40; y += 3) for (let x = pg - 3; x < pg + 4; x += 2) k.px(x, y, C.paper2);
+      k.rect(pg - 3, -51, 7, 1, CB[2]); k.px(pg, -52, OR[1]);
       k.rect(EX, WB - 4, EW, 4, SD[3]); k.rect(EX, WB - 4, EW, 1, SD[4]); k.rect(EX, WB - 1, EW, 1, SD[1]);
       // The seam: a turquoise tile pilaster where the Seljuk brick meets the Greek marble.
-      k.rect(142, WT - 12, 8, WB - WT + 12, MB[4]); k.rectTex(143, WT - 8, 6, WB - WT + 4, (x, y) => [GL[2], TQ[3], CB[1], CB[2], TQ[4]][star(x, y, 6, 143, WT - 8)]);
-      k.rect(141, WT - 13, 10, 2, MB[5]); k.rect(141, WB - 4, 10, 4, MB[3]); k.rect(148, WT - 8, 2, WB - WT + 8, DK);
+      k.rect(101, WT - 12, 7, WB - WT + 12, MB[4]); k.rectTex(102, WT - 8, 5, WB - WT + 4, (x, y) => { const l = lattice(x - 102, y, 4); return l === 1 ? CB[1] : l === 2 ? GL[2] : y % 2 ? TQ[3] : TQ[4]; });
+      k.rect(100, WT - 13, 9, 2, MB[5]); k.rect(100, WB - 4, 9, 4, MB[3]); k.rect(106, WT - 8, 2, WB - WT + 8, DK);
       greekLibrary(k);
 
       /* Main hall: sandstone flanks with square-Kufic and griffin panels, flat roof with merlons. */
-      const HB = -34, HT = -86;
+      const HB = -30, HT = -82;
       k.rect(-62, HT - 6, 124, 6, SD[4]); k.dither(-62, HT - 6, 124, 6, SD[3], 1); k.rect(-62, HT - 6, 124, 1, SD[5]);
       for (let x = -62; x < 62; x += 5) { k.rect(x, HT - 9, 3, 3, TQ[3]); k.px(x, HT - 9, TQ[5]); }
       for (const s of [-1, 1]) {
@@ -459,7 +458,7 @@ window.ZoneDesigns.library = (() => {
       k.rect(60, HT - 6, 2, HB - HT + 6, DK);
 
       /* Iwan portal (taç kapı): knotwork frame, star tiles, Kufic band, Rumi spandrels, muqarnas niche, open door. */
-      const PT = -102;
+      const PT = -98;
       k.rect(-29, PT - 4, 58, 4, SD[4]); k.rect(-29, PT - 4, 58, 1, SD[5]);
       for (let x = -28; x < 28; x += 4) { k.poly([[x, PT - 4], [x + 3, PT - 4], [x + 1.5, PT - 8]], TQ[3]); k.px(x + 1, PT - 6, GL[2]); }
       starField(k, -28, PT, 56, HB - PT, 10, [GL[1], TQ[3], CB[1], CB[2], TQ[4]]);
@@ -468,7 +467,7 @@ window.ZoneDesigns.library = (() => {
       k.rect(-20, PT + 15, 41, HB - PT - 15, TQ[3]); k.rect(-19, PT + 16, 39, HB - PT - 16, CB[1]);
       rumi(k, -14, PT + 22, 3, 1, TQ[4], TQ[5]); rumi(k, 15, PT + 22, 3, -1, TQ[4], TQ[5]);
       k.px(-18, PT + 17, GL[2]); k.px(19, PT + 17, GL[2]); k.line(-18, PT + 30, -12, PT + 26, TQ[3]); k.line(19, PT + 30, 13, PT + 26, TQ[3]);
-      const NS = -64, NH = 15;
+      const NS = -60, NH = 15;
       k.poly(archPts(0, NS, NH + 1, HB), GL[2]); k.poly(archPts(0, NS, NH, HB), TQ[1]);
       // Muqarnas: stepped rows of little pointed cells, darker deeper in the half-dome.
       const ap = NS - archH(NH);
@@ -484,29 +483,29 @@ window.ZoneDesigns.library = (() => {
       starField(k, -NH + 1, NS + 5, NH * 2 - 1, HB - NS - 5, 8, [GL[1], TQ[3], CB[1], CB[2], TQ[4]]);
       for (const x of [-NH, NH - 1]) for (let y = NS; y < HB; y++) k.rect(x, y, 2, 1, (y + (x > 0 ? 1 : 0)) % 3 ? GL[2] : TQ[3]);
       // Door: bronze frame, warm interior with shelves.
-      k.poly(archPts(0, -50, 8, HB), C.gold1); k.poly(archPts(0, -50, 7, HB), '#3a2414');
-      k.polyTex(archPts(0, -50, 6, HB), (x, y) => { if (y > -40) return (x + y) % 3 ? C.gold3 : C.gold2; const row = (y + 60) % 5; if (row === 4) return C.wood2; return P.hash(x, Math.floor((y + 60) / 5)) < .75 ? LEATHER[Math.floor(P.hash(x * 3, y >> 2) * 7)] : C.glassLit; });
-      k.rect(-6, -40, 13, 1, C.wood3); k.rect(-1, -38, 3, 4, C.gold4);
-      kandil(k, 0, -54, -61);
-      k.rect(-8, -58, 2, 2, C.gold2); k.rect(7, -58, 2, 2, C.gold2);
+      k.poly(archPts(0, -46, 8, HB), C.gold1); k.poly(archPts(0, -46, 7, HB), '#3a2414');
+      k.polyTex(archPts(0, -46, 6, HB), (x, y) => { if (y > -36) return (x + y) % 3 ? C.gold3 : C.gold2; const row = (y + 56) % 5; if (row === 4) return C.wood2; return P.hash(x, Math.floor((y + 56) / 5)) < .75 ? LEATHER[Math.floor(P.hash(x * 3, y >> 2) * 7)] : C.glassLit; });
+      k.rect(-6, -36, 13, 1, C.wood3); k.rect(-1, -34, 3, 4, C.gold4);
+      kandil(k, 0, -50, -57);
+      k.rect(-8, -54, 2, 2, C.gold2); k.rect(7, -54, 2, 2, C.gold2);
       // Portal shadow falls on the right flank; top of the portal catches light.
       k.rect(29, PT + 2, 3, HB - PT - 2, DK); k.rect(-28, PT, 56, 1, GL[2]); k.rect(27, PT, 1, HB - PT, DK2);
       // Steps.
       for (let i = 0; i < 3; i++) { const hw = 24 + i * 3, y = HB + i * 2; k.rect(-hw, y, hw * 2, 2, i % 2 ? SD[3] : SD[4]); k.rect(-hw, y, hw * 2, 1, SD[5]); }
 
-      /* Minarets between the hall and the wings. */
-      minaret(k, -74, HB); minaret(k, 74, HB);
+      /* The minaret between the archive and the hall. */
+      minaret(k, MIN, HB);
 
       /* Terrace along the facades, then the star-tiled court. */
-      k.rectTex(-250, -28, 500, 6, (x, y) => (y === -23 || (x + 200 + (y + 28 > 2 ? 4 : 0)) % 9 === 0) ? SD[2] : P.hash(Math.floor((x + 200) / 9), y > -26) < .2 ? SD[4] : SD[3]);
-      k.rect(-250, -22, 500, 1, SD[1]);
-      k.rectTex(-72, -21, 144, 141, (x, y) => { const ry = y + 21, row = Math.floor(ry / 7), rx = x + 72 + (row % 2) * 6; if (ry % 7 === 6 || rx % 12 === 11) return SD[2]; if (ry % 7 === 0) return SD[5]; return P.hash(Math.floor(rx / 12), row) < .3 ? SD[3] : SD[4]; });
+      k.rectTex(-210, -24, 420, 6, (x, y) => (y === -19 || (x + 220 + (y + 24 > 2 ? 4 : 0)) % 9 === 0) ? SD[2] : P.hash(Math.floor((x + 220) / 9), y > -22) < .2 ? SD[4] : SD[3]);
+      k.rect(-210, -18, 420, 1, SD[1]);
+      k.rectTex(-72, -17, 144, 137, (x, y) => { const ry = y + 17, row = Math.floor(ry / 7), rx = x + 72 + (row % 2) * 6; if (ry % 7 === 6 || rx % 12 === 11) return SD[2]; if (ry % 7 === 0) return SD[5]; return P.hash(Math.floor(rx / 12), row) < .3 ? SD[3] : SD[4]; });
       // Star-and-cross tile carpets: the axial walk and the square around the şadırvan.
       const TILE = [GL[2], TQ[4], TQ[1], CB[2], CB[1]];
       const panel = (x, y, w, h) => { k.rect(x - 3, y - 3, w + 6, h + 6, CB[1]); k.rect(x - 2, y - 2, w + 4, h + 4, TQ[3]); k.rect(x - 1, y - 1, w + 2, h + 2, GL[2]); starField(k, x, y, w, h, 12, TILE); };
-      for (let y = -14; y < 118; y += 14) for (let x = -64; x < 66; x += 24) { const xx = x + ((y + 14) / 14 % 2) * 12; if (Math.abs(xx) < 20 || (y > 10 && y < 88 && Math.abs(xx) < 54)) continue; k.rect(xx - 1, y, 3, 1, TQ[3]); k.rect(xx, y - 1, 1, 3, TQ[3]); k.px(xx, y, CB[1]); }
-      panel(-12, -18, 24, 138); panel(-46, 18, 92, 62); k.rect(-12, 15, 24, 3, TQ[3]); k.rect(-12, 83, 24, 3, TQ[3]); starField(k, -12, 14, 24, 5, 12, TILE); starField(k, -12, 79, 24, 8, 12, TILE);
-      k.rect(-74, -21, 2, 141, TQ[2]); k.rect(72, -21, 2, 141, TQ[2]); k.rect(-74, -21, 1, 141, CB[1]); k.rect(73, -21, 1, 141, CB[1]);
+      for (let y = -10; y < 118; y += 14) for (let x = -64; x < 66; x += 24) { const xx = x + ((y + 10) / 14 % 2) * 12; if (Math.abs(xx) < 20 || (y > 10 && y < 88 && Math.abs(xx) < 54)) continue; k.rect(xx - 1, y, 3, 1, TQ[3]); k.rect(xx, y - 1, 1, 3, TQ[3]); k.px(xx, y, CB[1]); }
+      panel(-12, -14, 24, 134); panel(-46, 18, 92, 62); k.rect(-12, 15, 24, 3, TQ[3]); k.rect(-12, 83, 24, 3, TQ[3]); starField(k, -12, 14, 24, 5, 12, TILE); starField(k, -12, 79, 24, 8, 12, TILE);
+      k.rect(-74, -17, 2, 137, TQ[2]); k.rect(72, -17, 2, 137, TQ[2]); k.rect(-74, -17, 1, 137, CB[1]); k.rect(73, -17, 1, 137, CB[1]);
 
       /* Şadırvan: octagonal tiled basin with a bowl on a column. */
       const oct = (rx, ry, dy = 0) => { const p = []; for (let i = 0; i < 8; i++) { const a = (i + .5) * Math.PI / 4; p.push([F.x + Math.cos(a) * rx, F.y + dy + Math.sin(a) * ry]); } return p; };
@@ -524,76 +523,67 @@ window.ZoneDesigns.library = (() => {
       k.ellipse(F.x, F.y - 15, 7, 2, TQ[2]); k.ellipse(F.x, F.y - 16, 7, 2, TQ[4]); k.ellipse(F.x, F.y - 16, 5, 1, '#146a74');
       k.rect(F.x - 1, F.y - 21, 3, 5, TQ[3]); k.circle(F.x, F.y - 22, 2, TQ[4]); k.px(F.x - 1, F.y - 23, TQ[6]); k.px(F.x, F.y - 25, C.gold2);
       // Cypresses in tiled planters at the corners of the court.
-      for (const [x, y] of [[-56, 8], [56, 8], [-56, 100], [56, 100]]) { k.rect(x - 6, y - 5, 13, 6, TQ[2]); k.rect(x - 6, y - 5, 13, 1, GL[2]); k.rect(x - 4, y - 3, 3, 3, CB[1]); k.rect(x + 2, y - 3, 3, 3, CB[1]); k.rect(x + 5, y - 5, 2, 6, DK); k.blit(cypress(28), x, y - 5); }
+      for (const [x, y] of [[-56, 12], [56, 12], [-56, 100], [56, 100]]) { k.rect(x - 6, y - 5, 13, 6, TQ[2]); k.rect(x - 6, y - 5, 13, 1, GL[2]); k.rect(x - 4, y - 3, 3, 3, CB[1]); k.rect(x + 2, y - 3, 3, 3, CB[1]); k.rect(x + 5, y - 5, 2, 6, DK); k.blit(cypress(28), x, y - 5); }
 
       /* West garden: the scriptorium kilim (calligrapher and çini painter), the loom and the kiln. */
-      k.rectTex(-250, -21, 176, 144, (x, y) => (x * 3 + y * 7) % 23 === 0 ? C.grass4 : null);
-      k.rect(-250, 16, 176, 5, SD[3]); k.dither(-250, 16, 176, 5, SD[2], 1);
-      k.rect(-108, 21, 6, 102, SD[3]); k.dither(-108, 21, 6, 102, SD[2], 1);
-      carpet(k, -184, -16, 80, 26, '#9a2f2a', CB[1], TQ[3], 3);
-      books(k, -184, -8, 4, 1); books(k, -176, -10, 3, 4); scroll(k, -183, 6); scroll(k, -181, 3, 6);
-      k.rect(-160, 4, 9, 4, C.wood2); k.rect(-160, 4, 9, 1, C.wood4); k.rect(-158, 2, 2, 2, C.ink); k.px(-158, 1, C.stone3); k.rect(-155, 3, 3, 1, C.paper); k.px(-153, 1, OR[1]);
-      for (const [x, y] of [[-136, 0], [-130, -4], [-124, 0]]) plate(k, x, y, true);
-      for (const x of [-140, -118]) plate(k, x, 6, false);
-      vase(k, -144, 2); vase(k, -112, -6); jar(k, -106, 0, CB[2]); jar(k, -118, -8, TQ[3]);
+      k.rectTex(-210, -17, 136, 140, (x, y) => (x * 3 + y * 7) % 23 === 0 ? C.grass4 : null);
+      k.rect(-210, 20, 136, 5, SD[3]); k.dither(-210, 20, 136, 5, SD[2], 1);
+      k.rect(-92, 25, 6, 98, SD[3]); k.dither(-92, 25, 6, 98, SD[2], 1);
+      carpet(k, -168, -12, 80, 26, '#9a2f2a', CB[1], TQ[3], 3);
+      books(k, -168, -4, 4, 1); books(k, -160, -6, 3, 4); scroll(k, -167, 10); scroll(k, -165, 7, 6);
+      k.rect(-144, 8, 9, 4, C.wood2); k.rect(-144, 8, 9, 1, C.wood4); k.rect(-142, 6, 2, 2, C.ink); k.px(-142, 5, C.stone3); k.rect(-139, 7, 3, 1, C.paper); k.px(-137, 5, OR[1]);
+      for (const [x, y] of [[-120, 4], [-114, 0], [-108, 4]]) plate(k, x, y, true);
+      for (const x of [-124, -102]) plate(k, x, 10, false);
+      vase(k, -128, 6); vase(k, -96, -2); jar(k, -90, 4, CB[2]); jar(k, -102, -4, TQ[3]);
+      k.blit(palm(), -186, 16);
       // Loom with a half-woven carpet.
-      k.rect(-184, 26, 30, 3, C.wood2); k.rect(-184, 26, 30, 1, C.wood4); k.rect(-184, 26, 2, 34, C.wood1); k.rect(-156, 26, 2, 34, C.wood1); k.rect(-184, 58, 30, 3, C.wood2);
-      for (let x = -181; x < -156; x++) k.rect(x, 29, 1, 14, x % 2 ? C.paper : C.paper2);
-      k.rectTex(-181, 43, 25, 15, (x, y) => { const d = Math.abs(x + 169) + Math.abs(y - 51) * 1.4; return d < 3 ? C.paper : d < 6 ? CB[1] : d < 7 ? C.gold2 : (y === 44 || y === 57 || x === -181 || x === -157) ? CB[1] : (x + y) % 4 === 0 ? OR[3] : '#9a2f2a'; });
-      k.rect(-181, 42, 25, 1, C.gold2); for (let i = 0; i < 4; i++) k.rect(-178 + i * 7, 60, 2, 3, [OR[1], TQ[3], CB[2], C.gold2][i]);
-      k.rect(-186, 60, 34, 2, C.shadow);
+      k.rect(-168, 30, 30, 3, C.wood2); k.rect(-168, 30, 30, 1, C.wood4); k.rect(-168, 30, 2, 34, C.wood1); k.rect(-140, 30, 2, 34, C.wood1); k.rect(-168, 62, 30, 3, C.wood2);
+      for (let x = -165; x < -140; x++) k.rect(x, 33, 1, 14, x % 2 ? C.paper : C.paper2);
+      k.rectTex(-165, 47, 25, 15, (x, y) => { const d = Math.abs(x + 153) + Math.abs(y - 55) * 1.4; return d < 3 ? C.paper : d < 6 ? CB[1] : d < 7 ? C.gold2 : (y === 48 || y === 61 || x === -165 || x === -141) ? CB[1] : (x + y) % 4 === 0 ? OR[3] : '#9a2f2a'; });
+      k.rect(-165, 46, 25, 1, C.gold2); for (let i = 0; i < 4; i++) k.rect(-162 + i * 7, 64, 2, 3, [OR[1], TQ[3], CB[2], C.gold2][i]);
+      k.rect(-170, 64, 34, 2, C.shadow);
       // Çini kiln: domed brick oven with a firing mouth; glazed wares drying on a shelf.
-      const KX = -128, KY = 58;
+      const KX = KILN.x, KY = KILN.y;
       k.ellipse(KX + 3, KY + 1, 14, 3, C.shadow); k.rect(KX - 11, KY - 10, 22, 10, BR[2]); k.ellipse(KX, KY - 10, 11, 8, BR[2]); k.ellipse(KX - 3, KY - 13, 6, 4, BR[3]);
       k.rectTex(KX - 11, KY - 18, 22, 18, (x, y) => ((y % 3 === 0) || (x + (Math.floor(y / 3) % 2) * 2) % 5 === 0) && P.hash(x, y) < .6 ? BR[1] : null);
       k.rect(KX + 6, KY - 14, 5, 14, DK); k.rect(KX - 2, KY - 20, 4, 4, BR[1]); k.rect(KX - 2, KY - 20, 4, 1, BR[3]);
       k.poly(archPts(KX, KY - 3, 4, KY), '#2a120a'); k.poly(archPts(KX, KY - 2, 3, KY), OR[1]); k.rect(KX - 2, KY - 2, 5, 2, C.gold3);
-      k.rect(-112, 34, 20, 2, C.wood3); k.rect(-112, 36, 2, 10, C.wood1); k.rect(-94, 36, 2, 10, C.wood1); k.rect(-112, 42, 20, 2, C.wood2);
-      for (let i = 0; i < 4; i++) plate(k, -108 + i * 5, 31, true); jar(k, -106, 42, TQ[3]); jar(k, -100, 42, CB[2]); jar(k, -95, 42, GL[2]);
-      carpet(k, -246, 28, 50, 26, CB[1], OR[1], TQ[3], 5);
-      books(k, -245, 38, 3, 2); scroll(k, -244, 51, 6); scroll(k, -205, 38, 6);
-      for (const x of [-241, -203]) { k.ellipse(x, 48, 4, 2, C.wood1); k.rect(x - 4, 44, 9, 4, C.wood3); k.rect(x - 4, 44, 9, 1, C.wood4); for (let i = -3; i < 4; i += 2) k.rect(x + i, 41, 1, 3, C.paper); }
-      k.rect(-219, 46, 9, 3, C.wood2); k.rect(-219, 46, 9, 1, C.wood4); k.rect(-217, 45, 5, 1, C.paper); k.rect(-214, 44, 2, 2, C.ink);
-      k.blit(cypress(30), -244, 118); k.blit(cypress(28), -206, 118); tulipBed(k, -244, 88, 50, 14, 8);
-      tulipBed(k, -184, 88, 70, 14, 3); tulipBed(k, -98, 88, 20, 14, 5);
-      k.blit(cypress(30), -182, 118); k.blit(cypress(26), -118, 120); k.blit(cypress(30), -86, 118);
-      Props.bench(k, -168, 116, 18);
+      k.rect(-96, 38, 20, 2, C.wood3); k.rect(-96, 40, 2, 10, C.wood1); k.rect(-78, 40, 2, 10, C.wood1); k.rect(-96, 46, 20, 2, C.wood2);
+      for (let i = 0; i < 4; i++) plate(k, -92 + i * 5, 35, true); jar(k, -90, 46, TQ[3]); jar(k, -84, 46, CB[2]); jar(k, -79, 46, GL[2]);
+      tulipBed(k, -166, 88, 68, 14, 3); tulipBed(k, -84, 88, 8, 14, 5);
+      k.blit(cypress(30), -150, 118); k.blit(cypress(28), -90, 118);
 
-      /* East garden: the reading kilim, the teaching kilim under a palm, and a tulip bar chart. */
-      k.rectTex(74, -21, 176, 144, (x, y) => (x * 3 + y * 7) % 23 === 0 ? C.grass4 : null);
-      k.rect(74, 16, 176, 5, SD[3]); k.dither(74, 16, 176, 5, SD[2], 1);
-      carpet(k, 96, -16, 60, 24, CB[1], '#9a2f2a', OR[2], 7);
-      rahle(k, 124, 6); books(k, 98, -4, 4, 3); books(k, 146, -6, 3, 5); scroll(k, 99, 5); jar(k, 150, 6, TQ[3]);
-      carpet(k, 96, 28, 76, 26, TQ[1], CB[1], OR[1], 11);
-      rahle(k, 118, 50); rahle(k, 138, 50); books(k, 164, 34, 2, 2); vase(k, 100, 40);
-      k.blit(palm(), 168, 46);
-      // Tulip bar chart: five rows rising left to right, with a gold trend cord on stakes.
+      /* East garden: the reading kilim, the teaching kilim under a palm, a tulip bar chart and the Greek corner. */
+      k.rectTex(74, -17, 136, 140, (x, y) => (x * 3 + y * 7) % 23 === 0 ? C.grass4 : null);
+      k.rect(74, 20, 136, 5, SD[3]); k.dither(74, 20, 136, 5, SD[2], 1);
+      carpet(k, 90, -12, 58, 24, CB[1], '#9a2f2a', OR[2], 7);
+      rahle(k, 117, 10); books(k, 92, 0, 4, 3); books(k, 138, -4, 3, 5); scroll(k, 93, 9); jar(k, 144, 8, TQ[3]);
+      carpet(k, 90, 32, 60, 26, TQ[1], CB[1], OR[1], 11);
+      rahle(k, 111, 54); rahle(k, 129, 54); books(k, 138, 38, 2, 2); vase(k, 94, 42);
+      k.blit(palm(), 160, 48);
       // Tulip bar chart: five tiled planters rising left to right, each crowned with tulips, a gold trend cord above.
       const TB = 106;
       [5, 8, 11, 14, 18].forEach((h, i) => {
-        const x = 94 + i * 18, w = 14;
+        const x = 92 + i * 15, w = 12;
         k.rect(x + 2, TB, w, 2, C.shadow); k.rect(x, TB - h, w, h, TQ[3]); k.rect(x, TB - h, 2, h, TQ[4]); k.rect(x + w - 2, TB - h, 2, h, TQ[1]); k.rect(x, TB - 1, w, 1, CB[1]);
-        for (let yy = TB - h + 3; yy < TB - 2; yy += 4) { k.rect(x + 5, yy, 4, 2, GL[2]); k.px(x + 6, yy, CB[1]); }
+        for (let yy = TB - h + 3; yy < TB - 2; yy += 4) { k.rect(x + 4, yy, 4, 2, GL[2]); k.px(x + 5, yy, CB[1]); }
         k.rect(x, TB - h - 3, w, 3, C.dirt1); k.rect(x, TB - h - 3, w, 1, GL[2]);
         for (let c = 0; c < 4; c++) tulip(k, x + 2 + c * 3, TB - h - 2, [C.red2, OR[2], OR[1], GL[2]][(c + i) % 4]);
       });
-      k.path([[95, TB - 16], [113, TB - 19], [131, TB - 22], [149, TB - 25], [167, TB - 29], [176, TB - 32]], C.gold2); k.px(176, TB - 32, C.gold4);
-      k.blit(cypress(30), 86, 118); k.blit(cypress(30), 186, 118);
-      Props.bench(k, 140, 116, 18);
-      // Greek corner: a marble hemicycle sundial (the gauge), an olive tree, a herm and a marble bench.
+      k.path([[94, TB - 16], [110, TB - 19], [125, TB - 22], [140, TB - 25], [156, TB - 29], [164, TB - 32]], C.gold2); k.px(164, TB - 32, C.gold4);
+      k.blit(cypress(30), 86, 118); k.blit(cypress(28), 150, 118);
+      Props.bench(k, 110, 116, 18);
+      // Greek corner: a marble hemicycle sundial (the gauge) by the steps.
       const SX = SUN.x, SY = SUN.y;
       k.ellipse(SX + 3, SY + 1, 11, 3, C.shadow); k.rect(SX - 4, SY - 8, 9, 8, MB[3]); k.rect(SX - 4, SY - 8, 2, 8, MB[5]); k.rect(SX + 3, SY - 8, 2, 8, MB[1]); k.rect(SX - 6, SY - 2, 13, 2, MB[4]);
       k.ellipse(SX, SY - 12, 9, 6, MB[4]); k.ellipse(SX, SY - 11, 8, 5, MB[2]); k.rect(SX - 9, SY - 11, 19, 5, MB[4]); k.rect(SX - 9, SY - 11, 19, 1, MB[5]);
       for (let i = 0; i < 7; i++) { const a = Math.PI + (i + .5) / 7 * Math.PI; k.rect(SX + Math.round(Math.cos(a) * 7), SY - 12 + Math.round(Math.sin(a) * 5), 2, 1, i < 2 ? OR[1] : i < 4 ? C.gold2 : TQ[3]); }
       k.rect(SX - 9, SY - 9, 19, 1, TQ[3]);
-      Props.tree(k, 236, 60, 'birch', 1, 3); k.rect(206, 76, 22, 3, MB[4]); k.rect(206, 76, 22, 1, MB[5]); k.rect(208, 79, 3, 3, MB[2]); k.rect(223, 79, 3, 3, MB[2]);
-      k.rect(196, 44, 6, 16, MB[3]); k.rect(196, 44, 2, 16, MB[5]); k.circle(199, 41, 3, MB[4]); k.px(198, 40, MB[5]); k.rect(194, 60, 10, 2, MB[2]);
-      for (let i = 0; i < 8; i++) tulip(k, 196 + (i % 4) * 12, 100 + (i >> 2) * 10, [C.red2, OR[2], GL[2]][i % 3]);
-      for (let i = 0; i < 14; i++) tulip(k, 78 + P.hash(i, 7) * 12, 30 + i * 6, [OR[1], C.red2, GL[2]][i % 3]);
-      for (let i = 0; i < 12; i++) tulip(k, -94 + P.hash(i, 9) * 10, 30 + i * 5, [C.red2, OR[2], GL[2]][i % 3]);
+      for (let i = 0; i < 14; i++) tulip(k, 78 + P.hash(i, 7) * 10, 30 + i * 6, [OR[1], C.red2, GL[2]][i % 3]);
 
-      /* Garden wall with tiled coping and a gate of two small kümbet posts. */
-      for (const [x, w] of [[-250, 230], [20, 230]]) { k.rect(x, 124, w, 8, SD[3]); k.rect(x, 124, w, 2, TQ[3]); k.rect(x, 124, w, 1, TQ[5]); k.rect(x, 131, w, 1, SD[1]); for (let i = x + 3; i < x + w; i += 8) { k.rect(i, 127, 3, 3, CB[1]); k.px(i + 1, 128, TQ[4]); } k.rect(x + 2, 132, w, 2, C.shadow); }
+      /* Garden wall with tiled coping, end piers and a gate of two small kümbet posts; the flag corner stays open. */
+      for (const [x, w] of [[-108, 88], [20, 88]]) { k.rect(x, 124, w, 8, SD[3]); k.rect(x, 124, w, 2, TQ[3]); k.rect(x, 124, w, 1, TQ[5]); k.rect(x, 131, w, 1, SD[1]); for (let i = x + 3; i < x + w; i += 8) { k.rect(i, 127, 3, 3, CB[1]); k.px(i + 1, 128, TQ[4]); } k.rect(x + 2, 132, w, 2, C.shadow); }
+      for (const x of [-110, 110]) { k.rect(x - 3, 118, 7, 16, SD[3]); k.rect(x - 3, 118, 2, 16, SD[4]); k.rect(x + 2, 118, 2, 16, SD[2]); k.rect(x - 4, 116, 9, 2, TQ[2]); k.rect(x - 4, 116, 9, 1, TQ[5]); k.px(x, 115, C.gold3); k.rect(x + 4, 134, 4, 2, C.shadow); }
       k.rectTex(-18, 120, 36, 20, (x, y) => [SD[4], GL[1], TQ[2], CB[1], TQ[3]][star(x, y, 12, -18, 120)]);
       for (const s of [-1, 1]) {
         const x = s * 22;
@@ -612,27 +602,27 @@ window.ZoneDesigns.library = (() => {
       const b0 = GX[0];
       [.4, .6, .5, .8].forEach((v, i) => {
         const wob = run ? Math.sin(t * 1.4 + i * 1.7) * .15 : 0, n = live ? clamp(Math.round((v + wob) * 6), 1, 6) : 1, x = b0 - 5 + i * 3;
-        for (let j = 0; j < n; j++) { const bad = err && i === 2, top = j === n - 1; const c = bad ? (blink ? C.error : C.red1) : wait && i === 3 && top ? C.waiting : top ? TQ[5] : j % 2 ? CB[2] : TQ[3]; k.rect(x, -44 - j * 2, 2, 2, c); k.px(x, -44 - j * 2, S(c, .3)); }
+        for (let j = 0; j < n; j++) { const bad = err && i === 2, top = j === n - 1; const c = bad ? (blink ? C.error : C.red1) : wait && i === 3 && top ? C.waiting : top ? TQ[5] : j % 2 ? CB[2] : TQ[3]; k.rect(x, -40 - j * 2, 2, 2, c); k.px(x, -40 - j * 2, S(c, .3)); }
       });
       const pg = GX[1];
       if (live) {
-        const pts = []; for (let i = 0; i < 6; i++) { const s = run ? t * 1.5 : 0, drop = err && i > 3 ? (i - 3) * 3 : 0; pts.push([pg - 5 + i * 2, -45 - Math.round(3 + Math.sin((i + s) * .9) * 2 + i * .9) + drop]); }
-        const nv = run ? 1 + Math.floor(t * 3) % 6 : 6; k.path(pts.slice(0, Math.max(2, nv)), err ? (blink ? C.error : C.red1) : C.red2);
+        const pts = []; for (let i = 0; i < 5; i++) { const s = run ? t * 1.5 : 0, drop = err && i > 2 ? (i - 2) * 3 : 0; pts.push([pg - 4 + i * 2, -41 - Math.round(3 + Math.sin((i + s) * .9) * 2 + i * 1.1) + drop]); }
+        const nv = run ? 1 + Math.floor(t * 3) % 5 : 5; k.path(pts.slice(0, Math.max(2, nv)), err ? (blink ? C.error : C.red1) : C.red2);
         const e = pts[Math.max(1, nv - 1)]; k.px(e[0], e[1], C.gold3);
-        if (wait) { k.circle(pg + 5, -47, 2, C.waiting); k.px(pg + 5, -47, C.gold0); k.rect(pg + 4, -45, 1, 3, C.red1); }
+        if (wait) { k.circle(pg + 3, -43, 2, C.waiting); k.px(pg + 3, -43, C.gold0); k.rect(pg + 2, -41, 1, 3, C.red1); }
       }
       const gz = SUN.x, gy = SUN.y - 12, na = Math.PI + (live ? (run ? .7 + Math.sin(t * .9) * .15 : wait ? .5 : err ? .12 + Math.sin(t * 9) * .05 : .68) : .02) * Math.PI;
       k.line(gz, gy, gz + Math.cos(na) * 6, gy + Math.sin(na) * 6, C.gold0); k.rect(gz - 1, gy - 1, 3, 2, C.gold2);
 
       /* Kandils: warm glow, amber while waiting, a blinking red lamp on error, dark when off. */
-      if (!live) { k.alpha(.7, () => k.rect(-5, -58, 11, 18, '#141c34')); for (const [x, y] of LAMPS) k.rect(x - 2, y - 1, 5, 3, C.glassDark); }
+      if (!live) { k.alpha(.7, () => k.rect(-5, -54, 11, 18, '#141c34')); for (const [x, y] of LAMPS) k.rect(x - 2, y - 1, 5, 3, C.glassDark); }
       else if (z.detail) LAMPS.forEach(([x, y], i) => k.alpha(.22 + Math.sin(t * 3 + i * 1.3) * .07, () => k.circle(x, y, 4, C.glassLit)));
-      if (wait) k.alpha(.45 + Math.sin(t * 4) * .2, () => { k.circle(0, -53, 4, C.waiting); k.rect(-2, -54, 5, 3, C.waiting); });
-      if (err && blink) { k.circle(0, -53, 4, C.error); k.rect(-1, -54, 3, 3, '#ffd0c0'); }
+      if (wait) k.alpha(.45 + Math.sin(t * 4) * .2, () => { k.circle(0, -49, 4, C.waiting); k.rect(-2, -50, 5, 3, C.waiting); });
+      if (err && blink) { k.circle(0, -49, 4, C.error); k.rect(-1, -50, 3, 3, '#ffd0c0'); }
 
-      /* Pennants on the minaret balconies. */
-      for (const cx of [-74, 74]) {
-        const y = -145, c = wait ? C.waiting : err ? C.error : live ? OR[1] : C.slate2, w = live ? Math.round(Math.sin(t * 5 + cx) * 1.5) : 0, d = cx < 0 ? -1 : 1;
+      /* Pennant on the minaret balcony. */
+      {
+        const cx = MIN, y = -127, c = wait ? C.waiting : err ? C.error : live ? OR[1] : C.slate2, w = live ? Math.round(Math.sin(t * 5 + cx) * 1.5) : 0, d = -1;
         k.rect(cx + d * 7, y - 9, 1, 9, C.wood1); k.poly([[cx + d * 7, y - 9], [cx + d * (15 + w), y - 7 + w * .5], [cx + d * 7, y - 5]], c); k.px(cx + d * 8, y - 8, S(c, .4));
       }
 
@@ -646,61 +636,60 @@ window.ZoneDesigns.library = (() => {
       if (live && z.detail) for (let i = 0; i < 4; i++) if (Math.floor(t * 2 + i * 1.7) % 3 === 0) k.px(F.x - 18 + i * 11, F.y + 1 + (i % 2) * 3, TQ[6]);
 
       /* Kiln: flicker in the firing mouth, smoke while firing. */
-      if (live) { k.alpha(.4 + Math.sin(t * 7) * .2, () => k.rect(-130, 55, 5, 3, run ? C.gold4 : OR[2])); if (run) Props.smoke(k, -128, 37, t * .6, 2, '#d8d0c4'); }
-      else k.rect(-130, 56, 5, 2, '#2a120a');
+      if (live) { k.alpha(.4 + Math.sin(t * 7) * .2, () => k.rect(KILN.x - 2, KILN.y - 3, 5, 3, run ? C.gold4 : OR[2])); if (run) Props.smoke(k, KILN.x, KILN.y - 21, t * .6, 2, '#d8d0c4'); }
+      else k.rect(KILN.x - 2, KILN.y - 2, 5, 2, '#2a120a');
 
       /* Miniature scenes: the calligrapher, the çini painter, the weaver, readers and the teacher with students. */
       const pose = (p, alt = 'rest') => run ? p : alt;
-      seat(k, t, state, -168, 8, 0, pose('write', wait ? 'rest' : 'read'), false, .1, 3);
-      seat(k, t, state, -126, 10, 1, pose('paint', 'rest'), true, .4, 3);
+      seat(k, t, state, -152, 12, 0, pose('write', wait ? 'rest' : 'read'), false, .1, 3);
+      seat(k, t, state, -110, 14, 1, pose('paint', 'rest'), true, .4, 3);
       const wf = run ? Math.floor(t * 5) % 4 : 0, sh = err ? [0, 1, 0, -1][Math.floor(t * 12) % 4] : 0;
-      k.blit(weaver(3, wf, !live), -169 + sh, 74); mark(k, -169, 54, t, state, .7);
-      if (run) { const p = (t * .8) % 1, sx = -180 + Math.round((p < .5 ? p * 2 : 2 - p * 2) * 22); k.rect(sx, 42, 4, 1, C.wood4); k.px(sx + 4, 42, OR[2]); }
-      seat(k, t, state, 112, 6, 2, run || calm ? 'read' : 'rest', false, .2, 1.5);
-      seat(k, t, state, 140, 6, 5, run ? 'talk' : 'rest', true, .5, 2);
-      seat(k, t, state, 107, 50, 4, run || calm ? 'read' : 'rest', false, .3, 1.2);
-      seat(k, t, state, 127, 50, 0, run || calm ? 'read' : 'rest', false, .8, 1.2);
-      seat(k, t, state, 160, 50, 3, run || wait ? 'talk' : 'rest', true, .6, 2);
-      seat(k, t, state, -229, 50, 5, pose('write', 'read'), false, .9, 3);
+      k.blit(weaver(3, wf, !live), -153 + sh, 78); mark(k, -153, 58, t, state, .7);
+      if (run) { const p = (t * .8) % 1, sx = -164 + Math.round((p < .5 ? p * 2 : 2 - p * 2) * 22); k.rect(sx, 46, 4, 1, C.wood4); k.px(sx + 4, 46, OR[2]); }
+      seat(k, t, state, 104, 10, 2, run || calm ? 'read' : 'rest', false, .2, 1.5);
+      seat(k, t, state, 130, 10, 5, run ? 'talk' : 'rest', true, .5, 2);
+      seat(k, t, state, 100, 54, 4, run || calm ? 'read' : 'rest', false, .3, 1.2);
+      seat(k, t, state, 118, 54, 0, run || calm ? 'read' : 'rest', false, .8, 1.2);
+      seat(k, t, state, 144, 54, 3, run || wait ? 'talk' : 'rest', true, .6, 2);
       // Greek scholars in chitons read scrolls on the marble steps.
-      gstep(k, t, state, 168, -32, 0, 'sit', false, .3); gstep(k, t, state, 214, -24, 1, 'read', true, .6);
+      gstep(k, t, state, 126, -28, 0, 'sit', false, .3); gstep(k, t, state, 158, -20, 1, 'read', true, .6);
       // Pages turn on the reading stands.
-      if (live && z.detail && !err) for (const [x, y, o] of [[124, 6, 0], [118, 50, 1.3], [138, 50, 2.1]]) { const p = (t * .35 + o) % 1; if (p < .2) { const u = Math.round(Math.cos(p / .2 * Math.PI) * 4); k.line(x, y - 7, x + u, y - 9, C.white); } }
+      if (live && z.detail && !err) for (const [x, y, o] of [[117, 10, 0], [111, 54, 1.3], [129, 54, 2.1]]) { const p = (t * .35 + o) % 1; if (p < .2) { const u = Math.round(Math.cos(p / .2 * Math.PI) * 4); k.line(x, y - 7, x + u, y - 9, C.white); } }
 
       if (live) {
         /* Scholars carry books from the archive to the hall and walk back; a courier brings a scroll to the gallery. */
         if (run) {
           for (let i = 0; i < 2; i++) {
             const p = (t * .06 + i * .5) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2, x = Math.round(-123 + q * 108), f = Math.floor(t * 7 + i * 2) % 4;
-            k.ellipse(x + 1, -24, 4, 1, C.shadow); k.blit(walker(i ? 4 : 1, back ? '' : 'books', f, true), x, -24, back);
+            k.ellipse(x + 1, -20, 4, 1, C.shadow); k.blit(walker(i ? 4 : 1, back ? '' : 'books', f, true), x, -20, back);
           }
-          const p = (t * .05) % 1, f = Math.floor(t * 7) % 4; let x, y, fl = false;
-          if (p < .6) { x = 34; y = Math.round(134 - p / .6 * 158); } else { x = Math.round(34 + (p - .6) / .4 * 88); y = -24; }
-          if (p < .6) { k.ellipse(x + 1, y, 4, 1, C.shadow); k.blit(walker(2, 'scroll', f, true), x, y, fl); } else { k.ellipse(x + 1, y, 4, 1, C.shadow); k.blit(walker(2, 'scroll', f, true), x, y); }
+          const [cx, cy, cl] = along(COURIER, (t * .05) % 1);
+          k.ellipse(cx + 1, cy, 4, 1, C.shadow); k.blit(walker(2, 'scroll', Math.floor(t * 7) % 4, true), cx, cy, cl);
           // A potter carries fresh plates to the kiln shelf.
-          const q = (t * .09) % 1, bk = q > .5, qq = bk ? (1 - q) * 2 : q * 2, px = Math.round(-120 + qq * 18);
-          k.ellipse(px + 1, 30, 4, 1, C.shadow); k.blit(walker(5, bk ? '' : 'plate', Math.floor(t * 7) % 4, true), px, 30, bk);
+          const q = (t * .09) % 1, bk = q > .5, qq = bk ? (1 - q) * 2 : q * 2, px = Math.round(-104 + qq * 18);
+          k.ellipse(px + 1, 34, 4, 1, C.shadow); k.blit(walker(5, bk ? '' : 'plate', Math.floor(t * 7) % 4, true), px, 34, bk);
         } else if (wait) {
           // Manuscripts await sign-off: a sealed pile at the portal and scholars queueing with scrolls.
-          books(k, -12, -20, 4, 2); books(k, -4, -20, 3, 5); scroll(k, -12, -26, 8); k.circle(-1, -30, 2, C.waiting); k.px(-1, -30, C.gold0);
-          for (let i = 0; i < 3; i++) { const x = 16 + i * 12; k.ellipse(x + 1, -18, 4, 1, C.shadow); k.blit(walker([1, 3, 4][i], 'scroll', 0, false), x, -18, true); mark(k, x, -44, t, state, i * .3); }
+          books(k, -12, -16, 4, 2); books(k, -4, -16, 3, 5); scroll(k, -12, -22, 8); k.circle(-1, -26, 2, C.waiting); k.px(-1, -26, C.gold0);
+          for (let i = 0; i < 3; i++) { const x = 16 + i * 12; k.ellipse(x + 1, -14, 4, 1, C.shadow); k.blit(walker([1, 3, 4][i], 'scroll', 0, false), x, -14, true); mark(k, x, -40, t, state, i * .3); }
         } else if (calm) {
           // A scholar rests by the şadırvan; a cat naps on the warm terrace.
           seat(k, t, state, 40, 72, 4, 'rest', true, .2);
-          k.rect(-44, -26, 7, 3, OR[3]); k.rect(-38, -28, 3, 3, OR[3]); k.px(-38, -29, OR[3]); k.px(-36, -29, OR[3]); k.px(-44 - (Math.floor(t) % 3 ? 0 : 1), -24, OR[2]);
+          k.rect(-44, -22, 7, 3, OR[3]); k.rect(-38, -24, 3, 3, OR[3]); k.px(-38, -25, OR[3]); k.px(-36, -25, OR[3]); k.px(-44 - (Math.floor(t) % 3 ? 0 : 1), -20, OR[2]);
         } else if (err) {
           // Loose pages blow across the court; ink spilt on the kilim; a scholar runs after them.
-          for (let i = 0; i < 9; i++) { const q = (t * .3 + i / 9) % 1, x = -60 + q * 130 + Math.sin(t * 3 + i) * 6, y = -8 + i * 13 - Math.sin(q * Math.PI) * 16; k.rect(x - 1, y - 1, 6, 5, C.ink); k.rect(x, y, 4, 3, C.paper); k.px(x + 1, y + 1, C.stone3); }
-          k.ellipse(-154, 8, 4, 1, C.ink); k.px(-150, 9, C.ink);
+          for (let i = 0; i < 9; i++) { const q = (t * .3 + i / 9) % 1, x = -60 + q * 130 + Math.sin(t * 3 + i) * 6, y = -4 + i * 13 - Math.sin(q * Math.PI) * 16; k.rect(x - 1, y - 1, 6, 5, C.ink); k.rect(x, y, 4, 3, C.paper); k.px(x + 1, y + 1, C.stone3); }
+          k.ellipse(-138, 12, 4, 1, C.ink); k.px(-134, 13, C.ink);
           const p = (t * .12) % 1, x = Math.round(-40 + p * 90); k.ellipse(x + 1, 108, 4, 1, C.shadow); k.blit(walker(0, '', Math.floor(t * 10) % 4, true), x, 108); mark(k, x, 82, t, state, 0);
         }
       }
 
       /* Doves circle the dome; perch on the drum when calm or off. */
       if (z.detail) {
-        if (run || err || wait) for (let i = 0; i < 3; i++) { const a = t * .5 + i * 2.1; Props.bird(k, Math.cos(a) * 46, -132 + Math.sin(a) * 7 + i * 3, t + i, '#f7f7f0'); }
-        else for (const x of [-18, -9, 12]) { k.rect(x, -120, 3, 2, GL[2]); k.px(x + 2, -121, GL[2]); k.px(x + 3, -121, C.gold2); }
+        if (run || err || wait) for (let i = 0; i < 3; i++) { const a = t * .5 + i * 2.1; Props.bird(k, Math.cos(a) * 46, -128 + Math.sin(a) * 7 + i * 3, t + i, '#f7f7f0'); }
+        else for (const x of [-18, -9, 12]) { k.rect(x, -116, 3, 2, GL[2]); k.px(x + 2, -117, GL[2]); k.px(x + 3, -117, C.gold2); }
       }
     }
   };
 })();
+

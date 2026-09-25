@@ -39,15 +39,15 @@
 
     /* ---------- Solar fields (layout px before the margin shift) ---------- */
     const FIELDS = [
-      { x: 262, y: 690, rows: 4, mods: 24, side: 1, stream: 'n', bank: 1 },               // above the Colosseum
-      { x: 262, y: 300, rows: 3, mods: 22, side: 1, stream: 'n', bank: 1, cross: true },  // north-west woods
-      { x: 236, y: 1530, rows: 3, mods: 22, side: 1, stream: 's', bank: -1 },             // below the Colosseum
-      { x: 250, y: 2080, rows: 3, mods: 20, side: 1, stream: 's', bank: -1, cross: true }, // south-west woods
-      { x: 2240, y: 1990, rows: 3, mods: 22, side: 1, river: 1 },                         // below GGI
-      { x: 2836, y: 2040, rows: 4, mods: 18, side: -1, river: -1 },                       // below DGI
-      { x: 2836, y: 176, rows: 4, mods: 22, side: -1, river: -1 },                        // by Daghan's Healing Gardens
-      { x: 2226, y: 176, rows: 4, mods: 22, side: 1, river: 1 },                          // by GKTC's Healing Gardens
-      { x: 4700, y: 1560, rows: 3, mods: 14, side: -1, stream: 's', bank: -1 }            // eastern woods
+      { x: 270, y: 640, rows: 3, mods: 22, side: 1, stream: 'n', bank: 1 },                // above the Colosseum
+      { x: 300, y: -60, rows: 3, mods: 22, side: 1, stream: 'n', bank: 1, cross: true },   // north-west woods
+      { x: 236, y: 1400, rows: 3, mods: 22, side: 1, stream: 's', bank: -1 },              // below the Colosseum
+      { x: 250, y: 2330, rows: 3, mods: 20, side: 1, stream: 's', bank: -1, cross: true }, // south-west woods
+      { x: 2150, y: 1810, rows: 3, mods: 22, side: 1, river: 1 },                          // below GGI's orchard
+      { x: 2912, y: 1810, rows: 3, mods: 22, side: -1, river: -1 },                        // below DGI's orchard
+      { x: 2912, y: 580, rows: 4, mods: 24, side: -1, river: -1 },                         // by Daghan's Healing Gardens
+      { x: 2130, y: 580, rows: 4, mods: 24, side: 1, river: 1 },                           // by GKTC's Healing Gardens
+      { x: 4540, y: 1380, rows: 3, mods: 14, side: -1, stream: 's', bank: -1 }             // eastern woods
     ];
     const fields = FIELDS.map((f, i) => {
       const fx = f.x + M, fy = f.y + M, fw = f.mods * 10 + 38, fh = f.rows * 28 + 28;
