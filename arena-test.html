@@ -1,0 +1,25 @@
+<!doctype html><html><head><meta charset="utf-8"><title>arena</title>
+<style>body{margin:0;background:#222;color:#eee;font:12px monospace}canvas{image-rendering:pixelated;display:block;margin:4px}</style>
+<script src="engine/pixel.js"></script><script src="engine/props.js"></script><script src="engine/sculpt.js"></script><script src="characters.js"></script><script src="colosseum.js"></script><script src="zones/colosseum.js"></script></head>
+<body><div id="h"></div><script>
+/* ?t=seconds into fight | ?verdict=spare|kill&v=seconds after vote | ?ready | &map=1 full view | &bout=n | &seed=n (default 1)
+   &speed=2 (t and v are then wall-clock seconds at 2×) | ?sheet=0|1 every pose of one fighter (&scale=n &only=a,b &f=frame) */
+const Q=new URLSearchParams(location.search),A=Colosseum,Z=ZoneDesigns.colosseum,P=Pixel;
+if(Q.has('sheet')){const side=+Q.get('sheet'),SC=+(Q.get('scale')||2),all=['idle','walk','guard','salute','dash','clash','hurt','block','crouch','kneel','down','rise','bow','offer','victory','laugh','point','finger',...(side?['swing0','swing1','swing2','charge0','charge1','charge2','spin0','spin1','spin2','beam0','beam1','jetUp','slam0','slam1','smash','limp']:['claw0','claw1','claw2','wings0','wings1','wings2','repulsor0','repulsor1','aim2','fly','dive','limp'])],names=Q.has('only')?Q.get('only').split(','):all;
+ const cols=Math.min(8,names.length),cw=150,ch=170,W=cols*cw,H=Math.ceil(names.length/cols)*ch,b=document.createElement('canvas');b.width=W;b.height=H;const k=P.kit(b.getContext('2d'));k.rect(0,0,W,H,'#c8a468');const t0=performance.now();
+ names.forEach((n,i)=>{const x=(i%cols)*cw+cw/2,y=Math.floor(i/cols)*ch+ch-22;k.ellipse(x,y,14,3,'#5a3a1a55');k.blit(Z.sprite(side,n,+Q.get('f')||0),x,y);k.text(n,x-cw/2+4,y+10,'#2a211c');});
+ const cv=document.createElement('canvas');cv.width=W*SC;cv.height=H*SC;h.append(cv);const o=cv.getContext('2d');o.imageSmoothingEnabled=false;o.drawImage(b,0,0,W*SC,H*SC);document.title='sheet ms='+(performance.now()-t0).toFixed(0)+' per='+((performance.now()-t0)/names.length).toFixed(1);}
+else{
+const seed=+(Q.get('seed')||1),sp=+(Q.get('speed')||1),bout=+(Q.get('bout')||1);for(let b=1;b<bout;b++){A.start(b*1000,seed+b);A.vote('spare',b*1000+999);}
+const T0=bout*1000;let t=T0;A.setSpeed(sp,T0);
+if(!Q.has('ready')){A.start(T0,seed);const d=A.snapshot(T0).duration/sp;
+ if(Q.has('verdict')){A.snapshot(T0+d+.5);A.vote(Q.get('verdict'),T0+d+1);t=T0+d+1+(+Q.get('v')||0);} else if(Q.has('pv')) t=T0+d+(+Q.get('pv')); else t=T0+(+Q.get('t')||0);}
+const base=document.createElement('canvas');base.width=620;base.height=460;const b=base.getContext('2d');b.translate(310,230);const bk=P.kit(b);bk.rect(-310,-230,620,460,P.C.grass2);Z.paint(bk);
+function render(t, out, map){const sc=A.scene(t);const fb=document.createElement('canvas');fb.width=620;fb.height=460;const c=fb.getContext('2d');c.drawImage(base,0,0);c.translate(310,230);Z.animate(P.kit(c),t,sc);
+ const o=out.getContext('2d');o.imageSmoothingEnabled=false;
+ if(map){o.drawImage(fb,0,0,out.width,out.height);return sc;}
+ const cam=Z.camera(sc),w=cam.w,h=w*out.height/out.width,sx=Math.round(310+cam.x-w/2+(sc.shake?Math.sin(t*90)*sc.shake:0)),sy=Math.round(230+cam.y-h/2);
+ o.drawImage(fb,sx,sy,w,h,0,0,out.width,out.height);return sc;}
+const cv=document.createElement('canvas');cv.width=Q.has('map')?1240:960;cv.height=Q.has('map')?920:540;h.append(cv);
+const sc=render(t,cv,Q.has('map'));document.title='phase='+sc.phase+' hp='+sc.hp+' dur='+sc.duration.toFixed(1)+' ft='+sc.fightTime.toFixed(2)+' poses='+sc.F.map(f=>f.pose).join(',')+' fx='+sc.fx.map(f=>f.kind).join(',')+' turn='+(sc.turn?sc.turn.text:'-');}
+</script></body></html>

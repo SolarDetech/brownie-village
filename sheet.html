@@ -1,0 +1,11 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Sprite sheet</title>
+<style>body{margin:0;background:#6a9650;font:12px monospace;color:#fff}canvas{image-rendering:pixelated;display:block}</style>
+<script src="engine/pixel.js"></script><script src="engine/props.js"></script><script src="characters.js"></script></head>
+<body><canvas id="c"></canvas><script>
+const t0=+(new URLSearchParams(location.search).get('t')||1.3);
+const c=document.getElementById('c'),S=4,W=440,H=110;c.width=W*S;c.height=H*S;c.style.width=W*S+'px';
+const x=c.getContext('2d');x.imageSmoothingEnabled=false;x.scale(S,S);const k=Pixel.kit(x);
+k.rect(0,0,W,H,Pixel.C.grass2);
+const states=['working','idle','waiting','error','off'];
+const role=new URLSearchParams(location.search).get('role')||'';const rs=role?[role]:AgentCharacters.roles.slice(0,1);rs.forEach(r=>states.forEach((s,j)=>AgentCharacters.lead(k,r,30+j*60,75,t0,s,{})));for(let f=0;f<6;f++)AgentCharacters.lead(k,rs[0],330+ (f%3)*36,40+Math.floor(f/3)*60,f/(AgentCharacters.profiles[rs[0]].work.fps),'working',{indicator:false});
+</script></body></html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Zone preview</title>
+<style>body{margin:0;background:#2a3a2c;color:#e8f0d8;font:12px ui-monospace,monospace}canvas{image-rendering:pixelated;display:block}.row{display:flex;flex-wrap:wrap;gap:8px;padding:8px}.cell span{display:block;padding:2px 4px}</style>
+<script src="engine/pixel.js"></script><script src="engine/props.js"></script><script src="engine/sculpt.js"></script><script src="characters.js"></script>
+<script>
+  // Load the zone module named in ?zone=
+  const Q = new URLSearchParams(location.search), ZONE = Q.get('zone') || 'sekreter';
+  if (ZONE === 'castle') document.write(`<script src="zones/ataturk.js"><\/script>`);
+  document.write(`<script src="zones/${ZONE}.js"><\/script>`);
+</script>
+</head><body><div class="row" id="host"></div>
+<script>
+/* ?zone=name  &village=gktc|daghan  &state=working|idle|waiting|error|off|all  &scale=2  &t=seconds (freezes time)  &w=420&h=340 */
+const P = Pixel, C = P.C;
+const scale = +(Q.get('scale') || 2), W = +(Q.get('w') || (ZONE === 'castle' ? 560 : ZONE === 'colosseum' ? 620 : ZONE === 'library' ? 540 : 420)), H = +(Q.get('h') || (ZONE === 'castle' ? 470 : ZONE === 'colosseum' ? 460 : ZONE === 'library' ? 420 : 340));
+const states = (Q.get('state') || 'all') === 'all' ? ['working', 'idle', 'waiting', 'error', 'off'] : [Q.get('state')];
+const frozen = Q.has('t') ? +Q.get('t') : null;
+const design = window.ZoneDesigns[ZONE], VILLAGE = Q.get('village') || 'gktc', ZINFO = { village: VILLAGE, role: ZONE };
+function plot(k) {
+  k.rect(-W / 2, -H / 2, W, H, C.grass2);
+  for (let i = 0; i < 900; i++) { const x = -W / 2 + P.hash(i, 3) * W, y = -H / 2 + P.hash(i, 9) * H; Props.tuft(k, x, y, C.grass1, C.grass3); }
+  const [hw, ht, hb] = ZONE === 'castle' ? [262, 222, 212] : ZONE === 'library' ? [260, 200, 150] : [200, 160, 150];
+  k.rect(-hw, -ht, hw * 2, ht + hb, C.grass3); k.dither(-hw, -ht, hw * 2, ht + hb, C.grass2, 1);
+  k.rect(-18, hb - 10, 36, H / 2, C.dirt3); k.rect(-18, 140, 2, H / 2, C.dirt2);
+}
+const layers = states.map(state => {
+  const cell = document.createElement('div'); cell.className = 'cell';
+  const cv = document.createElement('canvas'); cv.width = W * scale; cv.height = H * scale; cv.style.width = W * scale + 'px';
+  const label = document.createElement('span'); label.textContent = ZONE + ' · ' + state; cell.append(label, cv); host.append(cell);
+  // Static layer at 1:1 art px.
+  const base = document.createElement('canvas'); base.width = W; base.height = H; const b = base.getContext('2d'); b.translate(W / 2, H / 2); const bk = P.kit(b);
+  plot(bk); design.paint(bk, ZINFO);
+  let front = null; if (design.front) { front = document.createElement('canvas'); front.width = W; front.height = H; const f = front.getContext('2d'); f.translate(W / 2, H / 2); design.front(P.kit(f), ZINFO); }
+  const fb = document.createElement('canvas'); fb.width = W; fb.height = H;
+  return { state, cv, base, front, fb };
+});
+let leadCount = 0, errors = [];
+function frame(t) {
+  for (const L of layers) {
+    const c = L.fb.getContext('2d'); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(L.base, 0, 0); if (L.state === 'off') { c.fillStyle = '#141c3c66'; c.fillRect(0, 0, W, H); } c.translate(W / 2, H / 2);
+    const k = P.kit(c); leadCount = 0;
+    const z = { lead: (x, y, o) => { leadCount++; AgentCharacters.lead(k, ZONE, x, y, t, L.state, o); }, crew: (x, y, o = {}) => AgentCharacters.crew(k, x, y, t, { state: L.state, ...o }), detail: true, village: VILLAGE };
+    try { design.animate(k, t, L.state, z); } catch (e) { errors.push(e.message); console.error(e); }
+    if (L.front) { c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(L.front, 0, 0); }
+    const o = L.cv.getContext('2d'); o.imageSmoothingEnabled = false; o.drawImage(L.fb, 0, 0, W * scale, H * scale);
+  }
+  document.title = `Zone preview ${ZONE} leads=${leadCount} errors=${errors.length}`;
+}
+if (frozen !== null) frame(frozen); else { const t0 = performance.now(); const loop = now => { frame(Math.max(0, (now - t0) / 1000)); requestAnimationFrame(loop); }; requestAnimationFrame(loop); }
+</script></body></html>
