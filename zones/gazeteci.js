@@ -10,6 +10,65 @@ window.ZoneDesigns.gazeteci = (() => {
   const LOFT = { x: 146, y: -64 };
   const MUSTARD = '#c29a48', IRON = '#2e3240', IRON2 = '#454a5c', IRON3 = '#62687c';
   const UPPER = [[-58, -80], [-38, -80], [22, -80], [42, -80]];   // newsroom upper windows (12 x 12)
+  const BIG = { x: 166, y: -124 }, VAN = { x: -106, y: -22 }, VD = { x: -92, y: -52 };   // uplink dish behind the loft; OB van and its roof dish
+  const ARR = [[-58, -100], [-48, -100], [-38, -100]];           // small dish array on the newsroom roof
+  const JIB = { x: -84, y: 26 }, CAM1 = { x: -70, y: 84 }, CAM2 = { x: -52, y: -20 }, PAD = { x: 34, y: 8 }, PH = { x: -46, y: 98 };
+  const SPINE = [C.red1, C.red2, '#3a5a8a', '#2a3a5a', C.teal2, C.teal3, C.gold1, C.gold2, C.plum2, C.plum3, '#4a7a4a', '#6a9a4a', C.wood2, '#b04a3a', C.paper2, '#d8703a'];
+  const spine = (i, s) => SPINE[Math.floor(P.hash(i, s) * SPINE.length)];
+  // One shelf of books standing on a board at y = sy: gilt bands and labels, the odd gap, a leaning volume and flat piles.
+  const shelfRow = (k, x0, x1, sy, sd, hm) => {
+    for (let x = x0, i = 0; x < x1 - 2; i++) {
+      const h = P.hash(i, sd), c = spine(i + 11, sd);
+      if (h < .13 && x < x1 - 13) { const n = 2 + Math.floor(P.hash(i, sd + 5) * 3); for (let j = 0; j < n; j++) { const w = 8 + Math.floor(P.hash(j, i + sd) * 3), cj = spine(j + i, sd + 2), o = Math.floor(P.hash(j + 3, i + sd) * 2), y = sy - 2 - j * 2; k.rect(x + o, y, w, 2, cj); k.rect(x + o, y, w, 1, S(cj, .22)); k.rect(x + o + w - 1, y, 1, 2, C.paper); } x += 13; continue; }
+      if (h > .95) { x += 2; continue; }
+      if (h > .9 && x < x1 - 6) { k.line(x, sy - 1, x + 3, sy - hm + 2, c, 2); k.px(x + 3, sy - hm + 2, S(c, .25)); x += 5; continue; }
+      const w = h < .55 ? 2 : 3, bh = hm - Math.floor(P.hash(i + 4, sd) * 3), b = P.hash(i + 7, sd);
+      k.rect(x, sy - bh, w, bh, c); k.rect(x, sy - bh, 1, bh, S(c, .22)); if (w > 2) k.rect(x + 2, sy - bh, 1, bh, S(c, -.22));
+      if (b < .4) { k.rect(x, sy - bh + 1, w, 1, C.gold3); k.rect(x, sy - 2, w, 1, C.gold3); } else if (b < .6) k.rect(x, sy - bh + 2, w, 2, C.paper); else if (b < .75) k.rect(x, sy - bh + 1, w, 1, S(c, -.35));
+      x += w;
+    }
+  };
+  // A stack of books lying flat, page edges to the right.
+  const books = (k, x, y, n, sd) => { k.rect(x + 2, y, 12, 2, C.shadow); for (let i = 0; i < n; i++) { const w = 9 + Math.floor(P.hash(i, sd) * 4), o = Math.floor(P.hash(i + 5, sd) * 3) - 1, c = spine(i + 2, sd), yy = y - 3 - i * 3; k.rect(x + o, yy, w, 3, c); k.rect(x + o, yy, w, 1, S(c, .25)); k.rect(x + o, yy + 2, w, 1, S(c, -.25)); k.rect(x + o + w - 2, yy + 1, 2, 1, C.paper); if (P.hash(i, sd + 3) < .5) k.rect(x + o + 2, yy + 1, 3, 1, C.gold3); } };
+  // Broadcast camera on a tripod, facing right: fluid head, pan bar, viewfinder, lens and matte-box hood. (x, y) = feet.
+  const tripodCam = (k, x, y) => {
+    k.ellipse(x + 3, y + 1, 9, 2, C.shadow);
+    k.line(x, y - 12, x - 6, y, IRON2); k.line(x, y - 12, x + 7, y, IRON); k.line(x, y - 12, x + 1, y, IRON3); k.rect(x - 4, y - 4, 10, 1, IRON2); for (const fx of [x - 6, x + 1, x + 7]) k.px(fx, y, C.ink);
+    k.rect(x - 2, y - 14, 5, 2, IRON3); k.rect(x - 2, y - 13, 5, 1, IRON2); k.line(x - 2, y - 13, x - 9, y - 9, IRON3); k.rect(x - 10, y - 9, 2, 2, IRON);
+    k.rect(x - 5, y - 21, 11, 7, '#2a2c34'); k.rect(x - 5, y - 21, 11, 1, '#4a4e5c'); k.rect(x - 5, y - 21, 1, 7, '#3a3e4a'); k.rect(x - 4, y - 18, 6, 1, C.red1); k.rect(x - 4, y - 16, 4, 1, '#3a3e4a');
+    k.rect(x - 3, y - 23, 6, 1, IRON2); k.px(x - 3, y - 22, IRON2); k.px(x + 2, y - 22, IRON2); k.px(x + 5, y - 22, C.ink);
+    k.rect(x - 9, y - 22, 4, 4, '#1a1c22'); k.rect(x - 9, y - 22, 4, 1, '#3a3e4a');
+    k.rect(x + 6, y - 19, 5, 4, '#1e2026'); k.rect(x + 7, y - 19, 1, 4, '#5a5e6a'); k.rect(x + 9, y - 19, 1, 4, '#4a4e5c');
+    k.rect(x + 11, y - 21, 3, 8, '#16181e'); k.rect(x + 11, y - 21, 3, 1, '#4a4e5c'); k.rect(x + 13, y - 20, 1, 6, '#0e1014'); k.px(x + 12, y - 17, '#6a8aa0');
+  };
+  // Satellite dishes, cached per size and tracking frame (0..DN, DN / 2 = parked facing the viewer).
+  const DN = 8;
+  const dishGeo = (R, f) => { const a = f / DN * 2 - 1; return { a, rx: Math.round(R * (1 - .3 * Math.abs(a))), ry: Math.round(R * .74), fx: Math.round(a * R * .35), fy: -Math.round(R * .22) }; };
+  const dishSprite = (R, f) => P.sprite(`gz-dish|${R}|${f}`, R * 2 + 8, R * 2 + 10, R + 4, R + 6, q => {
+    const { a, rx, ry, fx, fy } = dishGeo(R, f), bx = -Math.round(a * Math.max(1, R / 5));
+    q.rect(-2, ry - 2, 5, 5, IRON2); q.rect(-2, ry - 2, 1, 5, IRON3);
+    q.ellipse(bx, 2, rx, ry, '#6a727c'); q.ellipse(bx, 1, rx, ry, '#8a929c');
+    q.ellipse(0, 0, rx, ry, '#eef2f4'); q.ellipse(1, 1, rx - 1, ry - 1, '#8e98a4'); q.ellipse(1, 1, rx - 2, ry - 2, '#b0b8c2'); if (rx > 4) { q.ellipse(2, 2, rx - 4, ry - 4, '#c8d0d8'); q.ellipse(3, 3, rx - 7, ry - 7, '#dde3e8'); }
+    q.circle(0, 0, Math.max(0, R >> 3), '#7a828c');
+    if (R > 5) { const sp = '#4e5460'; q.line(-rx + 1, 0, fx, fy, sp); q.line(rx - 1, 0, fx, fy, sp); q.line(0, ry - 1, fx, fy, sp); q.line(0, -ry + 1, fx, fy, sp); q.rect(fx - 1, fy - 1, 3, 3, IRON2); q.px(fx - 1, fy - 1, IRON3); q.px(fx, fy + 1, '#1a1c22'); }
+    else { q.line(0, 1, fx, fy, '#5e6470'); q.px(fx, fy, IRON2); }
+    if (R > 10) { q.rect(0, -ry - 3, 1, 3, IRON2); q.rect(-1, -ry - 5, 2, 2, '#3a1c1c'); }
+  });
+  // Camera drone (f 0/1 rotor blur; f 2 crashed on its side).
+  const droneSprite = (f, led) => P.sprite(`gz-drone|${f}|${led}`, 25, 14, 12, 7, q => {
+    if (f === 2) { q.line(-9, 2, 8, -5, '#4a4e5c'); q.rect(-10, 1, 3, 2, '#2a2c34'); q.rect(6, -6, 3, 2, '#2a2c34'); q.poly([[-3, -1], [3, -4], [5, 0], [-1, 3]], '#dfe3e8'); q.line(-3, -1, 3, -4, C.white); q.px(1, -1, led); q.rect(1, 2, 3, 2, '#1e2026'); q.rect(-12, 4, 4, 1, '#c8ccd6'); q.rect(9, 3, 1, 3, '#c8ccd6'); return; }
+    for (const x of [-5, 5]) q.rect(x - 1, -5, 3, 1, '#3a3e4a');
+    q.rect(-8, -3, 17, 1, '#4a4e5c');
+    for (const x of [-8, 8]) { q.rect(x - 1, -4, 3, 2, '#2a2c34'); q.px(x, -5, '#6e7480'); if (f) q.rect(x - 4, -6, 9, 1, '#c8ccd6'); else q.rect(x - 1, -6, 3, 1, '#c8ccd6'); }
+    q.rect(-3, -4, 7, 4, '#dfe3e8'); q.rect(-3, -4, 7, 1, C.white); q.rect(-3, -1, 7, 1, '#9aa2aa'); q.rect(3, -4, 1, 4, '#b4bcc4');
+    q.px(2, -3, led); q.px(-2, -3, '#8a929c');
+    q.rect(-1, 0, 3, 1, '#4a4e5c'); q.rect(-1, 1, 4, 3, '#1e2026'); q.px(2, 2, '#6a8aa0');
+    q.px(-4, 0, '#6e7480'); q.px(4, 0, '#6e7480'); q.rect(-5, 1, 2, 1, '#6e7480'); q.rect(4, 1, 2, 1, '#6e7480');
+  });
+  // Animated sprites are drawn over the dimmed terrain; darken them the same way when the district is off.
+  const blitD = (k, s, x, y, off) => { k.blit(s, x, y); if (off) k.blit(P.tint(s, '#141c3c'), x, y, false, .4); };
+  // Faint signal arcs rising from a dish feed in direction dir.
+  const arcs = (k, x, y, dir, t, n, rm, col) => { for (let i = 0; i < n; i++) { const q = (t * .7 + i / n) % 1, r = 3 + q * rm, m = 1 + Math.floor(r / 4); k.alpha((1 - q) * .85, () => { for (let j = -m; j <= m; j++) { const a = dir + j * .55 / m; k.px(x + Math.cos(a) * r, y + Math.sin(a) * r, col); } }); } };
   const roll = (k, x, y, len) => { k.rect(x + 1, y, len, 2, C.shadow); k.rect(x, y - 9, len, 9, C.paper); k.rect(x, y - 9, len, 2, C.white); k.rect(x, y - 3, len, 3, C.paper2); k.rect(x, y - 1, len, 1, S(C.paper2, -.2)); k.ellipse(x + len, y - 5, 2, 4, C.paper2); k.ellipse(x + len, y - 5, 1, 3, S(C.paper2, -.12)); k.px(x + len, y - 5, C.wood1); };
   const bundle = (k, x, y) => { k.rect(x - 1, y - 7, 14, 8, C.ink); k.rect(x, y - 6, 12, 6, C.paper); k.rect(x, y - 6, 12, 1, C.white); k.rect(x, y - 1, 12, 1, C.paper2); k.rect(x + 1, y - 4, 4, 1, C.stone1); k.rect(x + 7, y - 4, 4, 1, C.stone1); k.rect(x + 5, y - 6, 1, 6, C.wood2); k.rect(x, y - 3, 12, 1, C.wood2); };
   const sheet = (k, x, y, f) => { if (f) { k.rect(x - 3, y, 7, 2, C.ink); k.rect(x - 2, y, 5, 1, C.paper); } else { k.rect(x - 3, y - 2, 7, 5, C.ink); k.rect(x - 2, y - 1, 5, 3, C.paper); k.rect(x - 1, y, 3, 1, C.stone1); } };
@@ -55,27 +114,62 @@ window.ZoneDesigns.gazeteci = (() => {
       Props.building(k, -66, -36, { w: 128, h: 50, roofH: 28, roof: C.slate2, wall: '#b0674a', mat: 'brick', windows: UPPER.map(([x]) => ({ x: x + 66, y: 6, w: 12, h: 12, frame: C.wood0 })), door: { x: 54, w: 20, h: 24, color: C.teal1, arch: true }, chimney: { x: 104, h: 10 } });
       k.rect(-3, -60, 1, 24, C.teal0);
       Props.awning(k, -64, -64, 48, C.red2, C.paper, 6); Props.awning(k, 16, -64, 48, C.red2, C.paper, 6);
-      for (const x of [-60, -40, 20, 40]) { k.rect(x - 1, -55, 18, 12, C.wood0); k.rect(x, -54, 16, 10, '#4a5a64'); k.rect(x + 2, -53, 5, 7, C.paper); k.rect(x + 9, -52, 5, 7, C.paper2); k.rect(x + 3, -52, 3, 1, C.ink); k.rect(x + 10, -51, 3, 1, C.ink); k.rect(x + 3, -50, 3, 2, C.stone2); k.px(x, -54, '#8aa0aa'); k.rect(x - 2, -43, 20, 1, C.stone4); }
+      // The outer display windows look into the reading room: full shelves of tiny spines with a flat pile at the end.
+      for (const x of [-60, 40]) {
+        k.rect(x - 1, -55, 18, 12, C.wood0); k.rect(x, -54, 16, 10, '#2e241c');
+        for (const [sy, sd] of [[-50, x + 1], [-45, x + 2]]) { for (let i = 0; i < 16; i++) { if (P.hash(i, sd) < .1 || (sy === -45 && i > 10)) continue; k.rect(x + i, sy - 3 - (P.hash(i + 3, sd) > .55 ? 1 : 0), 1, 4, spine(i, sd)); } k.rect(x, sy, 16, 1, C.wood3); }
+        for (let j = 0; j < 3; j++) k.rect(x + 11 + (j % 2), -46 - j, 5 - (j % 2), 1, spine(j, x + 7));
+        k.px(x, -54, '#8aa0aa'); k.px(x + 1, -53, '#6a7a84'); k.rect(x - 2, -43, 20, 1, C.stone4);
+      }
+      for (const x of [-40, 20]) { k.rect(x - 1, -55, 18, 12, C.wood0); k.rect(x, -54, 16, 10, '#4a5a64'); k.rect(x + 2, -53, 5, 7, C.paper); k.rect(x + 9, -52, 5, 7, C.paper2); k.rect(x + 3, -52, 3, 1, C.ink); k.rect(x + 10, -51, 3, 1, C.ink); k.rect(x + 3, -50, 3, 2, C.stone2); k.px(x, -54, '#8aa0aa'); k.rect(x - 2, -43, 20, 1, C.stone4); }
       k.circle(-2, -74, 5, C.wood0); k.circle(-2, -74, 4, C.white); k.rect(-2, -77, 1, 3, C.ink); k.rect(-2, -74, 3, 1, C.ink); k.px(-2, -78, C.red2);
       k.rect(AER.x - 1, AER.y, 2, 22, IRON2); k.rect(AER.x - 1, AER.y, 1, 22, IRON3); k.rect(AER.x - 5, AER.y + 4, 10, 1, IRON2); k.rect(AER.x - 3, AER.y + 9, 6, 1, IRON2);
       Props.hangingSign(k, 12, -58, 'NEWS', C.red1);
+      // Roof rail for the small dish array (the dishes are animated), with a junction box and cable down the slope.
+      k.rect(-64, -95, 32, 2, IRON2); k.rect(-64, -95, 32, 1, IRON3); k.rect(-64, -93, 32, 1, C.shadow);
+      for (const [x] of ARR) { k.rect(x - 1, -93, 3, 1, IRON); k.px(x - 3, -93, IRON3); }
+      k.rect(-33, -98, 5, 4, IRON); k.rect(-33, -98, 5, 1, IRON3); k.px(-31, -96, C.gold2); k.line(-31, -94, -26, -88, '#1a1a20');
+      // Outside-broadcast van parked on the street, with a roof dish mast and a cable to a camera at the newsroom door.
+      const V = VAN;
+      k.rect(V.x + 3, V.y - 1, 38, 3, C.shadow); k.rect(V.x + 36, V.y - 14, 3, 12, C.shadow);
+      k.rect(V.x, V.y - 19, 26, 16, '#e4e0d6'); k.rect(V.x, V.y - 19, 26, 1, C.white); k.rect(V.x, V.y - 19, 1, 16, C.white);
+      k.rect(V.x + 26, V.y - 14, 10, 11, '#e4e0d6'); k.rect(V.x + 26, V.y - 14, 10, 1, C.white); k.rect(V.x + 35, V.y - 14, 1, 11, '#b8b4aa');
+      k.poly([[V.x + 27, V.y - 13], [V.x + 31, V.y - 13], [V.x + 35, V.y - 9], [V.x + 27, V.y - 9]], '#4a5a64'); k.px(V.x + 28, V.y - 12, '#8aa0aa'); k.px(V.x + 29, V.y - 12, '#8aa0aa');
+      k.rect(V.x, V.y - 5, 36, 2, '#9a968c'); k.rect(V.x, V.y - 9, 36, 2, C.red2); k.rect(V.x, V.y - 8, 36, 1, C.red1);
+      k.text('LIVE', V.x + 3, V.y - 16, C.red1); k.rect(V.x + 20, V.y - 18, 1, 13, '#b8b4aa'); k.px(V.x + 22, V.y - 12, IRON); k.rect(V.x + 26, V.y - 13, 1, 9, '#b8b4aa');
+      k.rect(V.x + 35, V.y - 7, 1, 2, C.gold3); k.rect(V.x + 33, V.y - 4, 4, 1, IRON2); k.rect(V.x - 1, V.y - 4, 3, 1, IRON2);
+      for (const wx of [V.x + 7, V.x + 29]) { k.rect(wx - 4, V.y - 6, 9, 2, '#6a665e'); k.circle(wx, V.y - 2, 3, C.ink); k.circle(wx, V.y - 2, 1, C.stone3); }
+      k.rect(V.x + 2, V.y - 21, 22, 2, IRON2); k.rect(V.x + 2, V.y - 21, 22, 1, IRON3); k.rect(VD.x - 1, V.y - 25, 2, 4, IRON2); k.px(VD.x - 1, V.y - 25, IRON3);
+      k.rect(V.x + 4, V.y - 23, 6, 2, '#3a3e4a'); k.rect(V.x + 4, V.y - 23, 6, 1, '#5a5e6a');
+      k.line(V.x + 36, V.y - 3, CAM2.x - 6, CAM2.y + 1, '#1a1a20'); k.line(CAM2.x - 6, CAM2.y + 1, CAM2.x - 1, CAM2.y - 1, '#1a1a20');
+      tripodCam(k, CAM2.x, CAM2.y);
       // The wires: tower mast to newsroom aerial, sagging slightly.
       for (const dy of [3, 9]) { k.line(MAST.x + 5, MAST.y + dy, -60, MAST.y + dy + 10, '#2a2420'); k.line(-60, MAST.y + dy + 10, AER.x - 4, AER.y + dy - 5, '#2a2420'); }
       k.rect(-30, -124, 2, 10, C.wood1); k.rect(24, -124, 2, 10, C.wood1);
       k.rect(-34, -137, 64, 15, C.ink); k.rect(-33, -136, 62, 13, C.paper); k.rect(-33, -136, 62, 1, C.white); k.rect(-33, -124, 62, 1, C.paper2); k.textCenter('GAZETE', -2, -134, C.red1, 2); k.rect(-24, -134, 46, 0, C.red1);
 
-      // Archive shed: open-sided plank store with shelves of box files and ledgers.
+      // Archive shed: open-sided plank store, its shelves packed with colourful spines, flat piles and a few box files.
       Props.building(k, 72, -36, { w: 62, h: 40, roofH: 18, roof: C.teal2, wall: C.wood3, mat: 'planks', foundation: 3 });
       k.rect(76, -73, 54, 34, '#2e241c');
       for (let r = 0; r < 3; r++) {
         const sy = -63 + r * 11;
-        for (let i = 0; i < 9; i++) { const x = 78 + i * 6, h = P.hash(i, r + 3), col = h < .3 ? '#8a6a48' : h < .6 ? '#a8845c' : h < .8 ? C.slate2 : C.teal2; if (h > .93) continue; k.rect(x, sy - 8, 5, 8, col); k.rect(x, sy - 8, 1, 8, S(col, .25)); k.rect(x + 1, sy - 6, 3, 2, C.paper); }
+        k.rect(77, sy - 9, 52, 1, '#241a14'); shelfRow(k, 78, 129, sy, r * 7 + 3, 8);
+        if (r === 1) for (const x of [110, 116]) { k.rect(x, sy - 8, 5, 8, '#8a6a48'); k.rect(x, sy - 8, 1, 8, '#a8845c'); k.rect(x + 1, sy - 6, 3, 2, C.paper); }
         k.rect(77, sy, 52, 2, C.wood4); k.rect(77, sy + 2, 52, 1, C.wood0);
       }
       for (const x of [72, 131]) { k.rect(x, -76, 3, 40, C.wood2); k.rect(x, -76, 1, 40, C.wood4); }
-      k.rect(78, -40, 52, 4, '#3a2c20');
+      k.rect(78, -40, 52, 4, '#3a2c20'); for (let i = 0; i < 5; i++) k.rect(96 + i * 6, -40, 5, 2, spine(i, 41));
       Props.crate(k, 80, -34, 8); Props.crate(k, 90, -32, 7); k.rect(120, -34, 10, 5, '#8a6a48'); k.rect(121, -38, 9, 4, '#a8845c'); k.rect(123, -37, 4, 2, C.paper);
+      // Book stacks and newspaper bundles waiting on the kerb beside the shelves; an open book on top.
+      books(k, 100, -22, 5, 3); books(k, 110, -24, 3, 9); k.rect(110, -35, 11, 2, C.paper); k.rect(115, -35, 1, 2, C.paper2); k.rect(111, -35, 3, 1, C.stone2); k.rect(117, -35, 3, 1, C.stone2); k.rect(110, -33, 11, 1, C.red1);
+      books(k, 122, -22, 2, 17); bundle(k, 133, -22); bundle(k, 134, -28); k.rect(136, -36, 8, 2, C.paper); k.rect(137, -35, 5, 1, C.stone1);
 
+      // Uplink station behind the loft: a lattice pedestal and turntable for the big dish (the dish itself is animated).
+      k.ellipse(BIG.x + 3, -98, 14, 3, C.shadow); k.rect(BIG.x - 12, -102, 26, 4, C.stone2); k.rect(BIG.x - 12, -102, 26, 1, C.stone4);
+      k.line(BIG.x - 7, -102, BIG.x - 3, -118, IRON2, 2); k.line(BIG.x + 7, -102, BIG.x + 3, -118, IRON, 2);
+      for (const [y0, y1] of [[-104, -110], [-110, -116]]) { k.line(BIG.x - 6, y0, BIG.x + 5, y1, IRON3); k.line(BIG.x + 6, y0, BIG.x - 5, y1, IRON2); }
+      k.rect(BIG.x - 6, -121, 13, 3, IRON2); k.rect(BIG.x - 6, -121, 13, 1, IRON3); k.rect(BIG.x - 6, -118, 13, 1, IRON);
+      k.rect(BIG.x + 10, -110, 6, 8, C.plaster1); k.rect(BIG.x + 10, -110, 6, 1, C.white); k.rect(BIG.x + 15, -110, 1, 8, C.plaster0); k.px(BIG.x + 12, -107, C.gold2);
       // Pigeon loft on stilts, with landing board, ladder and pigeonholes.
       for (const x of [LOFT.x + 2, LOFT.x + 32]) { k.rect(x, LOFT.y, 3, 26, C.wood1); k.rect(x, LOFT.y, 1, 26, C.wood3); k.ellipse(x + 2, LOFT.y + 26, 3, 1, C.shadow); }
       k.line(LOFT.x + 4, LOFT.y + 2, LOFT.x + 33, LOFT.y + 22, C.wood1); k.line(LOFT.x + 33, LOFT.y + 2, LOFT.x + 4, LOFT.y + 22, C.wood1);
@@ -126,6 +220,19 @@ window.ZoneDesigns.gazeteci = (() => {
       // Editor's standing desk with typewriter.
       Props.table(k, -58, 44, 22, 11, C.wood2); k.rect(-54, -2 + 36, 12, 5, IRON2); k.rect(-54, 34, 12, 1, IRON3); k.rect(-52, 30, 8, 4, C.paper); for (let i = 0; i < 4; i++) k.px(-53 + i * 3, 38, C.stone4);
       k.rect(-42, 35, 5, 2, C.paper2); k.rect(-41, 33, 5, 2, C.paper);
+      // Camera jib on a wheeled dolly at the plaza corner (arm and head are animated), with a sandbag and a field monitor.
+      k.ellipse(JIB.x + 2, JIB.y + 1, 12, 3, C.shadow);
+      k.line(JIB.x, JIB.y - 8, JIB.x - 9, JIB.y, IRON2); k.line(JIB.x, JIB.y - 8, JIB.x + 9, JIB.y, IRON); k.line(JIB.x, JIB.y - 8, JIB.x + 2, JIB.y + 1, IRON3);
+      for (const [wx, wy] of [[-9, 0], [9, 0], [2, 1]]) { k.rect(JIB.x + wx - 1, JIB.y + wy, 3, 2, C.ink); k.px(JIB.x + wx, JIB.y + wy, C.stone3); }
+      k.rect(JIB.x - 1, JIB.y - 20, 3, 13, IRON2); k.rect(JIB.x - 1, JIB.y - 20, 1, 13, IRON3); k.rect(JIB.x - 2, JIB.y - 8, 5, 2, IRON);
+      k.rect(JIB.x - 8, JIB.y - 4, 6, 3, '#8a7a5a'); k.rect(JIB.x - 8, JIB.y - 4, 6, 1, '#a89a70'); k.px(JIB.x - 5, JIB.y - 3, '#6a5a40');
+      k.rect(JIB.x + 2, JIB.y - 17, 7, 5, C.ink); k.rect(JIB.x + 3, JIB.y - 16, 5, 3, '#1a1c22'); k.rect(JIB.x + 2, JIB.y - 12, 2, 1, IRON2);
+      // Studio camera on the plaza, aimed at the story board, cabled to the jib.
+      tripodCam(k, CAM1.x, CAM1.y); k.line(CAM1.x - 6, CAM1.y, JIB.x + 2, JIB.y + 2, '#1a1a20');
+      // Drone landing pad and its open flight case.
+      k.ellipse(PAD.x + 1, PAD.y + 1, 11, 4, C.shadow); k.ellipse(PAD.x, PAD.y, 11, 4, C.stone1); k.ellipse(PAD.x, PAD.y, 10, 3, '#3a3e4a'); k.ring(PAD.x, PAD.y, 8, 2, C.gold2); k.text('H', PAD.x - 1, PAD.y - 2, C.paper);
+      k.rect(PAD.x - 25, PAD.y - 8, 12, 5, '#3a3e4a'); k.rect(PAD.x - 25, PAD.y - 8, 12, 1, '#5a5e6a'); k.rect(PAD.x - 24, PAD.y - 7, 10, 3, '#4a4e5c');
+      k.rect(PAD.x - 25, PAD.y - 3, 12, 6, '#2a2c34'); k.rect(PAD.x - 24, PAD.y - 3, 10, 3, '#5a5e6a'); k.rect(PAD.x - 22, PAD.y - 2, 3, 1, '#3a3e4a'); k.rect(PAD.x - 18, PAD.y - 2, 3, 1, '#3a3e4a'); k.px(PAD.x - 21, PAD.y + 1, C.gold2); k.px(PAD.x - 17, PAD.y + 1, C.gold2); k.rect(PAD.x - 24, PAD.y + 3, 12, 1, C.shadow);
 
       // Street kiosk with magazines, an advertising column, benches and trees.
       Props.building(k, -184, 92, { w: 50, h: 26, roofH: 12, roof: C.teal2, wall: C.teal1, mat: 'planks', foundation: 3 });
@@ -158,6 +265,23 @@ window.ZoneDesigns.gazeteci = (() => {
       }
       // Clock hands tick with time.
       const a = live ? t * .5 : 0; k.line(-2, -74, -2 + Math.round(Math.cos(a) * 3), -74 + Math.round(Math.sin(a) * 3), C.red1);
+
+      // Satellite dishes: the uplink, the van dish and the roof array track slowly while working, park otherwise and jam on error.
+      const jam = Math.floor(t * 6) % 2, park = DN / 2, blink = Math.floor(t * 2) % 2;
+      const beam = !live ? null : err ? (Math.floor(t * 5) % 2 ? C.error : C.red0) : wait ? (Math.floor(t * 1.5) % 2 ? C.waiting : S(C.waiting, -.35)) : run ? (blink ? C.working : S(C.working, -.5)) : S(C.idle, -.2);
+      const dishes = [[BIG.x, BIG.y, 17, run ? Math.round(park + Math.sin(t * .35) * park) : err ? DN - jam : park], [VD.x, VD.y, 6, run ? Math.round(park + Math.sin(t * .5 + 2) * 3) : err ? jam : park], ...ARR.map(([x, y], i) => [x, y, 4, run ? Math.round(park + Math.sin(t * .3 + i * .6) * 3) : err && i === 1 ? DN : park])];
+      for (const [x, y, R, f] of dishes) {
+        blitD(k, dishSprite(R, f), x, y, !live); if (!live) continue;
+        const g = dishGeo(R, f), fx = x + g.fx, fy = y + g.fy;
+        if (run && z.detail) arcs(k, fx, fy - 2, -Math.PI / 2 + g.a * .7, t + x * .013, R > 10 ? 3 : 2, R > 10 ? 14 : R > 5 ? 14 : 9, '#d8f4ff');
+        if (err && Math.floor(t * 7 + R) % 3) for (const [sx, sy] of [[-1, -2], [2, -1], [-2, 1], [1, 2]]) k.px(fx + sx * (1 + jam), fy + sy, C.gold4);
+        if (R < 10) k.px(x + 2, y + (R > 5 ? 5 : 3), beam);
+      }
+      if (live) {
+        const by = BIG.y - 18; k.rect(BIG.x - 1, by, 2, 2, beam); if (state !== 'idle' && (blink || !run) && z.detail) k.alpha(.3, () => k.circle(BIG.x, by + 1, 4, beam));
+        k.rect(BIG.x + 11, -108, 4, 1, run ? C.working : S(C.idle, -.3)); k.rect(VAN.x + 29, VAN.y - 15, 4, 1, beam);
+        if (err) soot(k, BIG.x - 4, -112, t * 1.1, 4, '#3e3c44');
+      }
 
       // Telegraph pulses travel the wires while working; the wire snaps and sparks on error.
       if (run && z.detail) for (let i = 0; i < 4; i++) { const q = (t * .5 + i / 4) % 1, dy = i % 2 ? 3 : 9; let x, y; if (q < .5) { const u = q * 2; x = MAST.x + 5 + u * (-60 - MAST.x - 5); y = MAST.y + dy + u * 10; } else { const u = (q - .5) * 2; x = -60 + u * (AER.x - 4 + 60); y = MAST.y + dy + 10 + u * (AER.y - 5 - MAST.y - 10); } k.rect(x - 1, y - 1, 3, 2, C.gold3); }
@@ -200,6 +324,32 @@ window.ZoneDesigns.gazeteci = (() => {
         pigeon(k, x, y, t + i, true); if (i % 2 === 0) { k.rect(x - 2, y + 2, 4, 3, C.paper); k.px(x - 1, y + 3, C.red2); }
       } else for (let i = 0; i < 4; i++) pigeon(k, LOFT.x - 2 + i * 11, LOFT.y - 2, t, false);
 
+      // Broadcast kit: tally lights and viewfinders; the jib arm sweeps over the plaza while working, rests low when idle, droops on error.
+      const dk = c => live ? c : P.mix(c, '#141c3c', .4), fr = Math.floor(t * 8);
+      const tally = !live ? null : run ? C.working : wait ? (blink ? C.waiting : null) : err ? (jam ? C.error : null) : null;
+      const vf = !live ? null : run ? (fr % 3 ? '#7ad4e4' : '#5ab4d4') : wait ? (blink ? C.waiting : '#3a2a10') : err ? (fr % 2 ? C.error : C.white) : '#2a3e4a';
+      const th = run ? -.2 + Math.sin(t * .6) * .22 : err ? .58 + jam * .04 : .3, co = Math.cos(th), si = Math.sin(th);
+      const jx = JIB.x, jy = JIB.y - 21, tx = jx + co * 30, ty = jy + si * 30, bx = jx - co * 12, by = jy - si * 12;
+      k.line(bx, by, tx, ty, dk(IRON2), 2); k.line(bx, by - 1, tx, ty - 1, dk(IRON3)); for (let i = 1; i < 6; i++) k.px(bx + (tx - bx) * i / 6, by + (ty - by) * i / 6, dk(IRON));
+      k.rect(bx - 3, by - 2, 6, 6, dk('#3a3e4a')); k.rect(bx - 3, by - 2, 6, 1, dk('#5a5e6a')); k.rect(bx - 3, by + 3, 6, 1, dk(IRON)); k.rect(jx - 1, jy - 1, 3, 3, dk(IRON3)); k.px(jx, jy, dk(C.ink));
+      k.rect(tx, ty, 1, 3, dk(IRON2)); const hx = Math.round(tx) - 3, hy = Math.round(ty) + 3;
+      k.rect(hx - 1, hy - 1, 14, 7, dk(C.ink)); k.rect(hx, hy, 7, 5, dk('#2a2c34')); k.rect(hx, hy, 7, 1, dk('#4a4e5c')); k.rect(hx + 7, hy + 1, 3, 3, dk('#1e2026')); k.rect(hx + 10, hy, 2, 5, dk('#16181e')); k.px(hx + 11, hy + 2, dk('#6a8aa0'));
+      if (tally) { k.px(hx + 5, hy, tally); for (const c of [CAM1, CAM2]) k.px(c.x + 5, c.y - 22, tally); }
+      if (vf) { for (const c of [CAM1, CAM2]) k.rect(c.x - 8, c.y - 21, 2, 2, vf); k.rect(JIB.x + 3, JIB.y - 16, 5, 3, vf); if (run) k.rect(JIB.x + 4, JIB.y - 15, 2, 1, C.white); }
+      if (err && z.detail && fr % 3) for (const [sx, sy] of [[0, -2], [2, 0], [-1, 1]]) k.px(jx + sx * (1 + jam), jy + sy, C.gold4);
+      // Camera operator behind the studio camera; photographer with a long white telephoto, flash bursts while working.
+      z.crew(CAM1.x - 12, CAM1.y + 2, { look: 1, hat: 'cap', hatColor: C.ink, anim: 'idle', facing: 1, phase: .6 });
+      z.crew(PH.x, PH.y, { look: 4, anim: 'idle', facing: 1, phase: .3 });
+      const px0 = PH.x + (err ? [0, 1, 0, -1][Math.floor(t * 12 + .9) % 4] : 0), py0 = PH.y;
+      if (run) {
+        k.rect(px0 + 1, py0 - 18, 5, 4, '#2a2c34'); k.rect(px0 + 1, py0 - 18, 5, 1, '#4a4e5c'); k.rect(px0 + 2, py0 - 21, 3, 3, '#3a3e4a'); k.rect(px0 + 2, py0 - 21, 3, 1, '#eef2f4');
+        k.rect(px0 + 6, py0 - 17, 8, 3, '#e8e4d8'); k.rect(px0 + 6, py0 - 17, 8, 1, C.white); k.rect(px0 + 6, py0 - 15, 8, 1, '#b8b4a8'); k.rect(px0 + 9, py0 - 17, 1, 3, C.red1);
+        k.rect(px0 + 14, py0 - 18, 3, 5, '#2a2c34'); k.px(px0 + 16, py0 - 16, '#6a8aa0'); k.rect(px0 + 8, py0 - 14, 2, 2, C.skin1);
+        const fq = (t * .8) % 1;
+        if (fq < .07 || (fq > .16 && fq < .21)) { k.alpha(.3, () => k.circle(px0 + 3, py0 - 21, 10, C.white)); k.rect(px0 - 4, py0 - 21, 15, 1, C.white); k.rect(px0 + 3, py0 - 28, 1, 15, C.white); k.rect(px0 + 1, py0 - 23, 5, 5, C.white); k.alpha(.25, () => k.circle(LEAD.x, LEAD.y - 22, 12, '#fff8e0')); }
+      } else if (live) { k.rect(px0 + 2, py0 - 11, 4, 3, '#2a2c34'); k.rect(px0 + 6, py0 - 11, 5, 2, '#e8e4d8'); k.rect(px0 + 10, py0 - 11, 2, 3, '#2a2c34'); if (err && jam) k.px(px0 + 3, py0 - 12, C.error); }
+      else { k.rect(px0 + 7, py0 - 3, 4, 3, dk('#2a2c34')); k.rect(px0 + 11, py0 - 3, 5, 2, dk('#e8e4d8')); }
+
       // Crew: pressman, bundle runner, archive clerk and a newsboy.
       if (run) {
         z.crew(PR.x + 20, PR.y + 12, { look: 5, hat: 'cap', hatColor: C.slate2, anim: 'work', phase: .2, facing: 1 });
@@ -219,6 +369,10 @@ window.ZoneDesigns.gazeteci = (() => {
       // The roving editor: notes and photos at the story board; dozing on the kiosk bench when off.
       if (state === 'off') z.lead(REST.x, REST.y, {}); else z.lead(LEAD.x, LEAD.y, {});
       if (live) Props.smoke(k, 41, -124, t * (run ? 1 : .5), run ? 3 : 2);
+      // Camera drone: hovers over the plaza while working; parked on its pad otherwise, crashed and smoking on error.
+      if (run) { const dx = PAD.x - 12 + Math.sin(t * .5) * 14, dy = PAD.y - 22 + Math.sin(t * 1.9) * 2; k.alpha(.3, () => k.ellipse(dx + 2, PAD.y + 3, 6, 2, C.ink)); k.blit(droneSprite(Math.floor(t * 24) % 2, blink ? C.working : C.red3), dx, dy); }
+      else if (err) { k.blit(droneSprite(2, jam ? C.error : C.red0), PAD.x + 3, PAD.y); soot(k, PAD.x + 3, PAD.y - 3, t * .9, 3, '#4a4850'); if (fr % 3) for (const [sx, sy] of [[-2, -2], [3, -1], [0, -4]]) k.px(PAD.x + 3 + sx * (1 + jam), PAD.y - 2 + sy, C.gold4); }
+      else blitD(k, droneSprite(0, !live ? '#20242e' : wait ? (blink ? C.waiting : S(C.waiting, -.4)) : C.idle), PAD.x, PAD.y - 2, !live);
     }
   };
 })();
