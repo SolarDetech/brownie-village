@@ -1,5 +1,5 @@
 /* Village owners: two large avatars you can pick up and drop anywhere on the map.
-   GKTC's avatar (the Doom Slayer, fan art) starts at GKTC's castle; Daghan's (Gojo Satoru, fan art) at Daghan's.
+   GKTC's avatar (the Megazord from Regular Show, fan art) starts at GKTC's castle; Daghan's (Gojo Satoru, fan art) at Daghan's.
    When an avatar stands in an agent district, that district's lead walks over, walks alongside it and talks. */
 (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
@@ -11,73 +11,81 @@
     const walk = f.startsWith('walk') ? +f[4] : -1;
     return { s: walk < 0 ? 0 : [3.5, 0, -3.5, 0][walk], bob: walk < 0 ? (f === 'stand1' ? 1 : 0) : [0, -1, 0, -1][walk], lift: f === 'lift', breathe: f === 'stand1' };
   }
-  // Ramps: 0 green armour, 1 undersuit, 2 grey plates, 3 amber visor, 4 gun metal and boots, 5 grip leather, 6 blade steel.
-  const SLAY = [ramp('#5b8a3a', [-.62, -.48, -.34, -.2, -.08, 0, .18, .38]), ramp('#3b3f46', [-.45, -.3, -.18, -.08, 0, .14, .3, .5]), ramp('#858c93'), ramp('#f0ad1c', [-.6, -.42, -.26, -.1, 0, .3, .55, .8]), ramp('#2a2d33', [-.4, -.2, 0, .14, .28, .45, .65, .85]), ramp('#6f4b2b'), ramp('#cfd6dc', [-.5, -.34, -.2, -.1, 0, .25, .5, .75])];
-  function slayerSprite(f) {
+  // Ramps: 0 tan skin, 1 black box, 2 red, 3 green glow, 4 white, 5 cap blue, 6 shorts blue, 7 brown bands, 8 silver, 9 panel grey, 10 teal, 11 orange.
+  const ZORD = [ramp('#e7b487'), ramp('#26272d', [-.3, -.15, 0, .1, .2, .32, .46, .6]), ramp('#d8323a'), ramp('#9dff3c', [-.55, -.35, -.15, 0, .2, .4, .6, .8]), ramp('#eef0f2', [-.45, -.32, -.2, -.1, -.04, 0, .3, .6]), ramp('#2f93d0'), ramp('#86c8ea'), ramp('#6b4630'), ramp('#c4cad0', [-.5, -.34, -.2, -.1, 0, .25, .5, .75]), ramp('#70767e'), ramp('#35bfb0'), ramp('#f0892a')];
+  function zordSprite(f) {
     const p = pose(f), s = p.s, a = -s * .8, b = p.bob;
-    return P.sculpt(44, 94, SLAY, api => {
+    return P.sculpt(52, 94, ZORD, api => {
       const { part, set, dk, lt, ln, force } = api, sh = api.shapes;
       const legY = p.lift ? 2 : 0, armUp = p.lift ? -6 : 0, up = p.lift ? 1 : 0;
-      const boot = (x, y, tone) => part(sh.spline([[x - 3.6, y - 5.4], [x + 2.4, y - 5.4], [x + 4.4, y - 1.4], [x + 5.2, y + 2.4], [x - 4.2, y + 2.4], [x - 4.4, y - 1.6]]), { ramp: 4, cap: 2, tone });
-      // Far leg (undersuit, shin guard, knee pad, heavy boot) and far arm with the Doom Blade.
-      part(sh.limb([[26, 58 + b, 4.4], [26 - s * .6, 73 + b + legY, 3.7], [26 - s, 85 + legY, 3.3]]), { ramp: 1, cap: 3, tone: -.16 });
-      part(sh.limb([[26 - s * .62, 75.5 + b + legY, 3.2], [26 - s * .95, 84 + legY, 3.4]]), { ramp: 0, cap: 2.4, tone: -.16 });
-      part(sh.ellipse(26.4 - s * .6, 72.5 + b + legY, 3.4, 2.9), { ramp: 2, cap: 2, tone: -.14 });
-      boot(26.8 - s, 89 + legY, -.12);
-      const fx = 32 + a * 1.4 + up * 6, fy = 51 + b + armUp * 1.6;
-      part(sh.limb([[31, 31 + b, 3.9], [32 + a + up * 5, 41.5 + b + armUp, 3.5]]), { ramp: 0, cap: 2.6, tone: -.16 });
-      part(sh.limb([[32 + a + up * 5, 41.5 + b + armUp, 3.3], [fx, fy, 3.1]]), { ramp: 2, cap: 2.2, tone: -.16 });
-      part(sh.ellipse(fx, fy + 3, 2.8, 2.8), { ramp: 1, cap: 1.6, tone: -.1 });
-      part(sh.poly([[fx + 1, fy - 4], [fx + 3.4, fy - 3], [fx + 3.8, fy + 4], [fx + 2.8, fy + 12], [fx + 1.2, fy + 4]]), { ramp: 6, cap: 1, tone: -.04 });
-      // Hips, then the near leg.
-      part(sh.spline([[13.5, 54 + b], [31.5, 54 + b], [32, 61 + b], [22.5, 63 + b], [13, 61 + b]]), { ramp: 1, cap: 3 });
-      part(sh.limb([[18.5, 59 + b, 4.6], [18.5 + s * .6, 73.5 + b + legY, 3.8], [18.5 + s, 85 + legY, 3.4]]), { ramp: 1, cap: 3 });
-      part(sh.limb([[18.2, 59.5 + b, 4.2], [18.4 + s * .35, 67 + b, 3.8]]), { ramp: 0, cap: 2.6 });
-      part(sh.limb([[18.5 + s * .62, 75.5 + b + legY, 3.3], [18.5 + s * .95, 84 + legY, 3.5]]), { ramp: 0, cap: 2.4 });
-      part(sh.ellipse(19.2 + s * .6, 72.5 + b + legY, 3.8, 3.1), { ramp: 2, cap: 2 });
-      boot(19.6 + s, 89 + legY, 0);
-      // Undersuit torso, green chest plate, grey ab plates, belt.
-      part(sh.spline([[11.5, 28 + b], [22, 25 + b], [32.5, 28 + b], [32.6, 41 + b], [31.4, 55 + b], [22.4, 56.5 + b], [13.4, 55 + b], [12, 41 + b]]), { ramp: 1, cap: 5, grad: .06 });
-      part(sh.spline([[12.6, 28.5 + b], [22, 25.8 + b], [31.6, 28.5 + b], [31.4, 36.5 + b], [27.5, 42 + b], [22.2, 43.4 + b], [17, 42 + b], [13, 36.5 + b]]), { ramp: 0, cap: 4, grad: .1 });
-      part(sh.poly([[19.2, 43 + b], [25.4, 43 + b], [24.8, 52.5 + b], [19.8, 52.5 + b]]), { ramp: 2, cap: 1.6, tone: -.08 });
-      part(sh.spline([[13, 53 + b], [32, 53 + b], [32.2, 57.5 + b], [22.5, 58.5 + b], [12.8, 57.5 + b]]), { ramp: 4, cap: 1.6 });
-      // Far shoulder pad, neck, helmet with the amber visor and a grey mouth guard.
-      part(sh.ellipse(32, 28.5 + b, 5.4, 4.8), { ramp: 0, cap: 3, tone: -.08 });
-      part(sh.limb([[22.3, 25 + b, 3.4], [22.3, 21 + b, 3.4]]), { ramp: 1, cap: 1.5, tone: -.08 });
-      part(sh.spline([[14.4, 12 + b], [17.5, 5.2 + b], [23, 3 + b], [28.6, 5 + b], [31, 10.5 + b], [30.6, 17 + b], [27.6, 22.6 + b], [20.5, 23.4 + b], [15.4, 19.5 + b]]), { ramp: 0, cap: 4, grad: .06 });
-      part(sh.ellipse(18, 15.5 + b, 2.6, 3), { ramp: 2, cap: 1.4, tone: -.06 });
-      part(sh.poly([[19.8, 9.4 + b], [31.6, 8.8 + b], [31.4, 14.4 + b], [27.4, 17.2 + b], [21.6, 15.8 + b]]), { ramp: 3, cap: 1.6, shadow: false });
-      part(sh.poly([[23.4, 17.6 + b], [30.4, 16 + b], [28.8, 21.6 + b], [24.6, 22.6 + b]]), { ramp: 2, cap: 1.4, shadow: false });
-      // Near shoulder pad, then the Super Shotgun held low (stock stub, receiver, twin barrels) and the near arm over it.
-      part(sh.ellipse(13, 28.8 + b, 6.6, 5.6), { ramp: 0, cap: 3.6 });
-      const hx = 12.6 - a * 1.4 - up * 5, hy = 54.5 + b + armUp * 1.6, bx = up ? -3 : -6.5;
-      part(sh.limb([[hx + 1.8, hy - 3.5, 1.5], [hx, hy + 1, 1.8]]), { ramp: 5, cap: 1.2 });
-      part(sh.limb([[hx - .4, hy + 1, 2.3], [hx - 1.6, hy + 6, 2.3]]), { ramp: 4, cap: 1.4 });
-      part(sh.limb([[hx - 1.4, hy + 5, 2], [hx + bx, hy + 24, 2]]), { ramp: 4, cap: 1.4 });
-      part(sh.limb([[hx - 1.6 + bx * .2, hy + 8.5, 2.3], [hx - 1.8 + bx * .3, hy + 10.5, 2.3]]), { ramp: 5, cap: 1.4 });
-      part(sh.limb([[13.5, 31 + b, 3.9], [12.4 - a - up * 5, 42 + b + armUp, 3.5]]), { ramp: 0, cap: 2.6 });
-      part(sh.limb([[12.4 - a - up * 5, 42 + b + armUp, 3.3], [hx, hy - 2, 3.1]]), { ramp: 2, cap: 2.2 });
-      part(sh.ellipse(hx, hy + .5, 2.8, 2.8), { ramp: 1, cap: 1.6 });
+      // High-top sneaker, toe to the right; bottom at y + 3.5.
+      const shoe = (x, y, tone) => part(sh.spline([[x - 4.2, y - 6.5], [x + 2.8, y - 6.5], [x + 3.6, y - 2], [x + 7, y + .6], [x + 7.2, y + 3.5], [x - 4.6, y + 3.5], [x - 5, y - 1]]), { ramp: 4, cap: 2.4, tone });
+      // Fins sticking up and back from the shoulders.
+      part(sh.poly([[11, 31 + b], [4.4, 9.6 + b], [9.6, 6.4 + b], [19.4, 27 + b]]), { ramp: 1, cap: 2, tone: -.08 });
+      part(sh.poly([[33.4, 26 + b], [41.2, 5.4 + b], [46.8, 8.2 + b], [40.4, 30 + b]]), { ramp: 1, cap: 2, tone: -.16 });
+      // Far arm: out to the side, open hand raised.
+      const fex = 47.4 + up, fey = 38 - a * .5 + b + armUp * .6, ffx = 46.8 + up, ffy = 25 - a + b + armUp * 1.3;
+      part(sh.limb([[40, 34 + b, 4.4], [fex, fey, 4]]), { ramp: 0, cap: 3, tone: -.12 });
+      part(sh.limb([[fex, fey, 3.8], [ffx, ffy + 2, 3.2]]), { ramp: 0, cap: 2.6, tone: -.1 });
+      part(sh.ellipse(ffx - .2, ffy - 1, 2.8, 3), { ramp: 0, cap: 1.6, tone: -.06 });
+      part(sh.limb([[ffx - 2.6, ffy - 1.4, 1.1], [ffx - 3.4, ffy - 5, 1]]), { ramp: 0, cap: 1 });
+      for (let i = 0; i < 3; i++) part(sh.limb([[ffx - 1 + i * 1.6, ffy - 3, .9], [ffx - .8 + i * 2, ffy - 7, .9]]), { ramp: 0, cap: 1, tone: -.04 });
+      // Head poking out of the top: white face under a blue cap with a white front panel, a bolt on each side.
+      part(sh.limb([[19.4, 13 + b, 1.1], [16.6, 6 + b, 1.1]]), { ramp: 7, cap: 1 }); part(sh.limb([[32.6, 12 + b, 1.1], [35.4, 5 + b, 1.1]]), { ramp: 7, cap: 1 });
+      part(sh.ellipse(16.4, 5.4 + b, 1.7, 1.5), { ramp: 9, cap: 1 }); part(sh.ellipse(35.6, 4.4 + b, 1.7, 1.5), { ramp: 9, cap: 1 });
+      part(sh.spline([[19.4, 12 + b], [26, 10 + b], [32.6, 11.4 + b], [32.6, 18 + b], [29.6, 23.4 + b], [22.6, 23.8 + b], [19.2, 19 + b]]), { ramp: 4, cap: 3, grad: .04 });
+      part(sh.spline([[18.4, 12.6 + b], [19.6, 6.2 + b], [25, 3.2 + b], [30.8, 4.6 + b], [33.4, 9.4 + b], [33.4, 12.2 + b], [26, 11.2 + b]]), { ramp: 5, cap: 2.6 });
+      part(sh.poly([[24.4, 5.2 + b], [31, 5.4 + b], [32.6, 10.2 + b], [25, 9.8 + b]]), { ramp: 4, cap: 1.2, shadow: false });
+      // Legs in a wide stance: tan thighs, white tube socks, big sneakers.
+      part(sh.limb([[32, 58 + b, 4.4], [37.6 - s * .5, 70 + b + legY, 3.9], [37 - s, 82 + legY, 3.2]]), { ramp: 0, cap: 3, tone: -.12 });
+      part(sh.limb([[37.4 - s * .55, 72.5 + b + legY, 3.4], [37 - s, 84 + legY, 3.2]]), { ramp: 4, cap: 2.4, tone: -.12 });
+      shoe(37 - s, 88 + legY, -.1);
+      part(sh.limb([[20, 58 + b, 4.4], [14.6 + s * .5, 70 + b + legY, 3.9], [15.2 + s, 82 + legY, 3.2]]), { ramp: 0, cap: 3 });
+      part(sh.limb([[14.8 + s * .55, 72.5 + b + legY, 3.4], [15.2 + s, 84 + legY, 3.2]]), { ramp: 4, cap: 2.4 });
+      shoe(15.2 + s, 88 + legY, 0);
+      // Ripped light-blue shorts.
+      part(sh.poly([[14, 51 + b], [38, 50 + b], [41, 60 + b], [38.4, 63.4 + b], [36, 60.6 + b], [33.4, 64.4 + b], [31, 61 + b], [28.4, 63.8 + b], [26, 60.6 + b], [23.4, 64 + b], [21, 61 + b], [18.4, 64.6 + b], [16.2, 61 + b], [12, 63 + b]]), { ramp: 6, cap: 2.4 });
+      // The tilted black box torso: top face, side face, front face, red box at the belly.
+      part(sh.poly([[9.6, 27.4 + b], [34, 21.6 + b], [41.6, 24.6 + b], [12.4, 31.4 + b]]), { ramp: 1, cap: 1.4, tone: .14 });
+      part(sh.poly([[37.4, 25.6 + b], [41.6, 24.6 + b], [43.4, 46 + b], [39.8, 50.4 + b]]), { ramp: 1, cap: 1.4, tone: -.12 });
+      part(sh.poly([[12.4, 31.4 + b], [37.4, 25.6 + b], [39.8, 50.4 + b], [15.8, 55 + b]]), { ramp: 1, cap: 2.4, grad: .06 });
+      part(sh.poly([[19.6, 51.4 + b], [33.4, 49.2 + b], [34, 56.4 + b], [20.6, 58.6 + b]]), { ramp: 2, cap: 2 });
+      // Glowing green triangle eyes in a dark recess; grey control panel.
+      part(sh.poly([[15.4, 36.6 + b], [27.4, 34 + b], [28, 42 + b], [16.4, 44.4 + b]]), { ramp: 1, cap: 1, tone: -.3, shadow: false });
+      part(sh.poly([[16.8, 43.2 + b], [19.4, 36.6 + b], [22, 42.4 + b]]), { ramp: 3, cap: 1, tone: .2, shadow: false });
+      part(sh.poly([[22.2, 42.2 + b], [24.8, 35.6 + b], [27.4, 41.4 + b]]), { ramp: 3, cap: 1, tone: .2, shadow: false });
+      part(sh.poly([[29.4, 38.8 + b], [36, 37.4 + b], [36.8, 45.4 + b], [30.2, 46.8 + b]]), { ramp: 9, cap: 1.4 });
+      // Near arm: huge, bent up, with the silver skull-knuckle gauntlet.
+      const nex = 4.4 - up, ney = 41 + a * .5 + b + armUp * .6, nfx = 5.8 - up, nfy = 22 + a + b + armUp * 1.3;
+      part(sh.limb([[12.6, 36 + b, 4.6], [nex, ney, 4.2]]), { ramp: 0, cap: 3 });
+      part(sh.limb([[nex, ney, 4], [nfx, nfy + 5, 3.6]]), { ramp: 0, cap: 2.6 });
+      part(sh.limb([[nfx, nfy + 5.5, 3.9], [nfx, nfy + 2.5, 3.9]]), { ramp: 8, cap: 2 });
+      part(sh.ellipse(nfx + .2, nfy - .6, 3.8, 3.6), { ramp: 8, cap: 2 });
       /* Details. */
-      // Visor: a bright glint along the top and a darker lower rim. Helmet ridge, seams, mouth-guard vents.
-      ln([[20.8, 10.1 + b], [31, 9.6 + b]], (x, y) => force(x, y, 6, 3)); ln([[22.6, 11.2 + b], [26.5, 11 + b]], (x, y) => force(x, y, 7, 3));
-      ln([[22, 15.6 + b], [27.3, 16.7 + b], [31, 14.2 + b]], (x, y) => force(x, y, 1, 3));
-      ln([[16.4, 8.5 + b], [20.5, 4.6 + b], [26.5, 4.2 + b]], (x, y) => lt(x, y, 2)); ln([[15.6, 9.6 + b], [20, 5.6 + b], [27.4, 5.4 + b], [29.4, 8.4 + b]], (x, y) => force(x, y, 3, 2)); ln([[20.2, 5.6 + b], [20.4, 9.8 + b]], (x, y) => dk(x, y, 2)); ln([[15.8, 19.6 + b], [20.6, 22.6 + b]], (x, y) => dk(x, y, 1));
-      for (let i = 0; i < 3; i++) ln([[25.2 + i * 1.6, 18.4 + b], [25 + i * 1.5, 21 + b]], (x, y) => dk(x, y, 2));
-      // Chest: centre seam and edge highlight; ab plate segments; belt buckle.
-      ln([[22.2, 27 + b], [22.2, 42.5 + b]], (x, y) => dk(x, y, 1)); ln([[14, 29.5 + b], [21, 27 + b]], (x, y) => lt(x, y, 2)); ln([[14.5, 37 + b], [18, 41.5 + b], [22.2, 42.6 + b], [27, 41.4 + b]], (x, y) => dk(x, y, 1));
-      for (let y = 45.5; y < 52; y += 2.5) ln([[19.8, y + b], [24.8, y + b]], (x, yy) => dk(x, yy, 2));
-      for (let y = 54; y <= 56; y++) for (let x = 21; x <= 23; x++) force(x, y + b, y === 54 ? 6 : 4, 2);
-      ln([[15.5, 54 + b], [15.5, 57 + b]], (x, y) => lt(x, y, 2)); ln([[28.5, 54 + b], [28.5, 57 + b]], (x, y) => lt(x, y, 2));
-      // Grey rims on the shoulder pads, battle wear on the green.
-      ln([[7.4, 30.6 + b], [9.6, 33.4 + b], [14.6, 34.3 + b], [19, 32.2 + b]], (x, y) => force(x, y, 3, 2)); ln([[27.8, 31.5 + b], [32, 33.2 + b], [36.8, 31 + b]], (x, y) => force(x, y, 2, 2));
-      for (let i = 0; i < 12; i++) { const x = 8 + P.hash(i, 3) * 28, y = 24 + P.hash(i, 5) * 60 + b; if (api.ramp(x, y) === 0) lt(x, y, 2); }
-      // Gauntlet bands, shotgun barrel shine and muzzle, blade edge, knee shine, boot soles.
-      ln([[hx - 2.6, hy - 4.5], [hx + 2.6, hy - 4.5]], (x, y) => dk(x, y, 2)); ln([[fx - 2.6, fy - 3.5], [fx + 2.6, fy - 3.5]], (x, y) => dk(x, y, 2));
-      ln([[hx - .6, hy + 6], [hx + bx + .8, hy + 23]], (x, y) => lt(x, y, 2)); ln([[hx - 2, hy + 12], [hx + bx - .2, hy + 24]], (x, y) => dk(x, y, 2)); force(hx + bx, hy + 25, 0, 4); force(hx + bx - 1, hy + 25, 0, 4);
-      ln([[fx + 2.6, fy - 2], [fx + 2.8, fy + 10]], (x, y) => lt(x, y, 2));
-      lt(18 + s * .6, 71 + b + legY, 2); lt(19 + s * .6, 71 + b + legY, 2);
-      ln([[15.5 + s, 91 + legY], [24.5 + s, 91 + legY]], (x, y) => dk(x, y, 2)); ln([[23 - s, 91 + legY], [31.5 - s, 91 + legY]], (x, y) => dk(x, y, 2));
+      // Fins: two red stripes each.
+      for (const [p0, p1] of [[[5.4, 11.4], [10.4, 8.6]], [[6.4, 14.2], [11.6, 11.6]], [[41.6, 8], [46.2, 10.2]], [[40.8, 10.8], [45.6, 13]]]) ln([[p0[0], p0[1] + b], [p1[0], p1[1] + b]], (x, y) => { if (api.ramp(x, y) === 1) force(x, y, 5, 2); });
+      // Box: lit top edge, ridges on the top face, slot, buttons on the panel, latch on the red box.
+      ln([[12.4, 31.4 + b], [37.4, 25.6 + b]], (x, y) => lt(x, y, 2)); ln([[37.4, 25.6 + b], [39.8, 50.4 + b]], (x, y) => lt(x, y, 1));
+      for (let i = 1; i < 4; i++) ln([[11 + i * 5.4, 29.6 - i * 1.2 + b], [17 + i * 5.4, 25 - i * 1 + b]], (x, y) => dk(x, y, 2));
+      ln([[29.6, 32.6 + b], [35.4, 31.4 + b]], (x, y) => force(x, y, 0, 1)); ln([[29.6, 33.6 + b], [35.4, 32.4 + b]], (x, y) => force(x, y, 4, 1));
+      force(31, 40 + b, 5, 3); force(33, 39.6 + b, 5, 2); force(35, 39.2 + b, 5, 11); ln([[31, 43.4 + b], [35.4, 42.6 + b]], (x, y) => force(x, y, 1, 1)); force(31.4, 45 + b, 6, 4);
+      ln([[21.4, 53 + b], [32.6, 51 + b]], (x, y) => lt(x, y, 2)); force(27, 54.6 + b, 1, 1); force(27.6, 54.6 + b, 1, 1);
+      // Eyes: bright cores.
+      force(19.4, 40.4 + b, 7, 3); force(24.8, 39.4 + b, 7, 3);
+      // Face: angry red eyes under slanted brows, an orange mouth; cap brim and dark "text" on the panel.
+      force(23.6, 15.4 + b, 5, 2); force(24.4, 15.4 + b, 5, 2); force(28.6, 15 + b, 5, 2); force(29.4, 15 + b, 5, 2);
+      ln([[22.6, 13.2 + b], [25, 14.4 + b]], (x, y) => force(x, y, 0, 1)); ln([[28, 14 + b], [30.6, 13 + b]], (x, y) => force(x, y, 0, 1));
+      part(sh.ellipse(27.4, 19.4 + b, 2.6, 1.6), { ramp: 11, cap: 1, shadow: false }); ln([[25.4, 19.4 + b], [29.4, 19.4 + b]], (x, y) => dk(x, y, 2));
+      ln([[19, 12 + b], [33.4, 11.8 + b]], (x, y) => { if (api.ramp(x, y) === 5) dk(x, y, 2); });
+      for (const [x, y] of [[26, 6.8], [28, 6.8], [29, 6.8], [25.8, 8.6], [26.8, 8.6], [27.8, 8.6], [29.8, 8.6], [30.8, 8.6]]) force(x, y + b, 3, 1);
+      // Arms: dark brown bands, gauntlet skull and knuckles.
+      for (const [x0, y0, x1, y1] of [[7.6, 33.6, 9.6, 42.6], [9.6, 33, 11.6, 42], [2, 32, 9.6, 31.6], [1.4, 35, 9.4, 35], [42.6, 30.2, 44.6, 39.8], [44.6, 30.6, 46.8, 40.4], [43.6, 30, 50.4, 30.4], [43.2, 26.8, 50.4, 27]]) ln([[x0, y0 + b + (x0 > 26 ? -a * .5 : a * .5)], [x1, y1 + b + (x0 > 26 ? -a * .5 : a * .5)]], (x, y) => { if (api.ramp(x, y) === 0) force(x, y, 2, 7); });
+      for (const [x, y, v] of [[5, -1.6, 0], [7, -1.6, 0], [6, .4, 1], [5, 1.4, 1], [7, 1.4, 1], [3.4, -3.4, 7], [5.6, -3.8, 7], [7.8, -3.4, 7]]) force(x - up, nfy + y, v, 8);
+      // Socks: blue stripes; sneakers: teal stripes, orange ball, soles.
+      for (const x of [15.2 + s, 37 - s]) { ln([[x - 3, 74 + legY], [x + 3, 74 + legY]], (xx, y) => { if (api.ramp(xx, y) === 4) force(xx, y, 3, 5); }); ln([[x - 3, 76 + legY], [x + 3, 76 + legY]], (xx, y) => { if (api.ramp(xx, y) === 4) force(xx, y, 3, 5); }); }
+      for (const x of [15.2 + s, 37 - s]) { ln([[x - 2, 89 + legY], [x + 4.6, 86 + legY]], (xx, y) => force(xx, y, 5, 10)); ln([[x - .6, 90 + legY], [x + 5.6, 87.4 + legY]], (xx, y) => force(xx, y, 3, 10)); for (let j = 0; j < 4; j++) force(x - 2.4 + (j & 1), 84.4 + (j >> 1) + legY, j ? 4 : 6, 11); ln([[x - 4.4, 91 + legY], [x + 7, 91 + legY]], (xx, y) => dk(xx, y, 2)); }
+      // Shorts: torn-edge shadows and a highlight.
+      ln([[14.6, 52.6 + b], [37.8, 51.6 + b]], (x, y) => lt(x, y, 2)); for (let i = 0; i < 6; i++) dk(17 + i * 4.4, 61 + (i & 1) + b, 2);
     });
   }
   // Ramps: 0 skin, 1 white hair, 2 black uniform, 3 blindfold, 4 trousers, 5 swirl button, 6 blue, 7 shoes.
@@ -124,14 +132,14 @@
       ln([[23.2 + s * .3, 61 + b], [23.2 + s * .95, 85]], (x, y) => lt(x, y, 1)); lt(24 + s, 88.6 + legY, 2); lt(25 + s, 88.6 + legY, 2);
     });
   }
-  // Kinds stay 'boss' (GKTC's Doom Slayer) and 'princess' (Daghan's Gojo) so older callers keep working.
+  // Kinds stay 'boss' (GKTC's Megazord) and 'princess' (Daghan's Gojo) so older callers keep working. Both are 52 wide.
   const cache = {};
-  function sprite(kind, f) { const key = kind + f; return cache[key] || (cache[key] = { canvas: (kind === 'princess' ? gojoSprite : slayerSprite)(f), ox: kind === 'princess' ? 26 : 22, oy: 91 }); }
+  function sprite(kind, f) { const key = kind + f; return cache[key] || (cache[key] = { canvas: (kind === 'princess' ? gojoSprite : zordSprite)(f), ox: 26, oy: 91 }); }
 
   /* ---------- State ---------- */
   const world = () => window.VillageWorld;
   const avatars = [
-    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-70, 150], greet: 'RIP AND TEAR!' },
+    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-70, 150], greet: 'MEGAZORD!' },
     { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [70, 150], greet: 'GOJO SENSEI!' }
   ];
   const KEY = 'brownie-avatars-v2'; // v2: the map gained a 180 px margin, so v1 positions are stale
@@ -221,6 +229,11 @@
     k.alpha(pl.lifted ? .25 : .38, () => k.ellipse(pl.x + 2, pl.y + 1, pl.lifted ? 11 : 15, pl.lifted ? 3 : 4, '#1d2a22'));
     if (!pl.lifted) { k.alpha(.5, () => k.ring(pl.x, pl.y + 1, 18, 5, av.kind === 'princess' ? '#9fdcff' : '#c8f08c')); }
     k.blit(s, pl.x, pl.y - lift, pl.facing === -1);
+    if (av.kind === 'boss') {
+      // Megazord: the green triangle eyes glow with a slow pulse.
+      const y = pl.y - lift - 91 + pose(f).bob, g = .2 + .16 * Math.sin(t * 4);
+      k.alpha(g, () => { for (const ex of [19.4, 24.8]) k.circle(pl.x + (ex - 26) * pl.facing, y + 40 - (ex > 20 ? 1 : 0), 3.5, '#b8ff5a'); });
+    }
     if (av.kind === 'princess') {
       // Gojo: a faint Infinity shimmer around him, and a small blue orb over his raised fingers while he stands.
       k.alpha(.6, () => { for (let i = 0; i < 4; i++) { const q = t * 1.4 + i * 1.57; k.px(pl.x + Math.round(Math.cos(q) * 15), pl.y - lift - 46 + Math.round(Math.sin(q * .7 + i) * 40), '#bfeaff'); } });

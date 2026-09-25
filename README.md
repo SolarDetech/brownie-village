@@ -51,7 +51,7 @@ Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed
 
 ## Additions (round 3)
 
-- **Avatars.** GKTC's avatar is now a Doom-Slayer-style marine and Daghan's is Gojo (fan-art style).
+- **Avatars.** GKTC's avatar is now the Megazord from Regular Show and Daghan's is Gojo (fan-art style).
 - **Colosseum.** The fighters are the founders (GKTC: wings, claws, palm lasers; Daghan: hammer, jetpack,
   chest beam). Turn-based: each turn both roll 2d6, the higher total attacks, a tie clashes, doubles fire a
   signature move. A 2× speed toggle, a finisher per fighter on *Finish them!*, and the winner mocks the loser.
