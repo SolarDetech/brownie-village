@@ -19,7 +19,7 @@ Set `perVillage: true` on the design when `front()` differs per village (it is t
 ## Coordinates and footprint
 
 - Units are **art pixels**. Origin is the zone centre. y grows downward. Integers only.
-- Every plot is one tile of a **Civilization-style honeycomb**: a flat-top hexagon with short top and bottom edges and side points at mid-height. All district tiles have the same size. A 44 px lane runs along every shared edge between neighbouring tiles: a cobbled road with avenue trees, lamps and bushes on its lower verge. Vertices (zone-local, clockwise from top-left), from `VillageWorld.hexOf(role)`: (−144,−160) (144,−160) (206,−5) (144,150) (−144,150) (−206,−5). The half-width at height y is 206 − 0.4·|y + 5|. The Colosseum is not a tile: it keeps its ellipse (rx 300, ry 225) in the western woods.
+- Every plot is one tile of a **Civilization-style honeycomb**: a flat-top hexagon with short top and bottom edges and side points at mid-height. All district tiles have the same size. A 44 px lane runs along every shared edge between neighbouring tiles: a cobbled road with avenue trees, lamps and bushes on its lower verge. Vertices (zone-local, clockwise from top-left), from `VillageWorld.hexOf(role)`: (−144,−160) (144,−160) (206,−5) (144,150) (−144,150) (−206,−5). The half-width at height y is 206 − 0.4·|y + 5|. The Colosseum is not a tile: it keeps its ellipse (rx 300, ry 225) in the western woods. The **HQ** (`hq`) covers three tiles that meet at one corner, with the lanes between them filled in: its origin is that shared corner (the Atatürk statue stands there), and its outline comes from `VillageWorld.hexOf('hq', village)`. Daghan's HQ is the mirror image, so the HQ design mirrors the **positions** of its structures (x → −x) but draws each structure unmirrored.
 - Keep all art inside the hexagon. Static art (`paint`, `front`) is **clipped to the hexagon**, so anything past the edge is cut off. Trees and bushes (`Props.tree`, `Props.bush`) that would cross the edge are left out. Buildings must sit fully inside the edge. Near the four corners, check the half-width at each building's top and bottom.
 - `animate` is not clipped, so smoke, birds and sparks can rise past the edge. Keep crew and moving objects inside it.
 - The world draws the tile's lawn inside a stone kerb under the zone, and the lanes around it. Avenue trees on the lane above your top edge can overlap your top few pixels slightly. Keep a walkable gate at the **bottom centre (0, 140)**; Köle crews leave Köle's tile there. The state flag stands just inside the bottom-left corner, at (−132, 142).
@@ -72,11 +72,11 @@ Greens `grass0–5`, `leaf0–5`; earth `dirt0–5`; `stone0–5`; `wood0–5`; 
 
 ## Preview
 
-`http://127.0.0.1:8002/zone-preview.html?zone=<name>` shows all five states side by side, animated. Add `&t=2.5` to freeze time (for screenshots), `&state=working&scale=3` for one big view. The page title reports `leads=<n> errors=<n>`.
+`http://127.0.0.1:8765/zone-preview.html?zone=<name>` shows all five states side by side, animated. Add `&t=2.5` to freeze time (for screenshots), `&state=working&scale=3` for one big view. The page title reports `leads=<n> errors=<n>`.
 
 Headless screenshot:
 
 ```bash
 google-chrome --headless=new --disable-gpu --hide-scrollbars --window-size=2200,760 \
-  --screenshot=/path/out.png "http://127.0.0.1:8002/zone-preview.html?zone=<name>&t=2.5"
+  --screenshot=/path/out.png "http://127.0.0.1:8765/zone-preview.html?zone=<name>&t=2.5"
 ```

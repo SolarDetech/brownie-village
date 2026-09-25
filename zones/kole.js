@@ -1,573 +1,484 @@
-/* Köle · Workshop & living quarters: water-driven forge, materials yard with hoist, repair shed,
-   a haul track where an overseer's whip drives a rope crew dragging cut stone, a cutaway bunkhouse
-   and an open dining pergola. Crews leave south for the lumberyard, mine and farm. */
+/* Köle · The black forge: a Mordor / Diablo / Doom slave camp. A spiked forge tower with the lidless Eye, a lava
+   forge and anvil where the dark overlord works, a hell portal with a toxic slime pit, a treadwheel turned by chained
+   goblins under an imp's pitchfork and a demon's flaming whip, a haul yard where orcs and hollows drag a basalt block
+   under an Uruk's whip and a bellowing cacodemon, a caged slave pen guarded by a Hell Knight, and a mess pit with a
+   bubbling cauldron. Chained crews leave by the south gate for the lumberyard, mine and farm. Cartoon only: whips
+   crack and creatures cower, nobody gets hurt. */
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.kole = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const LEAD = { x: -98, y: -2 };                   // hammering at the anvil in the forge yard
-  const ANVIL = { x: -76, y: -6 };
-  const WHEEL = { x: -162, y: -68, r: 17 };
-  const FORGE = { x: -150, y: -48, w: 92, h: 44 };
-  const MOUTH = { x: -142, y: -82, w: 38, h: 34 };  // open forge front
-  const HOIST = { x: 34, y: -60 };
-  const GRIND = { x: 144, y: -64 };
-  const REST = { x: -22, y: 84 };                   // the lead dozes by the bunkhouse when off
-  const BH = { x0: -190, x1: -46, y0: 34, y1: 134 }; // cutaway bunkhouse interior
-  const PG = { x0: 44, x1: 190, y0: 30, y1: 138 };   // dining pergola
-  const BEDS = [[-172, 36], [-148, 36], [-124, 36], [-100, 36], [-76, 36], [-146, 100], [-122, 100]];   // seven bunks inside the hexagon's slanted wall
-  const BLANKET = ['#6a7ab0', '#a85a6a', '#5a8a5a', '#c8a04a', '#8a6a9a', '#6a8a9a', '#b8683a', '#5a6a8a'];
-  const ROUTE = [[30, -22], [6, 22], [2, 90], [0, 146]];   // tool rack -> south exit
-  const SLEEPERS = { working: [2], idle: [0, 3, 6], waiting: [1, 4], error: [5], off: [0, 1, 2, 3, 4, 5, 6] };
+  const HEX = [[-144, -160], [144, -160], [206, -5], [144, 150], [-144, 150], [-206, -5]];
+  const BAS = ['#0c0a0e', '#16141a', '#222026', '#302c34', '#44404a', '#5c5864'];   // basalt and black iron
+  const ASH = ['#1e1a1c', '#262022', '#2e2728', '#373031', '#463c3c'];
+  const LAVA = ['#3a0e08', '#7a1a08', '#c8401a', '#ff7a22', '#ffc860', '#fff0c0'];
+  const SLIME = ['#1a3a10', '#2e7a1a', '#4ec02a', '#9cff5a', '#e0ffb0'];
+  const BONE = ['#8a8270', '#c8bea4', '#ece4cc'];
+  const WOOD = ['#22160e', '#3a2418', '#5a3624', '#7a4a30'];
+  const CLOTH = '#1a1418';
 
-  // Cached water-wheel frames (6 spokes, 12 paddles; 8 frames cover one 60° step).
-  const wheel = f => P.sprite(`kole|wheel|${f}`, 42, 42, 21, 21, q => {
-    const r = WHEEL.r, off = f / 8 * Math.PI / 3;
-    for (let i = 0; i < 12; i++) { const a = off + i * Math.PI / 6, c = Math.cos(a), s = Math.sin(a); q.line(c * (r - 4), s * (r - 4), c * (r + 2), s * (r + 2), i % 2 ? C.wood2 : C.wood3, 2); }
-    q.ring(0, 0, r, r, C.wood1); q.ring(0, 0, r - 1, r - 1, C.wood3); q.ring(0, 0, r - 2, r - 2, C.wood2);
-    for (let i = 0; i < 6; i++) { const a = off + i * Math.PI / 3; q.line(0, 0, Math.cos(a) * (r - 2), Math.sin(a) * (r - 2), C.wood2, 1); }
-    q.circle(0, 0, 3, C.stone1); q.circle(0, 0, 2, C.stone3); q.px(-1, -1, C.stone5);
-  }, C.wood0);
-  const grindstone = f => P.sprite(`kole|grind|${f}`, 16, 16, 8, 8, q => {
-    q.circle(0, 0, 6, C.stone2); q.circle(0, 0, 5, C.stone3); q.ring(0, 0, 3, 3, C.stone2);
-    const a = f / 4 * Math.PI; q.line(Math.cos(a) * 5, Math.sin(a) * 5, -Math.cos(a) * 5, -Math.sin(a) * 5, C.stone1); q.circle(0, 0, 1, C.wood1);
-  });
+  const LEAD = { x: -86, y: 8 }, ANVIL = { x: -60, y: 6 }, REST = { x: -32, y: 30 };
+  const TOWER = { x: -118, base: -46 }, MOUTH = { x0: -130, x1: -106, y0: -76, y1: -46 };
+  const POOL = { x: -166, y: -10 }, CHAN = [[-118, -48], [-134, -38], [-152, -24], [-162, -14]];
+  const PORTAL = { x: -26, y: -66 }, SLIMEP = { x: 22, y: -80 };
+  const TW = { x: 112, y: -106, r: 24 }, ELEV = { x: 146, y0: -86, y1: -134 };
+  const HAUL = { x0: 150, x1: 96, y: -12, period: 60 };
+  const PEN = { x0: -184, x1: -40, y0: 40, y1: 136 }, CAGES = [[-162, -126], [-116, -80]], CAGE_Y = [52, 80], CAGE_H = 26;
+  const MESS = { x: 112, y: 98 };
+  const BEACON = { x: -2, y: -40 };
+  const GANG = [[-62, 82], [-22, 86], [0, 100], [0, 146]];
+
   const along = (pts, p) => {
     const segs = []; let L = 0; for (let i = 1; i < pts.length; i++) { const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(d); L += d; }
     let d = p * L; for (let i = 0; i < segs.length; i++) { if (d <= segs[i]) { const f = d / segs[i]; return [pts[i][0] + (pts[i + 1][0] - pts[i][0]) * f, pts[i][1] + (pts[i + 1][1] - pts[i][1]) * f]; } d -= segs[i]; }
     return pts[pts.length - 1];
   };
-  const anvil = (k, x, y) => {
-    k.ellipse(x + 3, y + 1, 12, 3, C.shadow);
-    k.rect(x - 7, y - 8, 14, 9, C.wood2); k.rect(x - 7, y - 8, 3, 9, C.wood3); k.rect(x + 5, y - 8, 2, 9, C.wood1); k.ellipse(x, y - 8, 7, 2, C.wood4); k.ring(x, y - 8, 4, 1, C.wood2);
-    k.rect(x - 4, y - 14, 8, 6, C.slate1); k.rect(x - 4, y - 14, 2, 6, C.slate2);
-    k.poly([[x - 12, y - 18], [x + 9, y - 18], [x + 9, y - 14], [x - 5, y - 14], [x - 9, y - 16]], C.slate1); k.rect(x - 9, y - 19, 18, 2, C.slate3); k.rect(x - 6, y - 19, 12, 1, C.slate4); k.px(x - 12, y - 18, C.slate3);
-  };
-  const tool = (k, x, y, kind) => {
-    if (kind === 'saw') { k.rect(x, y, 3, 4, C.wood2); k.poly([[x + 3, y], [x + 14, y + 1], [x + 14, y + 4], [x + 3, y + 4]], C.stone3); for (let i = 4; i < 14; i += 2) k.px(x + i, y + 4, C.stone1); return; }
-    k.rect(x, y, 1, 12, C.wood3); k.px(x, y + 11, C.wood1);
-    if (kind === 'hammer') { k.rect(x - 2, y - 1, 5, 3, C.slate2); k.px(x - 2, y - 1, C.slate4); }
-    if (kind === 'axe') { k.poly([[x, y], [x + 4, y - 2], [x + 4, y + 4], [x, y + 3]], C.stone3); k.px(x + 4, y - 1, C.white); }
-    if (kind === 'pick') { k.line(x - 4, y + 1, x + 4, y - 1, C.stone2); k.px(x + 4, y - 1, C.white); }
-    if (kind === 'hoe') { k.rect(x - 3, y, 4, 2, C.stone2); }
-    if (kind === 'tongs') { k.line(x, y, x + 2, y + 12, C.slate1); k.rect(x - 1, y, 3, 2, C.slate2); }
-  };
-  const lampPost = (k, x, y) => { k.ellipse(x + 1, y, 3, 1, C.shadow); k.rect(x - 1, y - 1, 4, 2, C.stone1); k.rect(x, y - 16, 2, 16, C.slate1); k.rect(x - 2, y - 21, 6, 5, C.slate0); k.rect(x - 1, y - 20, 4, 3, C.glassDark); k.rect(x - 3, y - 22, 8, 1, C.slate1); };
 
-  /* ---- Haul yard: an overseer cracks his whip over a rope crew dragging a cut block on rollers ---- */
-  const OVS = { x: 68, y: -4 };                               // overseer's feet
-  const BLK = { x: 84, y: -13 };                              // block front-bottom-left; rollers sit below
-  const HAUL = [[128, -16], [150, -16], [138, -5], [160, -5]]; // back pair on rope A, front pair on rope B
-  const HAULER = [{ look: 0, hat: 'bandana', hc: C.red2 }, { look: 3, hat: 'cap', hc: C.slate2 }, { look: 5, hat: 'none' }, { look: 2, hat: 'straw' }];
-  const TGT = [72, -39], WL = 60, WT = 1.8, CRACK_AT = .625, NF = 40, NW = 18;
-  const OV = { hood: '#3b3533', hoodL: '#5e5650', hoodD: '#221e1c', vest: '#5a3a24', vestL: '#7a5232', vestD: '#3a2616', shirt: '#c4b089', shirtD: '#9a8662',
-    pants: '#48403a', pantsD: '#2f2a26', boot: '#2a1e16', bootL: '#58422e', belt: '#241810', skin: C.skin1, skinD: C.skin0, lash: '#2a1810', lashL: '#6a4428' };
-  const HAND = { low: [9, -13], back: [-5, -31], up: [2, -35], fwd: [12, -29], snap: [15, -22], tap0: [10, -20], tap1: [9, -16], tangle: [10, -31] };
-  const ELBOW = { low: [8, -17], back: [4, -27], up: [6, -29], fwd: [9, -24], snap: [10, -21], tap0: [10, -17], tap1: [10, -16], tangle: [9, -25] };
-  const coil = (q, x, y) => { q.ellipse(x, y, 3, 3, OV.lash); q.ring(x, y, 2, 2, OV.lashL); q.px(x, y, OV.lashL); q.rect(x + 2, y + 2, 2, 4, C.wood3); q.px(x + 2, y + 5, C.gold2); };
-  // Overseer: broad, hooded, leather vest and boots. ~29 px tall, facing right. Poses carry the whip arm.
-  const overseer = pose => P.sprite(`kole|ovs|${pose}`, 44, 46, 20, 42, q => {
-    if (pose === 'sleep') {
-      coil(q, -12, -4);
-      q.rect(-1, -5, 10, 4, OV.pants); q.rect(-1, -5, 10, 1, S(OV.pants, .18)); q.rect(8, -9, 4, 8, OV.boot); q.rect(8, -9, 4, 1, OV.bootL);
-      q.rect(-7, -16, 12, 11, OV.vest); q.rect(-2, -16, 3, 11, OV.shirt); q.rect(-7, -16, 1, 11, OV.vestL); q.rect(-7, -7, 12, 2, OV.belt); q.rect(-1, -7, 2, 2, C.gold2);
-      q.rect(-4, -13, 10, 3, OV.shirtD); q.rect(4, -13, 3, 3, OV.skin);
-      q.rect(-7, -18, 13, 3, OV.hood); q.rect(-7, -18, 13, 1, OV.hoodL);
-      q.rect(-3, -24, 9, 7, OV.hood); q.rect(-2, -25, 7, 1, OV.hood); q.rect(-2, -25, 3, 1, OV.hoodL); q.rect(-3, -24, 1, 5, OV.hoodL);
-      q.rect(2, -19, 4, 2, OV.skin); q.dither(2, -19, 4, 2, OV.skinD); q.rect(1, -21, 6, 2, OV.hoodD); q.px(6, -19, OV.skin);
-      return;
-    }
-    const tap = pose === 'tap0' || pose === 'tap1', lunge = pose === 'snap' || pose === 'fwd' ? 1 : 0;
-    // Back arm, behind the body: fist on the hip, or thrown up when tangled.
-    if (pose === 'tangle') { q.line(-6, -20, -10, -25, OV.shirtD, 3); q.line(-10, -25, -9, -30, OV.skinD, 2); q.rect(-10, -32, 3, 3, OV.skinD); }
-    else if (!tap) { q.line(-6, -20, -10, -17, OV.shirtD, 3); q.line(-10, -17, -7, -13, OV.skinD, 2); q.rect(-8, -14, 3, 3, OV.skinD); }
-    // Legs and heavy boots.
-    q.rect(-6, -11, 5, 7, OV.pantsD); q.rect(1 + lunge, -11, 5, 7, OV.pants); q.rect(1 + lunge, -11, 1, 7, S(OV.pants, .18));
-    q.rect(-7, -4, 6, 4, OV.boot); q.rect(-7, -4, 6, 1, OV.bootL); q.rect(1 + lunge, -4, 7, 4, OV.boot); q.rect(1 + lunge, -4, 5, 1, OV.bootL); q.px(7 + lunge, -2, OV.bootL);
-    // Linen shirt under a laced leather vest; wide belt with a brass buckle.
-    q.rect(-7, -21, 15, 8, OV.vest); q.rect(-1, -21, 4, 8, OV.shirt); q.rect(2, -21, 1, 8, OV.shirtD);
-    q.rect(-7, -21, 1, 8, OV.vestL); q.rect(6, -21, 2, 8, OV.vestD); for (let y = -20; y < -14; y += 2) { q.px(-1, y, OV.vestD); q.px(3, y, OV.vestD); }
-    q.rect(-7, -13, 15, 2, OV.belt); q.rect(0, -13, 3, 2, C.gold2); q.px(0, -13, C.gold4);
-    // Hood with capelet; a scowling, stubbled face in the opening.
-    q.rect(-7, -23, 14, 3, OV.hood); q.rect(-7, -23, 14, 1, OV.hoodL); q.rect(5, -22, 2, 2, OV.hoodD);
-    q.rect(-4, -30, 9, 8, OV.hood); q.rect(-3, -31, 7, 1, OV.hood); q.rect(-3, -31, 3, 1, OV.hoodL); q.rect(-4, -30, 1, 5, OV.hoodL); q.rect(-5, -27, 1, 4, OV.hoodD);
-    q.rect(0, -28, 5, 5, OV.skin); q.rect(0, -28, 5, 1, OV.skinD); q.rect(0, -28, 1, 5, OV.hoodD);
-    q.rect(1, -27, 4, 1, C.ink); q.px(3, -26, C.ink); q.px(5, -26, OV.skin); q.dither(1, -25, 4, 2, OV.skinD); q.rect(2, -24, 3, 1, S(OV.skinD, -.25));
-    if (pose === 'idle') { q.line(5, -20, 9, -17, OV.shirt, 3); q.line(9, -17, 6, -13, OV.skin, 2); q.rect(5, -14, 3, 3, OV.skin); coil(q, 3, -8); return; }
-    if (tap) { q.line(-5, -19, 0, -14, OV.shirtD, 3); q.line(0, -14, 5, -13, OV.skinD, 2); q.rect(4, -14, 5, 2, OV.skin); q.px(4, -14, C.skin2); }
-    if (pose === 'tangle') {
-      // Whip wound round his own chest and legs, knotted at the fist.
-      q.line(-7, -19, 7, -15, OV.lash); q.line(-7, -18, 7, -14, OV.lashL); q.line(-6, -9, 6, -6, OV.lash); q.line(-6, -6, 6, -9, OV.lash); q.line(-7, -3, 8, -2, OV.lash);
-    }
-    const e = ELBOW[pose], h = HAND[pose];
-    q.line(5, -20, e[0], e[1], OV.shirt, 3); q.line(e[0], e[1], h[0], h[1], OV.skin, 2); q.rect(h[0] - 1, h[1] - 1, 3, 3, OV.skin); q.px(h[0] - 1, h[1] - 1, C.skin2);
-    if (tap) coil(q, h[0] + 2, h[1] - 2);
-    if (pose === 'tangle') { q.ring(12, -34, 2, 2, OV.lash); q.ring(14, -32, 2, 1, OV.lash); q.line(12, -33, 9, -22, OV.lash); q.line(14, -31, 16, -24, OV.lash); q.px(16, -23, C.paper); }
-  });
-  const block = () => P.sprite('kole|block', 29, 20, 0, 19, q => {
-    q.rect(0, -19, 28, 7, C.stone4); q.rect(0, -19, 28, 1, C.stone5); q.rect(0, -19, 1, 7, C.stone5); q.dither(2, -17, 24, 4, C.stone3, 1);
-    q.rect(0, -12, 28, 12, C.stone2); q.rect(0, -12, 28, 1, C.stone3); q.rect(0, -12, 1, 12, C.stone3); q.rect(25, -12, 3, 12, C.stone1); q.rect(0, -1, 28, 1, C.stone1);
-    for (let i = 0; i < 5; i++) { q.px(3 + i * 4, -9 + (i % 2) * 4, C.stone1); q.px(4 + i * 4, -8 + (i % 2) * 4, C.stone3); }
-    q.rect(19, -19, 3, 19, C.wood3); q.rect(19, -19, 1, 19, C.wood4); q.rect(21, -19, 1, 19, C.wood1); q.rect(18, -16, 5, 2, C.wood2); q.px(22, -15, C.wood4);
-  }, C.stone0);
-  const roller = f => P.sprite(`kole|roll|${f}`, 8, 8, 4, 4, q => {
-    q.circle(0, 0, 3, C.wood2); q.circle(0, 0, 2, C.wood4); q.px(-1, -1, C.wood5);
-    const a = f / 4 * Math.PI, cx = Math.round(Math.cos(a) * 2), cy = Math.round(Math.sin(a) * 2); q.line(cx, cy, -cx, -cy, C.wood1);
-  }, C.wood0);
-  const burst = f => P.sprite(`kole|burst|${f}`, 22, 22, 11, 11, q => {
-    if (f === 0) { q.rect(-4, 0, 9, 1, C.gold4); q.rect(0, -4, 1, 9, C.gold4); q.rect(-1, -1, 3, 3, C.white); return; }
-    if (f === 1) {
-      q.rect(-8, 0, 17, 1, C.gold3); q.rect(0, -8, 1, 17, C.gold3); q.rect(-5, 0, 11, 1, C.white); q.rect(0, -5, 1, 11, C.white);
-      for (const [dx, dy] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) for (let i = 2; i < 6; i++) q.px(dx * i, dy * i, i < 4 ? C.gold4 : C.gold2);
-      q.rect(-1, -1, 3, 3, C.white); return;
-    }
-    for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; q.rect(Math.round(Math.cos(a) * 8), Math.round(Math.sin(a) * 8), 2, 1, i % 2 ? C.gold2 : C.gold4); }
-    q.px(0, 0, C.gold4);
-  }, C.ink);
-  const crackText = () => P.sprite('kole|crack', 22, 8, 0, 0, q => { q.text('CRACK', 1, 1, C.red2); q.text('CRACK', 0, 0, C.gold4); }, C.ink);
-
-  // Whip curves: hand-placed keyframes plus an "unrolling loop" generator, resampled to NW points and
-  // interpolated into NF precomputed frames per crack cycle. Coordinates are relative to the overseer's feet.
-  const spline = pts => {
-    const out = [];
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
-      for (let s = 0; s < 8; s++) { const u = s / 8, u2 = u * u, u3 = u2 * u; out.push([0, 1].map(j => .5 * (2 * p1[j] + (p2[j] - p0[j]) * u + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * u2 + (3 * p1[j] - p0[j] - 3 * p2[j] + p3[j]) * u3))); }
-    }
-    out.push(pts[pts.length - 1]); return out;
-  };
-  const resample = pts => {
-    const d = [0]; for (let i = 1; i < pts.length; i++) d.push(d[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
-    const L = d[d.length - 1], out = []; let j = 0;
-    for (let n = 0; n < NW; n++) { const s = L * n / (NW - 1); while (j < pts.length - 2 && d[j + 1] < s) j++; const f = (s - d[j]) / ((d[j + 1] - d[j]) || 1); out.push([pts[j][0] + (pts[j + 1][0] - pts[j][0]) * f, pts[j][1] + (pts[j + 1][1] - pts[j][1]) * f]); }
-    return out;
-  };
-  const unroll = (h, a) => {
-    const dx = TGT[0] - h[0], dy = TGT[1] - h[1], dl = Math.hypot(dx, dy), d = [dx / dl, dy / dl], n = [d[1], -d[0]], r = 4, pts = [];
-    for (let s = 0; s <= a; s += 2) pts.push([h[0] + d[0] * s, h[1] + d[1] * s]);
-    const F = [h[0] + d[0] * a, h[1] + d[1] * a], c = [F[0] + n[0] * r, F[1] + n[1] * r];
-    for (let i = 1; i <= 6; i++) { const g = Math.PI * i / 6; pts.push([c[0] - n[0] * r * Math.cos(g) + d[0] * r * Math.sin(g), c[1] - n[1] * r * Math.cos(g) + d[1] * r * Math.sin(g)]); }
-    const rest = WL - a - Math.PI * r, top = [F[0] + n[0] * 2 * r, F[1] + n[1] * 2 * r];
-    for (let s = 2; s <= rest; s += 2) { const f = s / rest; pts.push([top[0] - d[0] * s, top[1] - d[1] * s + f * f * 8]); }
-    return pts;
-  };
-  const REST_CURVE = [[9, -13], [13, -6], [20, -2], [30, -1], [40, -1], [48, -2], [52, -4]];
-  const KEYS = [
-    [0, 'low', REST_CURVE],
-    [.15, 'back', [[-5, -31], [1, -26], [10, -19], [21, -12], [32, -6], [43, -3], [50, -2]]],
-    [.25, 'up', [[2, -35], [7, -43], [8, -52], [3, -59], [-6, -62], [-16, -60], [-24, -55]]],
-    [.35, 'up', [[2, -35], [-6, -39], [-16, -41], [-27, -39], [-36, -34], [-43, -27], [-47, -20]]],
-    [.425, 'fwd', unroll(HAND.fwd, 10), 1],
-    [.5, 'fwd', unroll(HAND.fwd, 26), 1],
-    [.55, 'snap', unroll(HAND.snap, 38), 1],
-    [.6, 'snap', unroll(HAND.snap, 47), 1],
-    [CRACK_AT, 'snap', [[15, -22], [30, -27], [45, -31], [60, -35], [70, -38], [73, -41]]],
-    [.7, 'snap', [[15, -22], [27, -28], [39, -32], [50, -34], [59, -33], [64, -28]]],
-    [.825, 'low', [[9, -13], [19, -22], [30, -27], [40, -24], [46, -15], [49, -6], [50, -3]]],
-    [1, 'low', REST_CURVE]
-  ].map(([p, pose, pts, dense]) => ({ p, pose, pts: resample(dense ? pts : spline(pts)) }));
-  const WHIP = [];
-  for (let i = 0; i < NF; i++) {
-    const p = i / NF; let j = 0; while (KEYS[j + 1].p <= p) j++;
-    const A = KEYS[j], B = KEYS[j + 1], u = (p - A.p) / (B.p - A.p), pose = u < .5 ? A.pose : B.pose, h = HAND[pose];
-    const pts = A.pts.map((a, n) => [a[0] + (B.pts[n][0] - a[0]) * u, a[1] + (B.pts[n][1] - a[1]) * u]);
-    const dx = h[0] - pts[0][0], dy = h[1] - pts[0][1];
-    WHIP.push({ pose, pts: pts.map(([x, y], n) => { const f = (1 - n / (NW - 1)) ** 2; return [Math.round(x + dx * f), Math.round(y + dy * f)]; }) });
+  /* ---------- Small static props ---------- */
+  const skull = (k, x, y) => { k.rect(x - 2, y - 4, 5, 3, BONE[2]); k.rect(x - 1, y - 1, 3, 1, BONE[1]); k.px(x - 2, y - 4, BONE[1]); k.px(x - 1, y - 3, C.ink); k.px(x + 1, y - 3, C.ink); k.px(x, y - 1, C.ink); };
+  const bones = (k, x, y, d = 1) => { k.line(x, y, x + 5, y - d, BONE[1]); k.px(x - 1, y - 1, BONE[2]); k.px(x - 1, y + 1, BONE[2]); k.px(x + 6, y - d - 1, BONE[2]); k.px(x + 6, y - d + 1, BONE[2]); };
+  const spike = (k, x, y, h) => { k.poly([[x - 1, y], [x + 2, y], [x, y - h]], BAS[2]); k.line(x - 1, y, x, y - h, BAS[4]); k.px(x, y - h, BAS[5]); };
+  function spikeFence(k, x, y, len, vertical) {
+    if (vertical) { for (let j = 0; j < len; j += 4) { k.rect(x, y + j - 10, 3, 10, BAS[1]); k.rect(x, y + j - 10, 1, 10, BAS[3]); k.px(x + 1, y + j - 11, BAS[4]); k.px(x + 1, y + j - 12, BAS[5]); } return; }
+    k.rect(x + 1, y - 1, len, 2, C.shadow);
+    for (let i = 0; i < len; i += 4) { k.rect(x + i, y - 10, 2, 10, BAS[1]); k.px(x + i, y - 10, BAS[3]); k.px(x + i, y - 11, BAS[4]); k.px(x + i + (i % 8 ? 1 : 0), y - 12, BAS[5]); }
+    k.rect(x, y - 7, len, 2, BAS[2]); k.rect(x, y - 7, len, 1, BAS[4]); k.rect(x, y - 3, len, 1, BAS[2]);
   }
-  const drawWhip = (k, pts, x, y) => {
-    k.line(x + pts[0][0], y + pts[0][1], x + pts[1][0], y + pts[1][1], C.wood1, 2); k.px(x + pts[0][0], y + pts[0][1], C.gold2);
-    for (let i = 1; i < pts.length - 1; i++) k.line(x + pts[i][0], y + pts[i][1], x + pts[i + 1][0], y + pts[i + 1][1], i < 6 ? OV.lash : '#4a2e1c');
-    const tp = pts[pts.length - 1]; k.px(x + tp[0], y + tp[1], C.paper);
+  const brazier = (k, x, y) => { k.ellipse(x + 1, y, 5, 1, C.shadow); k.line(x - 3, y, x, y - 6, BAS[3]); k.line(x + 3, y, x, y - 6, BAS[2]); k.rect(x - 4, y - 9, 9, 3, BAS[2]); k.rect(x - 4, y - 9, 9, 1, BAS[4]); k.rect(x - 3, y - 10, 7, 1, LAVA[1]); k.px(x - 4, y - 10, BAS[4]); k.px(x + 4, y - 10, BAS[4]); };
+  const torch = (k, x, y) => { k.ellipse(x + 1, y, 3, 1, C.shadow); k.rect(x, y - 20, 2, 20, WOOD[1]); k.px(x, y - 20, WOOD[3]); k.rect(x - 1, y - 22, 4, 2, BAS[3]); k.px(x, y - 23, LAVA[1]); };
+  function eyeBanner(k, x, y, h = 30) {
+    k.ellipse(x + 2, y, 3, 1, C.shadow); k.rect(x, y - h, 2, h, BAS[1]); k.rect(x, y - h, 1, h, BAS[3]); spike(k, x + 1, y - h, 4);
+    k.rect(x - 1, y - h + 2, 13, 1, BAS[3]);
+    const bx = x + 2, by = y - h + 3; k.rect(bx, by, 9, 15, CLOTH); k.rect(bx, by, 1, 15, '#2a2228'); for (let i = 0; i < 9; i += 2) k.px(bx + i, by + 15, CLOTH);
+    k.rect(bx + 2, by + 5, 5, 3, LAVA[2]); k.rect(bx + 1, by + 6, 7, 1, LAVA[2]); k.rect(bx + 3, by + 5, 3, 3, LAVA[3]); k.rect(bx + 4, by + 5, 1, 3, C.ink); k.px(bx + 3, by + 6, LAVA[4]);
+    k.px(bx + 4, by + 3, LAVA[1]); k.px(bx + 2, by + 3, LAVA[1]); k.px(bx + 6, by + 3, LAVA[1]);
+  }
+  function weaponCrate(k, x, y) {
+    k.line(x + 2, y - 8, x - 1, y - 20, BAS[4]); k.line(x + 5, y - 8, x + 6, y - 22, BAS[4]); k.px(x + 6, y - 22, BAS[5]); k.rect(x + 4, y - 12, 4, 1, WOOD[2]); k.rect(x, y - 13, 4, 1, WOOD[2]);
+    k.line(x + 9, y - 8, x + 12, y - 19, WOOD[2]); k.poly([[x + 11, y - 19], [x + 14, y - 19], [x + 13, y - 24]], BAS[4]);
+    Props.crate(k, x, y, 12); k.rect(x + 1, y - 7, 10, 1, BAS[1]); k.rect(x + 1, y - 3, 10, 1, BAS[1]);
+  }
+  const toxicBarrel = (k, x, y) => { k.ellipse(x + 3, y, 5, 1, C.shadow); k.rect(x - 1, y - 11, 9, 11, '#5a6a3a'); k.rect(x - 1, y - 11, 2, 11, '#7a8a4a'); k.rect(x + 6, y - 11, 2, 11, '#3a4a26'); k.rect(x - 1, y - 8, 9, 1, '#2a3418'); k.rect(x - 1, y - 3, 9, 1, '#2a3418'); k.ellipse(x + 3, y - 11, 4, 1, SLIME[2]); k.px(x + 2, y - 11, SLIME[4]); k.rect(x + 2, y - 7, 3, 3, '#e0c030'); k.px(x + 3, y - 6, C.ink); };
+
+  // Cached frames: the treadwheel (charred timber, 8 spokes, tread slats), block and rollers.
+  const tread = f => P.sprite(`kole2|tread|${f}`, 56, 56, 28, 28, q => {
+    const r = TW.r, off = f / 8 * Math.PI / 4;
+    for (let i = 0; i < 16; i++) { const a = off + i * Math.PI / 8, c = Math.cos(a), s = Math.sin(a); q.line(c * (r - 5), s * (r - 5), c * (r - 1), s * (r - 1), i % 2 ? WOOD[2] : WOOD[3], 2); }
+    q.ring(0, 0, r, r, WOOD[1]); q.ring(0, 0, r - 1, r - 1, WOOD[3]); q.ring(0, 0, r - 5, r - 5, WOOD[1]);
+    for (let i = 0; i < 8; i++) { const a = off + i * Math.PI / 4; q.line(0, 0, Math.cos(a) * (r - 5), Math.sin(a) * (r - 5), WOOD[2], 1); }
+    for (let i = 0; i < 8; i++) { const a = off + i * Math.PI / 4 + .2; q.px(Math.cos(a) * r, Math.sin(a) * r, BAS[4]); }
+    q.circle(0, 0, 4, BAS[2]); q.circle(0, 0, 2, BAS[4]); q.px(-1, -1, BAS[5]);
+  }, BAS[0]);
+  const block = () => P.sprite('kole2|block', 31, 22, 0, 21, q => {
+    q.rect(0, -21, 30, 7, BAS[3]); q.rect(0, -21, 30, 1, BAS[5]); q.rect(0, -21, 1, 7, BAS[4]); q.dither(2, -19, 26, 4, BAS[4], 1);
+    q.rect(0, -14, 30, 14, BAS[2]); q.rect(0, -14, 30, 1, BAS[3]); q.rect(0, -14, 1, 14, BAS[3]); q.rect(27, -14, 3, 14, BAS[1]); q.rect(0, -1, 30, 1, BAS[1]);
+    // A carved eye rune glowing faintly on the face.
+    q.rect(10, -9, 9, 3, LAVA[1]); q.rect(12, -10, 5, 5, LAVA[1]); q.rect(13, -9, 3, 3, LAVA[2]); q.px(14, -9, C.ink); q.px(14, -8, C.ink); q.px(14, -7, C.ink);
+    q.line(3, -21, 7, -14, BAS[1]); q.line(23, -18, 21, -12, BAS[1]);
+  }, BAS[0]);
+  const roller = f => P.sprite(`kole2|roll|${f}`, 8, 8, 4, 4, q => {
+    q.circle(0, 0, 3, WOOD[2]); q.circle(0, 0, 2, WOOD[3]); q.px(-1, -1, '#9a6a44');
+    const a = f / 4 * Math.PI, cx = Math.round(Math.cos(a) * 2), cy = Math.round(Math.sin(a) * 2); q.line(cx, cy, -cx, -cy, WOOD[1]);
+  }, BAS[0]);
+
+  // A little flame in any colour set (for braziers, torches and the amber signal fire).
+  const flame = (k, x, y, t, s, cols) => {
+    const f = Math.floor(t * 12 + x) % 3;
+    k.poly([[x - 3 * s, y], [x - 1, y - (7 + f) * s], [x + 1, y - 4 * s], [x + 2 * s, y - (6 - f) * s], [x + 3 * s, y]], cols[0]);
+    k.poly([[x - 2 * s, y], [x, y - (5 + f) * s], [x + 2 * s, y]], cols[1]); k.px(x, y - 1, cols[2]);
   };
-  const slackRope = (k, x0, y0, x1, y1) => k.path([[x0, y0], [x0 + 3, y0 + 7], [x0 + 10, Math.max(y0, y1) + 9], [(x0 + x1) / 2 + 6, Math.max(y0, y1) + 10], [x1 - 4, Math.max(y0, y1) + 6], [x1, y1]], C.wood4);
+  const FL = { fire: ['#e0501e', '#ffb040', '#fff0c0'], amber: [C.waiting, '#ffe08a', '#fff6d8'], red: ['#c01a10', '#ff5a2a', '#ffc8a0'], low: [LAVA[1], LAVA[2], LAVA[3]] };
+  const ember = (k, x, y, t, n, h = 30, col = LAVA[4]) => { for (let i = 0; i < n; i++) { const q = (t * .5 + i / n) % 1; k.alpha(1 - q, () => k.px(x + Math.sin(q * 7 + i * 2.3) * 4 + i * 2 - n, y - q * h, q < .4 ? col : LAVA[3])); } };
+  const blackSmoke = (k, x, y, t, n = 5) => Props.smoke(k, x, y, t * 1.3, n, '#141216');
 
   return {
     paint(k) {
-      /* ---- Ground: packed-earth yard, cobbled forge pad, south road ---- */
-      k.poly([[-192, -44], [192, -44], [194, 30], [60, 32], [40, 150], [-40, 150], [-44, 30], [-194, 30]], C.dirt2);
-      k.ditherPoly([[-192, -44], [192, -44], [194, 30], [60, 32], [40, 150], [-40, 150], [-44, 30], [-194, 30]], C.dirt3, 1);
-      for (let i = 0; i < 90; i++) { const x = -190 + P.hash(i, 3) * 380, y = -42 + P.hash(i, 5) * 70; k.px(x, y, P.hash(i, 9) > .5 ? C.dirt1 : C.dirt4); if (i % 4 === 0) k.px(x + 1, y, C.dirt1); }
-      // Road south with cart ruts.
-      k.polyTex([[-20, 24], [22, 24], [20, 151], [-20, 151]], (x, y) => (x === -14 || x === -13 || x === 11 || x === 12) ? C.dirt2 : (P.hash(x >> 1, y >> 1) < .12 ? C.dirt5 : C.dirt3));
-      // Cobbled pad around the anvil and forge mouth, stained with soot.
-      k.polyTex([[-150, -46], [-50, -46], [-44, 14], [-136, 16], [-156, 0]], (x, y) => {
-        const row = Math.floor((y + 200) / 4), off = row % 2 * 3;
-        if ((y + 200) % 4 === 0 || (x + 300 + off) % 6 === 0) return C.stone1;
-        const h = P.hash(Math.floor((x + off) / 6), row), soot = Math.hypot(x - ANVIL.x, (y - ANVIL.y) * 1.6) < 20;
-        return soot ? (h < .5 ? C.stone0 : C.stone1) : h < .2 ? C.stone3 : C.stone2;
+      /* ---- Ground: ash and cinders over the whole tile, with cracked basalt flagstones and scorched earth ---- */
+      k.polyTex(HEX, (x, y) => {
+        const h = P.hash(Math.floor(x / 3), Math.floor(y / 3)), g = P.hash(x, y);
+        if (g > .993) return LAVA[1]; if (g > .96) return ASH[4];
+        return h < .25 ? ASH[1] : h < .6 ? ASH[2] : h < .85 ? ASH[3] : ASH[0];
       });
-      for (let i = 0; i < 60; i++) { const x = -194 + P.hash(i, 13) * 388, y = -152 + P.hash(i, 17) * 300; if (y > -46 && y < 32) continue; if (x > BH.x0 - 2 && x < BH.x1 + 6 && y > 10) continue; if (x > PG.x0 - 2 && y > 20) continue; Props.tuft(k, x, y, C.grass1, C.grass4); }
+      // Road of cracked basalt slabs from the south gate up to the forge yard, and the yard itself.
+      const slab = (x, y) => {
+        const row = Math.floor((y + 400) / 6), off = row % 2 * 5, col = Math.floor((x + 400 + off) / 10);
+        if ((y + 400) % 6 === 0 || (x + 400 + off) % 10 === 0) return BAS[0];
+        const h = P.hash(col, row); if (P.hash(x, y) > .97) return BAS[1];
+        return h < .3 ? BAS[2] : h < .8 ? BAS[3] : '#38343c';
+      };
+      k.polyTex([[-20, 150], [20, 150], [18, -30], [-18, -30]], slab);
+      k.polyTex([[-140, -44], [-18, -44], [-18, 26], [-50, 30], [-128, 24], [-146, 6]], slab);
+      // Scorch marks round the forge yard.
+      for (const [x, y, r] of [[-60, 0, 16], [-110, -30, 14], [60, 30, 10], [-150, 30, 12]]) k.ditherEllipse(x, y, r, r * .45, ASH[0], 1);
 
-      /* ---- Flume and water wheel (top left) ---- */
-      // Stone wheel pit with a pool that spills away to the west.
-      k.at(10, 0, () => {   // under the wheel, moved in from the hexagon edge
-      k.rect(-194, -56, 44, 14, C.stone1); k.rect(-192, -54, 40, 10, C.water1); k.rect(-192, -54, 40, 2, C.water0); k.dither(-192, -50, 40, 6, C.water2, 1);
-      k.rect(-194, -58, 44, 3, C.stone3); k.rect(-194, -58, 44, 1, C.stone4); for (let x = -194; x < -150; x += 6) k.px(x, -57, C.stone1);
-      k.rect(-194, -43, 44, 3, C.stone2); k.rect(-194, -43, 44, 1, C.stone4);
-      });
-      // Wooden flume on trestles from the upland stream to the top of the wheel.
-      k.poly([[-195, -148], [-184, -150], [-180, -138], [-195, -134]], C.water1); k.ditherPoly([[-195, -148], [-184, -150], [-180, -138], [-195, -134]], C.water3, 1);
-      for (const [x, y, h] of [[-189, -126, 30], [-181, -106, 16]]) { k.rect(x, y, 2, h, C.wood1); k.rect(x, y, 1, h, C.wood3); k.rect(x + 7, y + 2, 2, h - 2, C.wood0); k.line(x + 1, y + h, x + 8, y + 3, C.wood1); k.rect(x - 1, y + h, 11, 2, C.stone2); k.rect(x - 1, y, 11, 2, C.wood2); }
-      k.poly([[-193, -140], [-183, -140], [-156, -88], [-166, -88]], C.wood1); k.poly([[-192, -141], [-184, -141], [-158, -90], [-165, -90]], C.wood3);
-      k.poly([[-190, -141], [-185, -141], [-160, -91], [-164, -91]], C.water2); k.line(-188, -141, -162, -91, C.water4);
-      for (let i = 0; i < 5; i++) { const y = -134 + i * 10; k.line(-193 + i * 3.4, y, -183 + i * 3.4, y, C.wood0); }
-      // Axle shaft into the forge wall, with a bearing block.
-      k.rect(-162, -70, 12, 4, C.wood1); k.rect(-162, -70, 12, 1, C.wood3); k.rect(-156, -76, 6, 10, C.stone2); k.rect(-156, -76, 6, 2, C.stone4);
+      /* ---- Lava: a channel from the forge mouth down to a bubbling pool, and glowing fissures ---- */
+      k.path(CHAN, ASH[0], 7); k.path(CHAN, LAVA[1], 5); k.path(CHAN, LAVA[2], 3); k.path(CHAN, LAVA[3], 1);
+      k.ellipse(POOL.x, POOL.y, 22, 10, ASH[0]); k.ellipse(POOL.x, POOL.y, 20, 9, '#2a1410'); k.ellipse(POOL.x, POOL.y, 18, 8, LAVA[1]); k.ellipse(POOL.x + 1, POOL.y, 15, 6, LAVA[2]); k.ellipse(POOL.x + 2, POOL.y - 1, 10, 4, LAVA[3]); k.ellipse(POOL.x + 1, POOL.y - 1, 5, 2, LAVA[4]);
+      for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; k.rect(POOL.x + Math.cos(a) * 19, POOL.y + Math.sin(a) * 9, 2, 1, BAS[2]); }
+      const fissure = (pts) => { k.path(pts, '#140c0c', 3); k.path(pts, LAVA[1], 1); pts.forEach(([x, y], i) => i % 2 && k.px(x, y, LAVA[3])); };
+      fissure([[-178, 30], [-170, 36], [-160, 34], [-150, 42]]); fissure([[60, 34], [72, 40], [80, 38], [92, 46]]); fissure([[150, 20], [160, 26], [172, 24]]);
+      fissure([[-60, -140], [-50, -134], [-40, -136], [-30, -128]]); fissure([[30, 120], [40, 126], [44, 134]]); fissure([[-176, -60], [-168, -52], [-172, -44]]);
 
-      /* ---- Forge hall (top left) ---- */
-      const fb = Props.building(k, FORGE.x, FORGE.y, { w: FORGE.w, h: FORGE.h, roofH: 26, roof: C.slate2, wall: C.stone3, mat: 'stone', foundation: 5,
-        door: { x: 64, w: 12, h: 16, color: C.wood2 }, windows: [{ x: 48, y: 8, w: 7, h: 8 }] });
-      // Tall brick chimney.
-      k.rect(-88, -150, 14, 50, C.terra1); k.rect(-88, -150, 4, 50, C.terra3); k.rect(-76, -150, 2, 50, C.terra0); k.rect(-86, -100, 14, 2, C.shadow);
-      for (let y = -148; y < -102; y += 4) { k.rect(-88, y, 14, 1, C.terra0); k.px(-84 + (y % 8 ? 0 : 5), y + 2, C.terra0); }
-      k.rect(-90, -152, 18, 4, C.stone3); k.rect(-90, -152, 18, 1, C.stone5); k.rect(-86, -151, 10, 1, C.ink);
-      // Wide open forge mouth: brick hearth, hood, bellows and racks inside.
-      k.rect(MOUTH.x - 3, MOUTH.y - 3, MOUTH.w + 6, MOUTH.h + 3, C.wood1); k.rect(MOUTH.x - 3, MOUTH.y - 3, MOUTH.w + 6, 2, C.wood3);
-      k.rect(MOUTH.x, MOUTH.y, MOUTH.w, MOUTH.h, '#2a1e18'); k.dither(MOUTH.x, MOUTH.y, MOUTH.w, 10, '#3a2a20', 1);
-      k.poly([[MOUTH.x + 8, MOUTH.y], [MOUTH.x + 26, MOUTH.y], [MOUTH.x + 23, MOUTH.y + 10], [MOUTH.x + 11, MOUTH.y + 10]], C.stone1); k.rect(MOUTH.x + 11, MOUTH.y + 9, 12, 2, C.stone0);
-      k.rect(MOUTH.x + 6, MOUTH.y + 20, 22, 14, C.terra1); k.rect(MOUTH.x + 6, MOUTH.y + 20, 22, 2, C.terra3); for (let x = MOUTH.x + 6; x < MOUTH.x + 28; x += 4) k.px(x, MOUTH.y + 26, C.terra0);
-      k.rect(MOUTH.x + 10, MOUTH.y + 16, 14, 5, '#3a1a12');
-      // Bellows (they pump in animate) and a tool rack on the inner wall.
-      k.rect(MOUTH.x + 29, MOUTH.y + 24, 8, 3, C.wood1); k.line(MOUTH.x + 28, MOUTH.y + 25, MOUTH.x + 25, MOUTH.y + 22, C.stone1);
-      for (let i = 0; i < 4; i++) tool(k, MOUTH.x + 2 + i * 2, MOUTH.y + 4, i % 2 ? 'tongs' : 'hammer');
-      k.rect(FORGE.x, FORGE.y - 1, 1, 1, C.stone1);
-      Props.hangingSign(k, FORGE.x + 58, fb.top + 5, 'FORGE', C.terra1);
-      // Iron stock leaning by the forge and a quench trough in the yard.
-      for (let i = 0; i < 5; i++) k.line(FORGE.x + FORGE.w + 2 + i * 2, FORGE.y - 2, FORGE.x + FORGE.w + 4 + i * 2, FORGE.y - 20, i % 2 ? C.slate2 : C.slate3);
-      k.ellipse(-52, -2, 12, 3, C.shadow); k.rect(-62, -12, 22, 9, C.wood1); k.rect(-62, -12, 22, 2, C.wood3); k.rect(-60, -10, 18, 3, C.water1); k.rect(-60, -10, 18, 1, C.water3);
-      k.rect(-62, -8, 2, 6, C.wood0); k.rect(-42, -8, 2, 6, C.wood0);
-      anvil(k, ANVIL.x, ANVIL.y);
-      // Coal bucket, ingot rack and a grinding block.
-      k.rect(-130, 4, 9, 7, C.slate1); k.rect(-130, 4, 9, 2, C.slate2); for (let i = 0; i < 4; i++) k.px(-129 + i * 2, 4, C.ink);
-      k.rect(-146, -10, 16, 8, C.wood2); k.rect(-146, -10, 16, 1, C.wood4); for (let r = 0; r < 2; r++) for (let i = 0; i < 4; i++) { k.rect(-145 + i * 4 + r * 2, -14 - r * 2, 3, 2, r ? C.gold1 : C.slate3); k.px(-145 + i * 4 + r * 2, -14 - r * 2, r ? C.gold3 : C.slate4); }
+      /* ---- The black forge tower (Barad-dûr style) with its lava forge mouth ---- */
+      const tx = TOWER.x, tb = TOWER.base;
+      k.poly([[tx - 30, tb + 2], [tx + 32, tb + 2], [tx + 26, tb - 4], [tx - 26, tb - 4]], C.shadow);
+      k.poly([[tx - 28, tb], [tx + 28, tb], [tx + 18, tb - 54], [tx + 12, tb - 90], [tx - 12, tb - 90], [tx - 18, tb - 54]], BAS[1]);
+      k.poly([[tx - 28, tb], [tx - 16, tb], [tx - 8, tb - 54], [tx - 4, tb - 90], [tx - 12, tb - 90], [tx - 18, tb - 54]], BAS[2]);
+      k.poly([[tx + 16, tb], [tx + 28, tb], [tx + 18, tb - 54], [tx + 12, tb - 90], [tx + 8, tb - 90], [tx + 10, tb - 54]], BAS[0]);
+      k.line(tx - 28, tb, tx - 18, tb - 54, BAS[3]); k.line(tx - 18, tb - 54, tx - 12, tb - 90, BAS[3]);
+      // Ledges with jutting spikes.
+      for (const [y, w] of [[tb - 30, 24], [tb - 56, 18], [tb - 76, 14]]) {
+        k.rect(tx - w - 2, y, 2 * w + 4, 3, BAS[2]); k.rect(tx - w - 2, y, 2 * w + 4, 1, BAS[4]); k.rect(tx - w - 2, y + 3, 2 * w + 4, 1, BAS[0]);
+        k.line(tx - w - 2, y + 1, tx - w - 7, y - 3, BAS[3]); k.px(tx - w - 7, y - 3, BAS[5]); k.line(tx + w + 2, y + 1, tx + w + 7, y - 3, BAS[2]); k.px(tx + w + 7, y - 3, BAS[4]);
+        for (let x = tx - w + 2; x < tx + w; x += 6) spike(k, x, y, 3);
+      }
+      // Window slits (they glow in animate).
+      for (const [x, y] of [[tx - 10, tb - 46], [tx + 6, tb - 46], [tx - 6, tb - 68], [tx + 3, tb - 68], [tx - 2, tb - 84]]) { k.rect(x, y, 2, 5, BAS[0]); k.px(x, y + 4, LAVA[1]); }
+      // Crown: two hooked prongs with the Eye's cradle between them.
+      k.poly([[tx - 14, tb - 90], [tx - 5, tb - 90], [tx - 8, tb - 100], [tx - 14, tb - 108], [tx - 13, tb - 98]], BAS[2]); k.line(tx - 14, tb - 90, tx - 14, tb - 108, BAS[4]);
+      k.poly([[tx + 5, tb - 90], [tx + 14, tb - 90], [tx + 13, tb - 98], [tx + 14, tb - 108], [tx + 8, tb - 100]], BAS[1]); k.line(tx + 14, tb - 90, tx + 14, tb - 108, BAS[3]);
+      k.rect(tx - 6, tb - 92, 12, 3, BAS[2]); k.rect(tx - 6, tb - 92, 12, 1, BAS[4]);
+      // Forge mouth: a pointed arch opening onto a lava hearth.
+      const M = MOUTH;
+      k.poly([[M.x0 - 3, M.y1], [M.x0 - 3, M.y0 + 8], [(M.x0 + M.x1) / 2, M.y0 - 4], [M.x1 + 3, M.y0 + 8], [M.x1 + 3, M.y1]], BAS[3]);
+      k.poly([[M.x0, M.y1], [M.x0, M.y0 + 9], [(M.x0 + M.x1) / 2, M.y0], [M.x1, M.y0 + 9], [M.x1, M.y1]], '#0a0608');
+      k.rect(M.x0 + 2, M.y1 - 8, M.x1 - M.x0 - 4, 8, LAVA[1]); k.rect(M.x0 + 4, M.y1 - 6, M.x1 - M.x0 - 8, 4, LAVA[2]); k.rect(M.x0 + 7, M.y1 - 5, M.x1 - M.x0 - 14, 2, LAVA[3]);
+      skull(k, (M.x0 + M.x1) / 2, M.y0 - 5);
+      for (const x of [M.x0 - 6, M.x1 + 4]) { k.rect(x, M.y1 - 22, 3, 22, BAS[2]); k.rect(x, M.y1 - 22, 1, 22, BAS[4]); spike(k, x + 1, M.y1 - 22, 5); }
+      // Coal heap and ore bins by the tower.
+      k.ellipse(-164, -40, 12, 5, '#141216'); for (let i = 0; i < 14; i++) k.px(-174 + P.hash(i, 81) * 20, -44 + P.hash(i, 82) * 7, i % 3 ? BAS[3] : BAS[4]);
+      weaponCrate(k, -96, -44); weaponCrate(k, -82, -40);
+      // Anvil on a black stone block, a rack of spiked maces and a lava quench trough.
+      const A = ANVIL; k.ellipse(A.x + 3, A.y + 1, 13, 3, C.shadow);
+      k.rect(A.x - 7, A.y - 9, 14, 10, BAS[2]); k.rect(A.x - 7, A.y - 9, 3, 10, BAS[3]); k.rect(A.x + 5, A.y - 9, 2, 10, BAS[1]);
+      k.rect(A.x - 4, A.y - 14, 8, 5, BAS[1]); k.rect(A.x - 4, A.y - 14, 2, 5, BAS[3]);
+      k.poly([[A.x - 12, A.y - 18], [A.x + 9, A.y - 18], [A.x + 9, A.y - 14], [A.x - 5, A.y - 14], [A.x - 9, A.y - 16]], BAS[2]); k.rect(A.x - 9, A.y - 19, 18, 2, BAS[4]); k.rect(A.x - 6, A.y - 19, 12, 1, BAS[5]); k.px(A.x - 12, A.y - 18, BAS[4]);
+      k.ellipse(-30, -8, 12, 3, C.shadow); k.rect(-42, -18, 24, 10, BAS[2]); k.rect(-42, -18, 24, 2, BAS[4]); k.rect(-40, -16, 20, 3, LAVA[2]); k.rect(-40, -16, 20, 1, LAVA[3]); k.rect(-42, -10, 2, 3, BAS[1]); k.rect(-20, -10, 2, 3, BAS[1]);
+      k.rect(-146, -12, 20, 2, BAS[2]); for (let i = 0; i < 4; i++) { const x = -144 + i * 5; k.line(x, -12, x, -26, WOOD[2]); k.circle(x, -27, 2, BAS[2]); k.px(x - 2, -27, BAS[4]); k.px(x + 2, -27, BAS[4]); k.px(x, -30, BAS[4]); }
+      // The overlord's throne of black stone, where he dozes when the camp is off.
+      const R = REST; k.ellipse(R.x + 2, R.y + 1, 14, 3, C.shadow);
+      k.rect(R.x - 14, R.y - 44, 22, 38, BAS[1]); k.rect(R.x - 14, R.y - 44, 2, 38, BAS[3]); k.rect(R.x + 6, R.y - 44, 2, 38, BAS[0]);
+      for (const x of [-14, -7, 0, 6]) spike(k, R.x + x + 1, R.y - 44, x === -7 || x === 0 ? 7 : 5);
+      k.rect(R.x - 8, R.y - 32, 10, 3, LAVA[2]); k.rect(R.x - 10, R.y - 31, 14, 1, LAVA[2]); k.rect(R.x - 6, R.y - 33, 6, 5, LAVA[3]); k.rect(R.x - 3, R.y - 33, 1, 5, C.ink); k.px(R.x - 5, R.y - 32, LAVA[5]); k.rect(R.x - 16, R.y - 16, 3, 8, BAS[3]); k.rect(R.x + 7, R.y - 16, 3, 8, BAS[1]); spike(k, R.x - 15, R.y - 16, 3); spike(k, R.x + 8, R.y - 16, 3);
+      k.rect(R.x - 16, R.y - 8, 26, 8, BAS[2]); k.rect(R.x - 16, R.y - 8, 26, 2, BAS[4]); k.rect(R.x - 16, R.y - 1, 26, 1, BAS[0]);
 
-      /* ---- Materials yard (top centre): coal bunker, bar rack, timber and hoist ---- */
-      k.rect(-50, -66, 24, 18, C.stone1); k.rect(-50, -66, 24, 3, C.stone3); k.rect(-48, -63, 20, 8, '#2a2a2e'); for (let i = 0; i < 12; i++) k.px(-47 + P.hash(i, 40) * 18, -63 + P.hash(i, 41) * 7, i % 3 ? '#4a4a52' : '#6a6a72'); k.ellipse(-38, -63, 8, 3, '#2a2a2e');
-      k.ellipse(-36, -46, 14, 2, C.shadow);
-      for (const x of [-20, 6]) { k.rect(x, -84, 3, 36, C.wood2); k.rect(x, -84, 1, 36, C.wood4); }
-      for (let r = 0; r < 3; r++) { k.rect(-22, -76 + r * 10, 32, 2, C.wood1); for (let i = 0; i < 7; i++) { k.rect(-18 + i * 3.5, -80 + r * 10, 2, 4, r === 1 ? C.terra2 : C.slate2); k.px(-18 + i * 3.5, -80 + r * 10, r === 1 ? C.terra4 : C.slate4); } }
-      k.ellipse(-4, -46, 16, 2, C.shadow);
-      // Timber stack on trestles.
-      for (let r = 0; r < 4; r++) { const y = -58 - r * 5; k.rect(14 + r, y, 34 - r * 2, 4, r % 2 ? C.wood3 : C.wood4); k.rect(14 + r, y, 34 - r * 2, 1, C.wood5); for (let i = 0; i < 4 - (r >> 1); i++) { k.circle(15 + r + i * 9, y + 2, 2, C.wood2); k.px(15 + r + i * 9, y + 2, C.wood4); } }
-      k.rect(16, -54, 3, 6, C.wood1); k.rect(42, -54, 3, 6, C.wood1); k.rect(12, -48, 36, 2, C.shadow);
-      // Hoist gantry (hook and load animate).
-      k.line(HOIST.x - 14, HOIST.y + 12, HOIST.x - 6, HOIST.y - 62, C.wood2, 2); k.line(HOIST.x + 14, HOIST.y + 12, HOIST.x + 6, HOIST.y - 62, C.wood1, 2);
-      k.rect(HOIST.x - 10, HOIST.y - 64, 20, 3, C.wood3); k.rect(HOIST.x - 10, HOIST.y - 64, 20, 1, C.wood4); k.circle(HOIST.x, HOIST.y - 60, 2, C.slate1);
-      k.line(HOIST.x - 12, HOIST.y - 20, HOIST.x + 12, HOIST.y - 20, C.wood1);
-      k.rect(HOIST.x + 12, HOIST.y - 4, 6, 6, C.slate1); k.circle(HOIST.x + 15, HOIST.y - 1, 2, C.slate2);
-      Props.tree(k, -14, -112, 'oak', 1, 2);
+      /* ---- Hell portal (Doom) with a pentagram, and a toxic slime pit with leaking barrels ---- */
+      const px = PORTAL.x, py = PORTAL.y;
+      k.ellipse(px, py + 8, 22, 7, '#1a1012'); k.ring(px, py + 8, 20, 6, LAVA[1]); k.ring(px, py + 8, 18, 5, '#5a1410');
+      const star = [0, 1, 2, 3, 4].map(i => { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; return [px + Math.cos(a) * 18, py + 8 + Math.sin(a) * 5]; });
+      for (let i = 0; i < 5; i++) k.line(star[i][0], star[i][1], star[(i + 2) % 5][0], star[(i + 2) % 5][1], LAVA[1]);
+      k.ellipse(px, py - 26, 17, 28, '#0e0808'); k.ellipse(px, py - 26, 14, 25, '#2a0a0a'); k.ellipse(px, py - 24, 9, 18, '#4a0e0a');
+      for (const s of [-1, 1]) { const x = px + s * 20 - 4; k.rect(x, py - 52, 8, 52, BAS[2]); k.rect(x, py - 52, 2, 52, BAS[4]); k.rect(x + 6, py - 52, 2, 52, BAS[0]); for (let y = py - 48; y < py; y += 8) k.rect(x, y, 8, 1, BAS[1]); k.rect(x - 1, py - 3, 10, 3, BAS[3]); spike(k, x + 4, py - 52, 4); }
+      k.poly([[px - 24, py - 50], [px - 18, py - 60], [px - 6, py - 66], [px + 6, py - 66], [px + 18, py - 60], [px + 24, py - 50], [px + 16, py - 52], [px + 6, py - 58], [px - 6, py - 58], [px - 16, py - 52]], BAS[3]);
+      k.line(px - 24, py - 50, px - 6, py - 66, BAS[5]);
+      skull(k, px, py - 60); k.line(px - 3, py - 63, px - 6, py - 67, BONE[1]); k.line(px + 3, py - 63, px + 6, py - 67, BONE[1]);
+      // Slime pit.
+      const sx = SLIMEP.x, sy = SLIMEP.y;
+      k.ellipse(sx, sy, 17, 7, '#141a10'); k.ellipse(sx, sy, 15, 6, SLIME[0]); k.ellipse(sx + 1, sy, 12, 4, SLIME[1]); k.ellipse(sx + 2, sy - 1, 7, 2, SLIME[2]); k.px(sx - 3, sy - 1, SLIME[3]);
+      toxicBarrel(k, 36, -92); toxicBarrel(k, 44, -84); k.ellipse(43, -80, 5, 1, SLIME[2]); toxicBarrel(k, 2, -96);
 
-      /* ---- Repair shed (top right) ---- */
-      const sx0 = 52, sx1 = 160, sb = -50;   // kept inside the hexagon edge
-      k.rect(sx0 + 4, sb, sx1 - sx0, 3, C.shadow);
-      Props.planks(k, sx0, sb - 48, sx1 - sx0, 48, C.wood2);
-      k.rect(sx0, sb - 48, sx1 - sx0, 48, '#00000030');
-      // Pegboard of tools.
-      k.rect(sx0 + 8, sb - 44, 58, 20, C.wood1); k.rect(sx0 + 9, sb - 43, 56, 18, C.wood3);
-      for (let y = sb - 41; y < sb - 26; y += 4) for (let x = sx0 + 11; x < sx0 + 64; x += 4) k.px(x, y, C.wood1);
-      ['saw', 'hammer', 'axe', 'tongs', 'pick', 'hammer', 'hoe'].forEach((kind, i) => tool(k, sx0 + 12 + i * 7 + (kind === 'saw' ? 0 : 3), sb - 41 + (kind === 'saw' ? 12 : 0), kind));
-      // Workbench with vise, clamped board and loose parts.
-      k.rect(sx0 + 6, sb - 20, 60, 5, C.wood4); k.rect(sx0 + 6, sb - 20, 60, 1, C.wood5); k.rect(sx0 + 6, sb - 15, 60, 2, C.wood1);
-      k.rect(sx0 + 8, sb - 13, 3, 13, C.wood1); k.rect(sx0 + 61, sb - 13, 3, 13, C.wood1); k.rect(sx0 + 8, sb - 6, 56, 2, C.wood2);
-      k.rect(sx0 + 12, sb - 24, 6, 4, C.slate2); k.rect(sx0 + 11, sb - 25, 8, 1, C.slate3); k.rect(sx0 + 20, sb - 23, 22, 3, C.wood3); k.rect(sx0 + 20, sb - 23, 22, 1, C.wood5);
-      for (let i = 0; i < 5; i++) k.px(sx0 + 46 + i * 3, sb - 21, i % 2 ? C.slate3 : C.gold2);
-      k.rect(sx0 + 14, sb - 5, 8, 5, C.wood3); k.rect(sx0 + 40, sb - 5, 10, 5, C.slate1);
-      // A broken cart wheel leaning on the wall, and spare spokes.
-      k.ring(sx0 + 76, sb - 22, 11, 11, C.wood1); k.ring(sx0 + 76, sb - 22, 10, 10, C.wood3); for (let i = 0; i < 5; i++) { const a = i * 1.26 + .3; k.line(sx0 + 76, sb - 22, sx0 + 76 + Math.cos(a) * 9, sb - 22 + Math.sin(a) * 9, C.wood2); } k.circle(sx0 + 76, sb - 22, 2, C.slate2);
-      for (let i = 0; i < 4; i++) k.line(sx0 + 100 + i * 2, sb - 2, sx0 + 102 + i * 2, sb - 18, C.wood4);
-      // Grindstone frame (the stone spins in animate).
-      k.rect(GRIND.x - 8, GRIND.y + 2, 2, 12, C.wood1); k.rect(GRIND.x + 6, GRIND.y + 2, 2, 12, C.wood1); k.rect(GRIND.x - 8, GRIND.y + 8, 16, 2, C.wood2); k.rect(GRIND.x - 6, GRIND.y + 7, 12, 4, C.water1);
-      // Shed roof slab and posts.
-      k.rect(sx0 - 4, sb - 64, sx1 - sx0 + 6, 16, C.terra1);
-      for (let x = sx0 - 4; x < sx1 + 2; x += 5) { k.rect(x, sb - 64, 3, 14, C.terra2); k.px(x, sb - 64, C.terra4); k.px(x + 1, sb - 58, C.terra3); }
-      k.rect(sx0 - 4, sb - 64, sx1 - sx0 + 6, 1, C.terra4); k.rect(sx0 - 4, sb - 50, sx1 - sx0 + 6, 2, C.terra0);
-      for (const x of [sx0 - 2, sx0 + 70, sx1 - 3]) { k.rect(x, sb - 48, 3, 48, C.wood2); k.rect(x, sb - 48, 1, 48, C.wood4); k.rect(x + 2, sb - 48, 1, 48, C.wood0); }
-      Props.hangingSign(k, sx0 + 88, sb - 48, 'FIX', C.teal1);
-      
-      // Tool rack for the field crews, by the road.
-      k.rect(22, -42, 34, 3, C.wood2); k.rect(22, -42, 34, 1, C.wood4); for (const x of [22, 53]) k.rect(x, -42, 3, 16, C.wood1);
-      ['axe', 'axe', 'pick', 'pick', 'hoe', 'hoe'].forEach((kind, i) => tool(k, 26 + i * 5, -40, kind));
-      k.rect(20, -26, 38, 2, C.shadow);
+      /* ---- Treadwheel (top right): charred timber frame, drive belt and a bucket elevator ---- */
+      k.rect(TW.x - 30, -82, 62, 5, WOOD[1]); k.rect(TW.x - 30, -82, 62, 1, WOOD[3]); k.rect(TW.x - 29, -77, 60, 1, BAS[0]);
+      for (const s of [-1, 1]) { k.line(TW.x + s * 18, -80, TW.x + s * 3, TW.y, WOOD[2], 3); k.line(TW.x + s * 18, -80, TW.x + s * 3, TW.y, WOOD[3], 1); }
+      k.rect(TW.x - 4, TW.y - 3, 8, 6, BAS[2]);
+      k.line(TW.x, TW.y, ELEV.x, ELEV.y0 + 2, BAS[1], 2);
+      k.ellipse(ELEV.x + 2, ELEV.y0 + 4, 9, 3, '#141216'); for (let i = 0; i < 8; i++) k.px(ELEV.x - 6 + P.hash(i, 91) * 14, ELEV.y0 + 2 + P.hash(i, 92) * 4, i % 2 ? BAS[4] : '#c98a4a');
+      k.rect(ELEV.x - 5, ELEV.y1, 2, ELEV.y0 - ELEV.y1, WOOD[1]); k.rect(ELEV.x + 5, ELEV.y1, 2, ELEV.y0 - ELEV.y1, WOOD[1]);
+      k.line(ELEV.x - 2, ELEV.y1, ELEV.x - 2, ELEV.y0, BAS[3]); k.line(ELEV.x + 3, ELEV.y1, ELEV.x + 3, ELEV.y0, BAS[3]);
+      k.circle(ELEV.x, ELEV.y1, 3, BAS[2]); k.circle(ELEV.x, ELEV.y0, 3, BAS[2]);
+      k.poly([[ELEV.x - 9, ELEV.y1 - 8], [ELEV.x + 3, ELEV.y1 - 8], [ELEV.x + 1, ELEV.y1 - 2], [ELEV.x - 7, ELEV.y1 - 2]], WOOD[2]); k.rect(ELEV.x - 9, ELEV.y1 - 8, 12, 1, WOOD[3]);
+      eyeBanner(k, 72, -86, 32);
 
-      /* ---- Haul track (middle right): timber skids where the rope crew drags cut stone ---- */
-      k.ditherPoly([[70, -22], [190, -22], [190, -2], [66, -2]], C.dirt1, 1);
-      for (let i = 0; i < 14; i++) k.px(76 + P.hash(i, 71) * 110, -21 + P.hash(i, 72) * 18, i % 3 ? C.stone3 : C.stone4);
-      for (let x = 76; x < 190; x += 9) { k.rect(x, -17, 3, 11, C.wood1); k.px(x, -17, C.wood3); k.rect(x + 3, -16, 1, 10, C.shadow); }
-      k.rect(74, -17, 116, 2, C.wood2); k.rect(74, -17, 116, 1, C.wood4);
-      k.rect(75, -5, 115, 1, C.shadow); k.rect(74, -8, 116, 3, C.wood3); k.rect(74, -8, 116, 1, C.wood5); k.rect(74, -6, 116, 1, C.wood1);
-      // Finished blocks stacked at the end of the track, with mallet and chisel.
-      k.rect(174, -21, 18, 3, C.shadow);
-      for (const [x, y, w] of [[172, -22, 18], [175, -32, 13]]) { k.rect(x, y - 10, w, 10, C.stone2); k.rect(x, y - 10, w, 3, C.stone4); k.rect(x, y - 10, w, 1, C.stone5); k.rect(x + w - 2, y - 7, 2, 7, C.stone1); k.rect(x, y - 1, w, 1, C.stone1); k.px(x + 4, y - 4, C.stone1); k.px(x + 9, y - 5, C.stone1); }
-      k.rect(160, -40, 3, 5, C.wood3); k.rect(158, -42, 7, 3, C.wood2); k.line(166, -38, 170, -36, C.slate3);
-      // Water bucket and ladle for the haulers.
-      k.ellipse(183, -1, 5, 1, C.shadow); k.rect(179, -8, 8, 7, C.wood2); k.rect(179, -8, 8, 1, C.wood4); k.rect(179, -5, 8, 1, C.slate1); k.rect(180, -8, 6, 1, C.water2); k.line(184, -9, 188, -13, C.wood4);
+      /* ---- Haul yard: iron-shod skids from the quarry end to the finished-block stack ---- */
+      k.ditherPoly([[30, -30], [194, -30], [196, 0], [28, 0]], ASH[0], 1);
+      for (let x = 44; x < 192; x += 9) { k.rect(x, -19, 3, 12, WOOD[1]); k.px(x, -19, WOOD[3]); }
+      k.rect(40, -19, 152, 2, BAS[2]); k.rect(40, -19, 152, 1, BAS[4]); k.rect(40, -8, 152, 2, BAS[2]); k.rect(40, -8, 152, 1, BAS[4]);
+      for (const [x, y, w] of [[20, -30, 22], [23, -41, 16]]) { k.rect(x + 2, y, w, 2, C.shadow); k.rect(x, y - 11, w, 11, BAS[2]); k.rect(x, y - 11, w, 3, BAS[3]); k.rect(x, y - 11, w, 1, BAS[5]); k.rect(x + w - 2, y - 8, 2, 8, BAS[1]); k.px(x + 6, y - 5, LAVA[1]); }
+      for (const [x, y] of [[184, -36], [60, -40], [140, 6]]) skull(k, x, y);
+      bones(k, 170, 8); bones(k, 100, -38, -1);
 
-      /* ---- Cutaway bunkhouse (bottom left) ---- */
-      // Back wall inner face (roof removed), side walls and the low cut front wall.
-      k.rect(BH.x0 - 5, 12, BH.x1 - BH.x0 + 10, 3, C.plaster3);
-      k.rect(BH.x0 - 5, 15, BH.x1 - BH.x0 + 10, BH.y0 - 15, C.plaster1);
-      for (let x = BH.x0; x < BH.x1; x += 18) k.rect(x, 15, 2, BH.y0 - 15, C.wood1);
-      k.rect(BH.x0 - 5, 15, BH.x1 - BH.x0 + 10, 2, C.wood1); k.rect(BH.x0 - 5, BH.y0 - 2, BH.x1 - BH.x0 + 10, 2, C.wood0);
-      for (const x of [-170, -116, -62]) { k.rect(x, 18, 10, 9, C.wood0); k.rect(x + 1, 19, 8, 7, C.glass); k.rect(x + 1, 19, 8, 2, C.white); k.rect(x + 5, 19, 1, 7, C.wood0); k.rect(x - 1, 27, 12, 1, C.wood3); }
-      k.rect(-146, 18, 8, 10, C.wood2); for (let i = 0; i < 4; i++) k.rect(-145 + i * 2, 20, 1, 7, BLANKET[i]);
-      Props.planks(k, BH.x0, BH.y0, BH.x1 - BH.x0, BH.y1 - BH.y0, C.wood3);
-      k.rect(BH.x0, BH.y0, BH.x1 - BH.x0, 3, '#00000030');
-      for (const x of [BH.x0 - 5, BH.x1]) { k.rect(x, 12, 5, BH.y1 - 8, C.plaster1); k.rect(x, 12, 5, 1, C.plaster3); k.rect(x + 1, 13, 3, BH.y1 - 10, C.plaster3); k.rect(x, 12, 1, BH.y1 - 8, C.plaster0); k.rect(x + 4, 12, 1, BH.y1 - 8, C.plaster0); }
-      k.rect(BH.x1 + 5, 16, 3, BH.y1 - 6, C.shadow);
-      // The west wall runs along the hexagon's slanted edge (half-width 204 - 0.4 y below the side point).
-      for (let y = 12; y < BH.y1 + 8; y++) { const x = Math.round(-(204 - .4 * y)) + 1; k.rect(x, y, 6, 1, C.plaster1); k.px(x, y, C.plaster0); k.rect(x + 1, y, 3, 1, C.plaster3); k.px(x + 5, y, C.plaster0); k.px(x + 6, y, '#00000030'); }
-      const door = [-84, -66];
-      for (const [a, b] of [[BH.x0 - 5, door[0]], [door[1], BH.x1 + 5]]) { k.rect(a, BH.y1, b - a, 3, C.plaster3); k.rect(a, BH.y1 + 3, b - a, 5, C.plaster1); k.rect(a, BH.y1 + 3, b - a, 1, C.plaster0); for (let x = a + 6; x < b; x += 14) k.rect(x, BH.y1 + 3, 2, 5, C.wood1); k.rect(a, BH.y1 + 8, b - a, 2, C.stone2); }
-      k.rect(door[0], BH.y1 + 2, door[1] - door[0], 8, C.wood2); k.rect(door[0], BH.y1 + 2, door[1] - door[0], 1, C.wood4);
-      Props.hangingSign(k, -124, BH.y1 + 2, 'BUNKS', C.wood1);
-      // Beds: headboard, sheets, pillow, blanket, footboard.
-      BEDS.forEach(([x, y], i) => {
-        k.rect(x + 2, y + 25, 18, 2, '#00000030');
-        k.rect(x, y, 18, 5, C.wood1); k.rect(x, y, 18, 1, C.wood3); k.rect(x + 1, y + 1, 1, 3, C.wood4);
-        k.rect(x + 1, y + 5, 16, 20, C.paper); k.rect(x + 1, y + 5, 1, 20, C.white);
-        k.rect(x + 4, y + 6, 10, 4, C.white); k.rect(x + 4, y + 9, 10, 1, C.paper2);
-        const b = BLANKET[i]; k.rect(x + 1, y + 12, 16, 12, b); k.rect(x + 1, y + 12, 16, 2, S(b, .35)); k.rect(x + 16, y + 12, 1, 12, S(b, -.3)); for (let j = 0; j < 16; j += 4) k.px(x + 2 + j, y + 18, S(b, -.2));
-        k.rect(x, y + 24, 18, 3, C.wood2); k.rect(x, y + 24, 18, 1, C.wood4);
-      });
-      // Foot lockers, boots, a stove with pipe, a table and a rag rug in the aisle.
-      for (let i = 0; i < 5; i++) { const x = -170 + i * 24; k.rect(x, 66, 14, 6, C.wood2); k.rect(x, 66, 14, 1, C.wood4); k.px(x + 7, 68, C.gold2); if (i % 2) { k.rect(x + 16, 68, 2, 3, C.wood0); k.rect(x + 19, 69, 2, 2, C.wood0); } }
-      k.ellipse(-130, 86, 30, 6, '#8a4a3a'); k.ring(-130, 86, 26, 5, C.gold1); k.ring(-130, 86, 20, 4, '#6a7ab0'); k.ellipse(-130, 86, 12, 2, '#a85a6a');
-      Props.table(k, -118, 94, 16, 8, C.wood3); k.rect(-112, 82, 3, 4, C.paper); k.px(-111, 81, C.gold3);
-      k.rect(-98, 96, 20, 22, C.stone1); k.rect(-98, 96, 20, 3, C.stone3); k.rect(-94, 104, 12, 8, '#2a1a14'); k.rect(-90, 80, 4, 16, C.slate1); k.rect(-90, 80, 1, 16, C.slate3);
-      k.rect(-72, 100, 18, 30, C.wood1); k.rect(-71, 101, 16, 28, C.wood2); k.rect(-64, 101, 1, 28, C.wood1); k.px(-66, 114, C.gold3); k.px(-62, 114, C.gold3);
-      for (let i = 0; i < 2; i++) { k.rect(-142 + i * 24, 128, 3, 3, C.wood0); k.rect(-138 + i * 24, 129, 3, 2, C.wood0); }
+      /* ---- Signal beacon at the head of the road (burns amber while waiting) ---- */
+      k.ellipse(BEACON.x + 1, BEACON.y, 5, 1, C.shadow); k.rect(BEACON.x - 1, BEACON.y - 30, 3, 30, BAS[2]); k.rect(BEACON.x - 1, BEACON.y - 30, 1, 30, BAS[4]);
+      k.rect(BEACON.x - 5, BEACON.y - 33, 11, 3, BAS[3]); k.rect(BEACON.x - 5, BEACON.y - 33, 11, 1, BAS[5]); k.px(BEACON.x - 6, BEACON.y - 34, BAS[4]); k.px(BEACON.x + 6, BEACON.y - 34, BAS[4]);
 
-      /* ---- Water pump and noticeboard between the quarters ---- */
-      k.rect(-38, 30, 10, 6, C.stone2); k.rect(-38, 30, 10, 1, C.stone4); k.rect(-37, 31, 8, 3, C.water2);
-      k.rect(-32, 12, 4, 18, C.slate1); k.rect(-32, 12, 1, 18, C.slate3); k.line(-30, 14, -22, 10, C.slate2, 2); k.rect(-34, 18, 2, 4, C.slate1);
-      k.rect(24, 4, 3, 26, C.wood1); k.rect(36, 4, 3, 26, C.wood1); k.rect(20, -2, 23, 14, C.wood2); k.rect(21, -1, 21, 12, C.wood4);
-      for (let i = 0; i < 4; i++) { k.rect(22 + i * 5, 0 + (i % 2) * 3, 4, 5, i % 2 ? C.paper : C.paper2); k.px(23 + i * 5, 0 + (i % 2) * 3, C.red2); }
-      k.ellipse(34, 31, 9, 2, C.shadow);
-      // Direction sign to the southern work sites.
-      k.rect(-30, 104, 2, 30, C.wood1); k.rect(-30, 104, 1, 30, C.wood3);
-      [['WOOD', 106, C.leaf1], ['MINE', 114, C.slate1], ['FARM', 122, C.gold0]].forEach(([s, y, c], i) => { const x = i === 1 ? -44 : -28; k.rect(x, y, 18, 7, C.wood0); k.rect(x + 1, y + 1, 16, 5, C.wood4); if (i === 1) k.px(x - 1, y + 3, C.wood0); else k.px(x + 18, y + 3, C.wood0); k.text(s, x + 2, y + 1, c); });
-      k.ellipse(-28, 134, 5, 1, C.shadow);
-      lampPost(k, 26, 128); lampPost(k, -34, 50);
+      /* ---- Slave pen (bottom left): spiked palisade, iron cages, straw, stakes and chains ---- */
+      k.polyTex([[PEN.x0 + 8, PEN.y0], [PEN.x1, PEN.y0], [PEN.x1, PEN.y1 - 4], [-146, PEN.y1 - 4], [-186, 46]], (x, y) => { const h = P.hash(x >> 1, y >> 1); return h < .12 ? '#6a5a34' : h < .2 ? '#4a4028' : h < .55 ? '#2a2224' : '#302628'; });
+      for (let i = 0; i < 26; i++) { const x = -150 + P.hash(i, 61) * 100, y = 98 + P.hash(i, 62) * 30; k.line(x, y, x + 3, y - 1, i % 2 ? '#8a7440' : '#6a5a34'); }
+      spikeFence(k, PEN.x0 + 6, PEN.y0, PEN.x1 - PEN.x0 - 6);
+      spikeFence(k, PEN.x1, PEN.y0 + 4, 22, true); spikeFence(k, PEN.x1, PEN.y0 + 58, 36, true);
+      k.rect(PEN.x1 - 1, PEN.y0 + 26, 3, 4, BAS[4]); k.rect(PEN.x1 - 1, PEN.y0 + 54, 3, 4, BAS[4]);
+      for (const [x0, x1] of CAGES) {
+        const [y0, y1] = CAGE_Y;
+        k.rect(x0, y0, x1 - x0, y1 - y0, '#3a3024'); for (let i = 0; i < 12; i++) k.line(x0 + 2 + P.hash(i, x0) * (x1 - x0 - 6), y0 + 2 + P.hash(i, 7) * (y1 - y0 - 4), x0 + 5 + P.hash(i, x0) * (x1 - x0 - 6), y0 + 2 + P.hash(i, 7) * (y1 - y0 - 4), '#7a6a3a');
+        for (let x = x0; x <= x1; x += 4) { k.rect(x, y0 - CAGE_H, 1, CAGE_H, BAS[3]); }
+        k.rect(x0, y0 - CAGE_H, x1 - x0 + 1, 2, BAS[3]); k.rect(x0, y0 - CAGE_H, x1 - x0 + 1, 1, BAS[5]);
+        for (let y = y0; y <= y1; y += 4) { k.rect(x0, y - CAGE_H, 1, CAGE_H, BAS[2]); k.rect(x1, y - CAGE_H, 1, CAGE_H, BAS[2]); }
+        k.line(x0, y0 - CAGE_H, x0, y1 - CAGE_H, BAS[4]); k.line(x1, y0 - CAGE_H, x1, y1 - CAGE_H, BAS[4]);
+      }
+      // Stakes with chains, a slop bucket and a skull post.
+      for (const [x, y] of [[-150, 116], [-112, 124], [-74, 112]]) { k.rect(x, y - 8, 2, 8, BAS[2]); k.px(x, y - 8, BAS[4]); k.ring(x + 1, y - 5, 2, 1, BAS[4]); for (let i = 0; i < 5; i++) k.px(x + 3 + i * 2, y - 3 + (i % 2), BAS[4]); }
+      k.rect(-60, 118, 8, 7, WOOD[2]); k.rect(-60, 118, 8, 1, WOOD[3]); k.rect(-59, 119, 6, 1, '#5a6a2a');
+      k.rect(-54, 100, 2, 16, WOOD[1]); skull(k, -53, 100); skull(k, -53, 106);
+      bones(k, -130, 104); bones(k, -96, 130, -1);
+      eyeBanner(k, -176, 44, 30);
 
-      /* ---- Dining pergola (bottom right) ---- */
-      Props.tiles(k, PG.x0, PG.y0 + 14, PG.x1 - PG.x0, PG.y1 - PG.y0 - 14, C.terra3, S(C.terra3, -.1), 6);
-      for (let y = PG.y0 + 14; y < PG.y1; y += 6) k.rect(PG.x0, y, PG.x1 - PG.x0, 1, C.terra2);
-      // Kitchen along the back: dresser of crockery, brick range with a cauldron, water barrel.
-      k.rect(52, 22, 56, 30, C.wood1); k.rect(53, 23, 54, 28, C.wood3);
-      for (let r = 0; r < 3; r++) { k.rect(53, 31 + r * 8, 54, 2, C.wood1); for (let i = 0; i < 9; i++) { const x = 56 + i * 6; if (r === 2) { k.rect(x, 43 + 2, 4, 3, i % 2 ? C.terra2 : C.stone4); k.px(x, 45, C.white); } else { k.ellipse(x + 2, 27 + r * 8, 2, 3, i % 3 ? C.stone5 : '#8fb0d8'); k.px(x + 1, 25 + r * 8, C.white); } } }
-      k.rect(52, 52, 56, 2, C.shadow);
-      k.rect(142, 22, 38, 32, C.terra1); k.rect(142, 22, 38, 3, C.terra3); for (let y = 27; y < 54; y += 4) { k.rect(142, y, 38, 1, C.terra0); k.px(146 + (y % 8 ? 0 : 6), y + 2, C.terra0); }
-      k.rect(148, 36, 12, 12, '#2a1a14'); k.rect(147, 35, 14, 1, C.stone2); k.rect(162, 16, 6, 10, C.slate1); k.rect(162, 16, 2, 10, C.slate3); k.rect(161, 14, 8, 2, C.slate2);
-      k.ellipse(170, 24, 8, 3, C.slate0); k.ellipse(170, 23, 6, 2, '#b8683a'); k.rect(164, 24, 12, 5, C.slate0); k.rect(164, 24, 2, 5, C.slate2);
-      k.rect(112, 38, 30, 6, C.wood4); k.rect(112, 38, 30, 1, C.wood5); k.rect(114, 44, 2, 8, C.wood1); k.rect(138, 44, 2, 8, C.wood1);
-      k.circle(120, 36, 3, '#d8a86a'); k.px(119, 35, C.wood5); k.rect(126, 34, 6, 4, C.leaf3); k.px(127, 33, C.leaf4); k.rect(134, 33, 4, 5, C.stone3);
-      Props.barrel(k, 108, 50);
-      // Front bench (empty) in front of the long table.
-      Props.bench(k, 64, 112, 90);
-      // Pergola posts, back beam and vines (the front-right post stands on the hexagon edge).
-      for (const [x, y] of [[PG.x0, PG.y0 + 14], [PG.x1 - 9, PG.y0 + 14], [PG.x0, PG.y1], [140, PG.y1]]) { k.rect(x, y - 38, 4, 38, C.wood2); k.rect(x, y - 38, 1, 38, C.wood4); k.rect(x + 3, y - 38, 1, 38, C.wood0); k.rect(x - 1, y - 2, 6, 2, C.stone2); }
-      k.rect(PG.x0 - 4, PG.y0 - 26, PG.x1 - PG.x0 + 8, 4, C.wood3); k.rect(PG.x0 - 4, PG.y0 - 26, PG.x1 - PG.x0 + 8, 1, C.wood5); k.rect(PG.x0 - 4, PG.y0 - 22, PG.x1 - PG.x0 + 8, 1, C.wood0);
-      for (let x = PG.x0 - 2; x < PG.x1 + 4; x += 10) { k.rect(x, PG.y0 - 29, 3, 3, C.wood3); k.px(x, PG.y0 - 29, C.wood5); }
-      for (let i = 0; i < 30; i++) { const x = PG.x0 - 2 + i * 5, y = PG.y0 - 24 + Math.round(Math.sin(i * 1.7) * 2); k.rect(x, y, 3, 2, i % 3 ? C.leaf2 : C.leaf3); if (i % 4 === 0) k.rect(x + 1, y + 2, 1, 3 + (i % 3), C.leaf1); if (i % 7 === 3) k.px(x + 1, y, '#e98aa0'); }
-      for (const [x, y1] of [[PG.x0 + 1, PG.y1 - 4], [PG.x1 - 8, PG.y0 + 10]]) for (let y = PG.y0 - 18; y < y1; y += 5) k.px(x + (y % 2), y, y % 3 ? C.leaf2 : C.leaf4);
-      Props.flowerBed(k, 50, 142, 44, 7, ['#f2c14e', '#e46c52', '#f6ecd0'], 11); Props.flowerBed(k, 98, 142, 40, 7, ['#c3a2c0', '#f2c14e', '#f6ecd0'], 12);
+      /* ---- Mess pit (bottom right): a sunken fire pit with a cauldron, bone benches and supplies ---- */
+      k.ellipse(MESS.x - 2, MESS.y + 8, 56, 26, '#1a1416'); k.ditherEllipse(MESS.x - 2, MESS.y + 8, 54, 24, ASH[3], 1);
+      for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; k.rect(MESS.x - 2 + Math.cos(a) * 55, MESS.y + 8 + Math.sin(a) * 25, 3, 2, i % 2 ? BAS[3] : BAS[2]); }
+      // Cauldron on iron legs over a fire bed (the fire and slop animate).
+      const cx = MESS.x, cy = MESS.y;
+      k.ellipse(cx, cy + 4, 14, 4, '#140c0c'); k.ellipse(cx, cy + 4, 11, 3, LAVA[1]);
+      for (const s of [-1, 1]) k.line(cx + s * 8, cy + 4, cx + s * 10, cy - 6, BAS[2], 2);
+      k.ellipse(cx, cy - 8, 13, 9, BAS[1]); k.ellipse(cx - 2, cy - 10, 10, 6, BAS[2]); k.px(cx - 8, cy - 12, BAS[4]);
+      k.ellipse(cx, cy - 16, 12, 4, BAS[3]); k.ellipse(cx, cy - 16, 10, 3, '#4a6a1a');
+      k.rect(cx - 14, cy - 17, 3, 2, BAS[4]); k.rect(cx + 12, cy - 17, 3, 2, BAS[3]);
+      // Bone benches and slab tables.
+      for (const [x, y, w] of [[62, 124, 30], [128, 126, 24]]) { k.rect(x, y - 6, w, 4, BAS[3]); k.rect(x, y - 6, w, 1, BAS[5]); k.rect(x + 2, y - 2, 3, 3, BAS[1]); k.rect(x + w - 5, y - 2, 3, 3, BAS[1]); for (let i = 0; i < w - 6; i += 8) { k.rect(x + 3 + i, y - 8, 4, 2, BAS[1]); k.px(x + 4 + i, y - 8, '#5a6a2a'); } }
+      Props.barrel(k, 160, 66); Props.barrel(k, 150, 72); Props.sack(k, 64, 62, '#5a4a36'); Props.sack(k, 72, 66, '#4e4030');
+      for (let i = 0; i < 4; i++) { k.rect(84, 76 - i * 2, 8, 2, BAS[3]); k.px(84, 76 - i * 2, BAS[5]); }
+      k.rect(128, 64, 2, 16, WOOD[1]); k.line(129, 66, 138, 64, WOOD[2]); k.rect(137, 64, 3, 5, BAS[3]);
+      skull(k, 168, 94); bones(k, 60, 96);
 
-      /* ---- Trees and margins ---- */
-      Props.tree(k, 186, -126, 'oak', 1, 1); Props.tree(k, 120, -126, 'dark', 0, 2); Props.tree(k, -50, -120, 'pine', 0, 1);
-      Props.bush(k, -40, -30, 0); Props.bush(k, 188, 30, 2); Props.bush(k, -52, 144, 1);
-      Props.logPile(k, -186, 4, 4);
+      /* ---- Braziers, torches, banners and spikes around the camp ---- */
+      for (const [x, y] of [[-36, 132], [36, 132], [46, -6], [-176, 20], [-56, -48]]) brazier(k, x, y);
+      for (const [x, y] of [[-8, -150], [70, -146], [178, -30], [186, 30], [-150, -80]]) torch(k, x, y);
+      eyeBanner(k, 190, -10, 30); eyeBanner(k, -196, -4, 28);
+      for (let i = 0; i < 9; i++) spike(k, -186 + i * 6, -100 + (i % 2) * 3, 6 + (i % 3));
+      for (let i = 0; i < 6; i++) spike(k, 150 + i * 6, 44 + (i % 2) * 2, 5 + (i % 2) * 2);
+      for (const [x, y] of [[-190, 60], [96, 30], [-70, 40], [180, 110], [-20, -118], [120, -150], [-80, -150]]) skull(k, x, y);
+      for (const [x, y, d] of [[84, 28, 1], [-192, 76, -1], [160, 120, 1], [40, -136, -1], [-40, -148, 1]]) bones(k, x, y, d);
+
+      /* ---- South gate: spiked black pillars with skull caps and an iron lintel ---- */
+      for (const s of [-1, 1]) {
+        const x = s * 26 - 4; k.ellipse(x + 5, 142, 7, 2, C.shadow); k.rect(x, 108, 9, 34, BAS[2]); k.rect(x, 108, 2, 34, BAS[4]); k.rect(x + 7, 108, 2, 34, BAS[0]);
+        for (let y = 112; y < 140; y += 7) k.rect(x, y, 9, 1, BAS[1]); spike(k, x + 2, 108, 6); spike(k, x + 6, 108, 5); skull(k, x + 4, 112);
+      }
+      k.rect(-22, 102, 44, 3, BAS[3]); k.rect(-22, 102, 44, 1, BAS[5]); for (let x = -20; x < 22; x += 5) spike(k, x, 102, 3);
+      for (const s of [-1, 1]) for (let i = 0; i < 4; i++) k.px(s * 14 + (i % 2), 105 + i * 2, BAS[4]);
     },
     front(k) {
-      // The long mess table sits in front of the diners on the back bench.
-      const x = 62, y = 88, w = 104;
-      k.rect(x + 2, y + 13, w, 2, C.shadow);
-      k.rect(x, y, w, 8, C.wood4); k.rect(x, y, w, 1, C.wood5); k.rect(x, y + 8, w, 3, C.wood2); k.rect(x, y + 10, w, 1, C.wood0);
-      for (let i = 0; i < w; i += 13) k.rect(x + i, y + 1, 1, 7, C.wood3);
-      k.rect(x + 2, y + 11, 3, 4, C.wood1); k.rect(x + w - 5, y + 11, 3, 4, C.wood1); k.rect(x + w / 2 - 1, y + 11, 3, 4, C.wood1);
-      for (let i = 0; i < 6; i++) { const px = x + 8 + i * 17; k.ellipse(px, y + 3, 4, 2, C.stone5); k.ellipse(px, y + 3, 2, 1, i % 2 ? '#b8683a' : C.leaf3); k.rect(px + 5, y + 1, 2, 3, i % 2 ? C.stone3 : C.wood3); }
-      k.rect(x + 46, y + 1, 12, 5, C.slate0); k.rect(x + 46, y + 1, 12, 1, C.slate2); k.ellipse(x + 52, y + 1, 5, 1, '#c8844a');
-      k.ellipse(x + 30, y + 6, 5, 2, '#d8a86a'); k.px(x + 28, y + 5, C.wood5); k.rect(x + 74, y, 3, 5, C.terra2); k.px(x + 74, y, C.terra4);
+      // Front bars of the pen cages (the prisoners stand behind them).
+      for (const [x0, x1] of CAGES) {
+        const y1 = CAGE_Y[1];
+        k.rect(x0, y1 - CAGE_H, x1 - x0 + 1, 2, BAS[3]); k.rect(x0, y1 - CAGE_H, x1 - x0 + 1, 1, BAS[5]);
+        for (let x = x0; x <= x1; x += 4) { k.rect(x, y1 - CAGE_H, 1, CAGE_H, BAS[4]); k.px(x, y1 - CAGE_H + 1, BAS[5]); }
+        k.rect(x0, y1 - 2, x1 - x0 + 1, 2, BAS[2]); k.rect(x0 + 14, y1 - 14, 6, 5, BAS[1]); k.px(x0 + 16, y1 - 12, C.gold1);
+      }
     },
     animate(k, t, state, z) {
       const run = state === 'working', live = state !== 'off', err = state === 'error', wait = state === 'waiting', idle = state === 'idle';
+      const crew = (x, y, o) => z.crew(Math.round(x), Math.round(y), o);
+      const cage = (i, j) => [CAGES[i][0] + 8 + j * 12, CAGE_Y[0] + 16 + (j % 2) * 6];
 
-      /* Flume water and the wheel: turning while working, still when idle, jammed when broken. */
-      const flow = run ? 1 : idle || wait ? .35 : err ? .6 : 0;
-      if (flow) { for (let i = 0; i < 4; i++) { const p = (t * .9 * flow + i / 4) % 1; k.px(-188 + p * 25, -139 + p * 47, C.water5); } }
-      const wf = run ? Math.floor(t * 10) % 8 : err ? Math.floor(t * 6) % 2 : 0;
-      k.blit(wheel(wf), WHEEL.x, WHEEL.y);
-      if (err) { k.line(WHEEL.x - 4, WHEEL.y - 12, WHEEL.x + 6, WHEEL.y - 20, C.wood0, 2); if (Math.floor(t * 3) % 2) k.rect(WHEEL.x - 2, WHEEL.y - 30, 4, 4, C.error); }
-      if (flow) {
-        const n = run ? 6 : 3;
-        for (let i = 0; i < n; i++) { const p = (t * 1.6 + i / n) % 1; k.rect(-160 + (err ? p * 12 : p * 3), -90 + p * (err ? 40 : 14), 2, 2, i % 2 ? C.water4 : C.foam); }
-        if (run) for (let i = 0; i < 3; i++) { const q = (t * 1.2 + i / 3) % 1; k.alpha(1 - q, () => k.ring(WHEEL.x + 4, -50, 3 + q * 8, 1 + q * 2, C.foam)); }
-        if (err) k.ellipse(-140, -40, 8, 2, C.water3);
+      /* Lava pool and channel: always glowing, livelier while working, flaring in error. */
+      const glow = run ? .5 : err ? .6 + Math.sin(t * 9) * .2 : live ? .3 : .15;
+      k.alpha(glow + Math.sin(t * 2.3) * .08, () => { k.ellipse(POOL.x + 2, POOL.y - 1, 11, 4, LAVA[4]); k.ellipse(POOL.x + 1, POOL.y - 1, 5, 2, LAVA[5]); });
+      const nb = run || err ? 4 : live ? 2 : 1;
+      for (let i = 0; i < nb; i++) { const q = (t * (run ? .7 : .35) + i / nb) % 1, bx = POOL.x - 10 + P.hash(i, 3) * 20, by = POOL.y - 3 + P.hash(i, 4) * 5; if (q < .7) k.circle(bx, by, Math.round(q * 2.5), LAVA[4]); else k.ring(bx, by - 1, 3, 2, LAVA[5]); }
+      for (let i = 0; i < (live ? 5 : 2); i++) { const [x, y] = along(CHAN, (t * .06 + i / 5) % 1); k.px(x, y, LAVA[5]); k.px(x + 1, y, LAVA[4]); }
+      if (err) for (let i = 0; i < 5; i++) { const q = (t * 1.2 + i / 5) % 1; k.px(POOL.x + Math.sin(i * 2.1) * q * 16, POOL.y - 4 - Math.sin(q * Math.PI) * 14, q < .5 ? LAVA[5] : LAVA[3]); }
+      if (live && z.detail) ember(k, POOL.x, POOL.y - 4, t, run ? 4 : 2, 26);
+
+      /* Slime pit bubbles and the portal's swirling hellfire. */
+      for (let i = 0; i < 3; i++) { const q = (t * .6 + i / 3) % 1, bx = SLIMEP.x - 8 + i * 7, by = SLIMEP.y - 1 + (i % 2); if (q < .75) k.circle(bx, by, Math.round(q * 2), SLIME[3]); else if (live) k.ring(bx, by - 1, 2, 1, SLIME[4]); }
+      const pSpin = run ? 3 : err ? 6 : live ? 1 : 0, pc = err ? ['#ff2a1a', '#ffc8a0'] : wait ? [C.waiting, '#ffe8a0'] : [LAVA[2], LAVA[4]];
+      if (live) {
+        k.alpha(run || err ? .8 : .45, () => { for (let i = 0; i < 10; i++) { const a = t * pSpin + i * .63, r = 3 + (i * 7) % 13; k.px(PORTAL.x + Math.cos(a) * r * .6, PORTAL.y - 26 + Math.sin(a) * r * 1.2, i % 3 ? pc[0] : pc[1]); } });
+        k.alpha((run ? .5 : .25) + Math.sin(t * 3) * .15, () => { k.ring(PORTAL.x, PORTAL.y + 8, 18, 5, pc[0]); });
       }
 
-      /* Forge mouth: roaring, banked, flaring or cold. */
-      const hx = MOUTH.x + 17, hy = MOUTH.y + 20;
-      if (run) { k.alpha(.3 + Math.sin(t * 11) * .08, () => k.rect(MOUTH.x + 2, MOUTH.y + 8, MOUTH.w - 4, MOUTH.h - 8, C.gold2)); Props.fire(k, hx, hy, t, 1.2); k.rect(MOUTH.x + 10, MOUTH.y + 16, 14, 2, C.gold3); }
-      else if (idle || wait) { k.rect(MOUTH.x + 10, MOUTH.y + 17, 14, 3, C.red1); for (let i = 0; i < 4; i++) k.px(MOUTH.x + 11 + i * 3, MOUTH.y + 17 + (i % 2), Math.floor(t * 2 + i) % 3 ? C.red3 : C.gold2); }
-      else if (err) { Props.fire(k, hx, hy, t * 1.5, 1.5); for (let i = 0; i < 6; i++) { const q = (t * 1.4 + i / 6) % 1; k.px(hx + Math.sin(i * 2.7) * q * 24, hy - 4 - q * 18 + q * q * 20, q < .6 ? C.gold4 : C.red3); } }
-      // Bellows pump.
-      const bl = run ? Math.round(Math.abs(Math.sin(t * 4)) * 3) : 0;
-      k.poly([[MOUTH.x + 28, MOUTH.y + 24], [MOUTH.x + 37, MOUTH.y + 21 - bl], [MOUTH.x + 37, MOUTH.y + 27]], C.wood3); k.line(MOUTH.x + 28, MOUTH.y + 24, MOUTH.x + 37, MOUTH.y + 21 - bl, C.wood1);
-      // Chimney smoke.
-      if (run) Props.smoke(k, -81, -154, t, 5);
-      else if (idle || wait) Props.smoke(k, -81, -154, t * .4, 2, '#c8c4bc');
-      else if (err) { Props.smoke(k, -81, -154, t * 1.3, 7, '#3e3a38'); Props.smoke(k, MOUTH.x + 18, MOUTH.y, t * 1.1, 3, '#5a5652'); }
-      // Workpiece glowing on the anvil.
-      if (run) { k.rect(ANVIL.x - 5, ANVIL.y - 21, 9, 2, Math.floor(t * 9) % 2 ? C.gold3 : '#f07a32'); k.px(ANVIL.x - 5, ANVIL.y - 21, C.gold4); }
-      else if (live) k.rect(ANVIL.x - 5, ANVIL.y - 21, 9, 2, C.slate2);
-      // Quench trough steam after strikes.
-      if (run && Math.floor(t * .7) % 2) Props.smoke(k, -52, -14, t * 1.5, 3, '#e8ecef');
+      /* The tower: glowing slits and the lidless flaming Eye between the prongs. */
+      const tx = TOWER.x, tb = TOWER.base;
+      for (const [x, y] of [[tx - 10, tb - 46], [tx + 6, tb - 46], [tx - 6, tb - 68], [tx + 3, tb - 68], [tx - 2, tb - 84]]) k.rect(x, y, 2, 4, !live ? LAVA[0] : err && Math.floor(t * 4) % 2 ? '#ff2a1a' : Math.floor(t * 2 + x) % 5 ? LAVA[3] : LAVA[4]);
+      const ex = tx, ey = tb - 100;
+      if (live) {
+        const fcol = wait ? [C.waiting, '#ffe08a'] : err ? ['#c01a10', '#ff5a2a'] : [LAVA[2], LAVA[3]], fl = Math.floor(t * 10) % 3, big = run || err ? 1 : 0;
+        k.poly([[ex - 9 - big, ey + 1], [ex - 7, ey - 5 - fl], [ex - 3, ey - 3], [ex, ey - 9 - big - (fl === 1 ? 2 : 0)], [ex + 3, ey - 3], [ex + 7, ey - 5 - (2 - fl)], [ex + 9 + big, ey + 1], [ex + 5, ey + 5], [ex - 5, ey + 5]], fcol[0]);
+        k.ellipse(ex, ey, 7, 3, fcol[1]); k.ellipse(ex, ey, 5, 2, LAVA[5]);
+        const look = run ? Math.round(Math.sin(t * .8) * 3) : 0; k.rect(ex + look, ey - 2, 1, 5, C.ink); k.px(ex + look, ey - 3, fcol[0]);
+        if (z.detail) ember(k, ex, ey - 6, t, run ? 4 : 2, 22, fcol[1]);
+      } else { k.ellipse(ex, ey, 6, 2, LAVA[0]); k.rect(ex - 5, ey, 11, 1, LAVA[1]); }
+      if (err) blackSmoke(k, ex, ey - 6, t, 6);
 
-      /* Hoist: a crate of bars rises and lowers while working. */
-      const hookY = run ? HOIST.y - 42 + Math.round((Math.sin(t * .9) * .5 + .5) * 30) : HOIST.y - 26;
-      k.line(HOIST.x, HOIST.y - 58, HOIST.x, hookY, C.stone1); k.rect(HOIST.x - 1, hookY, 3, 2, C.slate2); k.px(HOIST.x + 1, hookY + 2, C.slate2);
-      if (run || wait) { k.rect(HOIST.x - 6, hookY + 3, 12, 8, C.wood3); k.rect(HOIST.x - 6, hookY + 3, 12, 1, C.wood5); k.rect(HOIST.x - 6, hookY + 7, 12, 1, C.wood1); k.line(HOIST.x, hookY + 2, HOIST.x - 6, hookY + 3, C.stone1); k.line(HOIST.x, hookY + 2, HOIST.x + 5, hookY + 3, C.stone1); }
-      else if (err) { k.rect(HOIST.x - 7, HOIST.y + 4, 12, 7, C.wood3); k.line(HOIST.x - 9, HOIST.y + 12, HOIST.x + 10, HOIST.y + 8, C.slate3); k.line(HOIST.x - 4, HOIST.y + 14, HOIST.x + 12, HOIST.y + 12, C.slate2); }
-      k.px(HOIST.x + 15, HOIST.y - 1 - (run ? Math.floor(t * 6) % 2 : 0), C.slate4);
+      /* Forge mouth: roaring fire while working, banked embers otherwise, a flare in error. */
+      const mx = (MOUTH.x0 + MOUTH.x1) / 2, my = MOUTH.y1 - 4;
+      if (run) { k.alpha(.35 + Math.sin(t * 11) * .08, () => k.rect(MOUTH.x0 + 2, MOUTH.y0 + 10, MOUTH.x1 - MOUTH.x0 - 4, 18, LAVA[3])); Props.fire(k, mx, my, t, 1.3); ember(k, mx, my - 10, t, 5, 34); }
+      else if (err) { Props.fire(k, mx, my, t * 1.6, 1.7); blackSmoke(k, mx, MOUTH.y0, t, 5); for (let i = 0; i < 6; i++) { const q = (t * 1.4 + i / 6) % 1; k.px(mx + Math.sin(i * 2.7) * q * 26, my - 4 - q * 18 + q * q * 20, q < .6 ? LAVA[5] : LAVA[2]); } }
+      else if (live) flame(k, mx, my, t, 1, FL.low);
+      if (run || idle) Props.smoke(k, tx, tb - 112, t * (run ? .9 : .4), run ? 4 : 2, '#3a3438');
+      // Glowing ingot on the anvil and lava in the quench trough.
+      if (run) { k.rect(ANVIL.x - 5, ANVIL.y - 21, 9, 2, Math.floor(t * 9) % 2 ? LAVA[4] : LAVA[3]); k.px(ANVIL.x - 5, ANVIL.y - 21, LAVA[5]); }
+      else if (live) k.rect(ANVIL.x - 5, ANVIL.y - 21, 9, 2, LAVA[1]);
+      if (live) k.alpha(.5 + Math.sin(t * 3) * .2, () => k.rect(-38, -16, 14, 1, LAVA[4]));
+      if (run && Math.floor(t * .7) % 2) Props.smoke(k, -30, -18, t * 1.5, 3, '#6a6068');
 
-      /* Grindstone in the repair shed. */
-      k.blit(grindstone(run ? Math.floor(t * 12) % 4 : 0), GRIND.x, GRIND.y);
-      if (run && z.detail) for (let i = 0; i < 4; i++) { const q = (t * 3 + i / 4) % 1; k.px(GRIND.x - 6 - q * 10, GRIND.y - 3 + q * 6 - Math.sin(q * 3) * 3, q < .5 ? C.gold4 : C.gold2); }
-
-      /* Bunkhouse sleepers: heads on pillows, blankets pulled up. */
-      (SLEEPERS[state] || []).forEach(i => {
-        const [x, y] = BEDS[i], b = BLANKET[i], br = Math.floor(t * 1.2 + i) % 2;
-        k.rect(x + 6, y + 5, 6, 5, [C.skin1, C.skin2, C.skin3][i % 3]); k.rect(x + 6, y + 5, 6, 2, ['#4a3226', '#2a1c16', '#8a5a2a', '#c4652e'][i % 4]); k.px(x + 7, y + 8, C.ink); k.px(x + 10, y + 8, C.ink);
-        k.rect(x + 2, y + 10, 14, 4, S(b, .2)); k.rect(x + 3, y + 13, 12, 8 + br, S(b, .1)); k.rect(x + 2, y + 10, 14, 1, S(b, .45));
-        if (!live || state === 'idle') { const q = (t * .4 + i * .3) % 1; k.alpha(1 - q, () => k.text('z', x + 13 + q * 4, y + 2 - q * 8, '#c8d4ff')); }
-      });
-
-      /* Kitchen: stew steam and stove glow; lamps and string lights. */
-      if (live && !err) { k.rect(149, 44, 10, 3, run ? C.gold2 : C.red1); Props.smoke(k, 170, 20, t * (run ? 1 : .5), run ? 3 : 2, '#eef0ee'); }
-      if (live) Props.smoke(k, 165, 12, t * .6, run ? 3 : 1, err ? '#4a4642' : '#cfcac2');
-      if (live) { k.line(PG.x0 + 2, PG.y1 - 36, 160, PG.y1 - 36, C.ink); for (let i = 0; i < 8; i++) { const x = PG.x0 + 8 + i * 14; k.rect(x, PG.y1 - 35 + (i % 2), 2, 2, (!err || Math.floor(t * 4 + i) % 2) ? (i % 3 ? C.glassLit : '#ffb870') : C.glassDark); } }
-      for (const [x, y] of [[26, 128], [-34, 50]]) k.rect(x - 1, y - 20, 4, 3, live && !run ? C.glassLit : live ? S(C.glassLit, -.2) : C.glassDark);
-
-      /* Status lamp on the forge corner and the waiting pile. */
-      const lampOn = live && (!err || Math.floor(t * 4) % 2);
-      k.rect(-62, -72, 6, 6, C.ink); k.rect(-61, -71, 4, 4, lampOn ? C[state] : C.slate1); if (lampOn && run && Math.floor(t * 2) % 2) k.px(-60, -70, C.white);
-      if (wait) {
-        // Finished parts crated and stacked by the road, tagged HOLD, waiting for sign-off.
-        for (let i = 0; i < 3; i++) Props.crate(k, -30 + i * 10, -22, 9); Props.crate(k, -25, -31, 9); Props.crate(k, -15, -31, 8);
-        k.line(-30, -26, -2, -26, C.waiting); k.rect(-28, -44, 24, 9, C.ink); k.rect(-27, -43, 22, 7, C.waiting); k.text('HOLD', -24, -42, C.ink);
-        Props.banner(k, -58, -48, C.waiting, t, 10);
+      /* Braziers and torches: fire, amber signal fire while waiting, red flare in error, cold when off. */
+      const fc = err ? FL.red : wait ? FL.amber : FL.fire;
+      if (live) {
+        for (const [x, y] of [[-36, 132], [36, 132], [46, -6], [-176, 20], [-56, -48]]) flame(k, x, y - 10, t, run || err ? 1 : .7, fc);
+        for (const [x, y] of [[-8, -150], [70, -146], [178, -30], [186, 30], [-150, -80]]) flame(k, x + 1, y - 23, t, .6, fc);
       }
-      if (err) {
-        // Tools and scrap scattered across the yard.
-        for (let i = 0; i < 5; i++) { const x = -60 + i * 19, y = 10 + (i % 2) * 8; k.line(x, y, x + 8, y - 3 + (i % 3), C.wood3); k.rect(x + 7, y - 4 + (i % 3), 3, 3, C.slate2); }
-        k.rect(-12, 14, 6, 3, C.slate2); k.rect(-26, 20, 4, 2, C.gold1);
+      // The signal beacon.
+      if (wait) { flame(k, BEACON.x, BEACON.y - 33, t, 1.8, FL.amber); k.alpha(.25 + Math.sin(t * 4) * .1, () => k.circle(BEACON.x, BEACON.y - 38, 9, C.waiting)); Props.banner(k, BEACON.x + 2, BEACON.y - 2, C.waiting, t, 10); k.rect(BEACON.x + 6, BEACON.y - 8, 24, 9, C.ink); k.rect(BEACON.x + 7, BEACON.y - 7, 22, 7, C.waiting); k.text('HOLD', BEACON.x + 10, BEACON.y - 6, C.ink); }
+      else if (err) { if (Math.floor(t * 4) % 2) flame(k, BEACON.x, BEACON.y - 33, t, 1.4, FL.red); blackSmoke(k, BEACON.x, BEACON.y - 40, t, 4); }
+      else if (run) flame(k, BEACON.x, BEACON.y - 33, t, 1, FL.fire);
+      else if (idle) flame(k, BEACON.x, BEACON.y - 33, t, .6, FL.low);
+
+      /* Lost souls: fly out of the portal and circle the tower while working; drift when idle. */
+      if (live && !wait) for (let i = 0; i < (run ? 3 : 1); i++) {
+        const q = (t * .09 + i / 3) % 1, a = q * Math.PI * 2, x = run ? -70 + Math.cos(a) * 56 : -60 + Math.cos(a) * 20, y = run ? -118 + Math.sin(a) * 18 : -110 + Math.sin(a) * 6;
+        crew(x, y, { kind: 'lostsoul', anim: err ? 'cower' : 'walk', facing: Math.sin(a) > 0 ? -1 : 1, phase: i * .3, state: err ? 'error' : 'working', mark: false });
       }
 
-      /* Haul yard: overseer, block on rollers and the rope crew. */
-      let fx = null;
-      const hauler = (i, x, y, o) => z.crew(x, y, { look: HAULER[i].look, hat: HAULER[i].hat, hatColor: HAULER[i].hc, ...o });
+      /* Treadwheel: chained goblins walk it round under an imp's pitchfork and a demon's flaming whip. */
+      const wf = run ? Math.floor(t * 8) % 8 : err ? Math.floor(t * 8) % 2 : 0, jam = err ? [0, 1, 0, -1][Math.floor(t * 12) % 4] : 0;
+      k.blit(tread(wf), TW.x + jam, TW.y);
+      if (err) { k.line(TW.x - 4, TW.y + 2, TW.x + 12, TW.y + 16, WOOD[0], 2); k.line(TW.x + 10, TW.y - 12, TW.x + 18, TW.y - 4, BAS[4]); Props.smoke(k, TW.x, TW.y - 6, t * 1.2, 4, '#2a2628'); if (Math.floor(t * 3) % 2) { k.rect(TW.x - 3, TW.y - 36, 7, 9, C.ink); k.rect(TW.x - 2, TW.y - 35, 5, 7, C.error); k.rect(TW.x, TW.y - 34, 1, 3, C.white); k.px(TW.x, TW.y - 30, C.white); } }
+      // Bucket elevator.
+      for (let i = 0; i < 4; i++) { const q = run ? (t * .25 + i / 4) % 1 : i / 4, y = ELEV.y0 - q * (ELEV.y0 - ELEV.y1); k.rect(ELEV.x - 4, y - 3, 6, 4, WOOD[2]); k.rect(ELEV.x - 4, y - 3, 6, 1, WOOD[3]); k.rect(ELEV.x - 3, y - 4, 4, 1, i % 2 ? '#c98a4a' : BAS[4]); }
+      if (run) { const q = (t * 1.5) % 1; k.px(ELEV.x - 4 - q * 3, ELEV.y1 + q * 8, '#c98a4a'); }
+      const IMP = { x: 80, y: -80 }, DEMON = { x: 58, y: -62 }, dOpt = { phase: .1, speed: 7 };
+      const dAge = AgentCharacters.crackAge(t, dOpt), impJab = Math.floor(t * 4 + .5 * 7) % 4 >= 2;
       if (run) {
-        const cyc = t / WT - CRACK_AT, nCr = Math.floor(cyc), tc = (cyc - nCr) * WT;   // seconds since the last crack
-        const ph = (t / WT) % 1, fi = Math.floor(ph * NF) % NF, fr = WHIP[fi];
-        const hv = Math.round(tc < .15 ? tc / .15 * 3 : Math.max(0, 3 - (tc - .15) * 2.4)); // heave after each crack
-        const flinch = tc < .1 ? 2 : tc < .22 ? 1 : 0, boost = nCr * .3 + Math.min(.3, tc * .6), bx = BLK.x + hv;
-        const rf = Math.floor((t + boost * 2) * 8) % 4;
-        for (const dx of [4, 14, 24]) k.blit(roller(rf), bx + dx, -10);
-        k.blit(roller(rf), bx - 6, -10);
-        k.blit(block(), bx, BLK.y);
-        if (z.detail && tc < .5) { const u = tc / .5; k.alpha((1 - u) * .7, () => { for (let i = 0; i < 3; i++) k.circle(bx - 3 - u * 6 - i * 3, -9 - u * 4 + i, 1 + u * 2, C.dirt4); }); }
-        // Taut ropes run over the haulers' shoulders.
-        for (const [r, ry] of [[0, -24], [2, -19]]) { const y1 = HAUL[r][1] - flinch - 11, x1 = HAUL[r + 1][0] + hv - 2; k.line(bx + 28, ry + 1, x1, y1 + 1, C.wood0); k.line(bx + 28, ry, x1, y1, '#ecd8a0'); }
-        HAUL.forEach(([x, y], i) => hauler(i, x + hv, y - flinch, { anim: 'walk', facing: 1, phase: i * .3 + boost * 8 / 7 }));
-        // Sweat: a steady drip, and a spray on every crack.
-        if (z.detail) HAUL.forEach(([x, y], i) => {
-          const q = (t * 1.1 + i * .37) % 1;
-          if (q < .5) { const u = q / .5, sx = x + hv - 2 - u * 5, sy = y - flinch - 20 - Math.sin(u * Math.PI) * 3 + u * 9; k.px(sx, sy, C.water5); k.px(sx, sy + 1, C.water3); }
-          if (tc < .4) { const u = tc / .4; for (const s of [-1, 1]) { const sx = x + hv + 1 + s * (3 + u * 5), sy = y - flinch - 21 - Math.sin(u * Math.PI) * 5 + u * 6; k.px(sx, sy, C.white); k.px(sx, sy + 1, C.water4); } }
-        });
-        k.ellipse(OVS.x + 2, OVS.y, 9, 2, C.shadow);
-        k.blit(overseer(fr.pose), OVS.x, OVS.y);
-        // Swoosh trail behind the tip while the lash unrolls forward.
-        if (z.detail && ph > .4 && ph < CRACK_AT + .01) k.alpha(.55, () => { const a = WHIP[(fi + NF - 2) % NF].pts[NW - 1], b = WHIP[(fi + NF - 1) % NF].pts[NW - 1], c = fr.pts[NW - 1]; k.line(OVS.x + a[0], OVS.y + a[1], OVS.x + b[0], OVS.y + b[1], C.white); k.line(OVS.x + b[0], OVS.y + b[1], OVS.x + c[0], OVS.y + c[1], C.white); });
-        drawWhip(k, fr.pts, OVS.x, OVS.y);
-        // The crack: a burst in the air above the crew and a pop of text.
-        const cp = KEYS[8].pts[NW - 1], cx = OVS.x + Math.round(cp[0]), cy = OVS.y + Math.round(cp[1]);
-        fx = () => {   // drawn last so the shed crew never hides it
-          if (tc < .13) k.blit(burst(Math.min(2, Math.floor(tc / .045))), cx, cy);
-          if (tc < .5) k.blit(crackText(), cx - 10, cy - 13 - Math.round(tc * 10), false, tc > .35 ? (.5 - tc) / .15 : 1);
-        };
-      } else if (live) {
-        const bx = err ? BLK.x - 9 : BLK.x;
-        if (err) { k.blit(roller(1), bx + 8, -10); k.blit(roller(2), bx + 20, -10); k.blit(roller(3), 104, -4); k.blit(roller(0), 118, -6); }
-        else for (const dx of [-6, 4, 14, 24]) k.blit(roller(0), bx + dx, -10);
-        k.blit(block(), bx, BLK.y);
-        if (idle) {
-          slackRope(k, bx + 28, -24, 146, -8); slackRope(k, bx + 28, -16, 166, -4);
-          hauler(0, bx + 8, BLK.y - 18, { anim: 'sit' }); hauler(1, bx + 20, BLK.y - 18, { anim: 'sit', facing: -1 });
-          hauler(2, 124, -4, { anim: 'sit', facing: -1 }); hauler(3, 146, -8, { anim: 'idle', facing: -1 });
-          k.ellipse(OVS.x + 2, OVS.y, 9, 2, C.shadow); k.blit(overseer('idle'), OVS.x, OVS.y);
-        } else if (wait) {
-          // Block halted under an amber flag; ropes slack in the crew's hands; the overseer taps his coiled whip.
-          k.rect(bx + 24, -46, 1, 16, C.wood1); const fw = Math.floor(t * 3) % 2;
-          k.poly([[bx + 25, -46], [bx + 33, -43 + fw], [bx + 25, -40]], C.waiting); k.rect(bx + 25, -46, 3, 1, S(C.waiting, .4)); k.px(bx + 24, -47, C.gold3);
-          HAUL.forEach(([x, y], i) => { slackRope(k, bx + 28, i < 2 ? -24 : -16, x - 4, y - 9); hauler(i, x, y, { anim: 'idle', facing: -1, phase: i * .4 }); });
-          k.ellipse(OVS.x + 2, OVS.y, 9, 2, C.shadow); k.blit(overseer(Math.floor(t * 2.5) % 2 ? 'tap1' : 'tap0'), OVS.x, OVS.y);
-        } else {
-          // Rope snapped, the block slid back off its rollers, the whip tangled round the overseer.
-          Props.smoke(k, bx - 2, -10, t * 1.4, 3, '#8a8478');
-          k.path([[bx + 28, -24], [bx + 31, -19], [bx + 32, -13]], C.wood4); k.px(bx + 31, -12, C.wood5); k.px(bx + 33, -12, C.wood5);
-          k.path([[118, -9], [126, -11], [136, -10], [152, -9]], C.wood4); k.px(117, -10, C.wood5); k.px(117, -8, C.wood5);
-          HAUL.forEach(([x, y], i) => hauler(i, x + 4, y, { anim: i === 2 ? 'sit' : 'idle', facing: -1, phase: i * .4 }));
-          if (Math.floor(t * 4) % 2) { k.rect(bx + 11, -46, 7, 11, C.ink); k.rect(bx + 12, -45, 5, 9, C.error); k.rect(bx + 14, -44, 1, 4, C.white); k.px(bx + 14, -38, C.white); }
-          const sh = [0, 1, 0, -1][Math.floor(t * 12) % 4];
-          k.ellipse(58, OVS.y, 9, 2, C.shadow); k.blit(overseer('tangle'), 56 + sh, OVS.y);
-          k.path([[62, -3], [70, -1], [76, -4], [72, -7], [68, -3], [80, -2]], OV.lash);
-        }
-      } else {
-        for (const dx of [-6, 4, 14, 24]) k.blit(roller(0), BLK.x + dx, -10);
-        k.blit(block(), BLK.x, BLK.y);
-        slackRope(k, BLK.x + 28, -24, 146, -8); slackRope(k, BLK.x + 28, -16, 166, -4);
-        hauler(0, BLK.x + 12, BLK.y - 18, {}); hauler(1, 124, -4, { facing: -1, phase: .3 }); hauler(2, 142, -6, { phase: .6 }); hauler(3, 160, -4, { facing: -1, phase: .9 });
-        k.ellipse(OVS.x + 3, OVS.y, 10, 2, C.shadow); k.blit(overseer('sleep'), OVS.x, OVS.y);
-        const q = (t * .4 + .5) % 1; k.alpha(1 - q, () => k.text('z', OVS.x + 6 + q * 5, OVS.y - 28 - q * 10, '#c8d4ff'));
-      }
-
-      /* Crew. Field crews shuttle along the south road; the rest work, eat, rest or wait. */
-      const kinds = [{ tool: 'axe', carry: 'wood', look: 1, hat: 'cap', hc: C.leaf1 }, { tool: 'pick', carry: 'ore', look: 5, hat: 'helmet' }, { tool: 'hoe', carry: 'food', look: 3, hat: 'straw' }];
-      if (run) {
-        kinds.forEach((c, i) => {
-          const p = (t * .045 + i / 3) % 1, out = p < .5, q = out ? p * 2 : (1 - p) * 2, [x, y] = along(ROUTE, q);
-          const fade = Math.min(1, (1 - q) * 8);
-          k.alpha(fade, () => z.crew(x + (out ? 3 : -3), y, { look: c.look, hat: c.hat, hatColor: c.hc, anim: 'walk', tool: out ? c.tool : '', carry: out ? '' : c.carry, facing: out ? (q < .3 ? -1 : 1) : (q < .3 ? 1 : -1), phase: i * .3 }));
-        });
-        z.crew(100, -56, { look: 4, hat: 'bandana', hatColor: C.teal2, anim: 'work', tool: 'saw', phase: .2, speed: 5 });
-        z.crew(GRIND.x - 12, -50, { look: 2, hat: 'cap', hatColor: C.slate2, anim: 'work', tool: 'axe', phase: .7, speed: 3 });
-        z.crew(142, 64, { look: 0, hat: 'none', anim: 'work', tool: 'broom', facing: 1, phase: .5, speed: 3 });
-        const p = (t * .08) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2;
-        z.crew(-20 + q * 40, -38 + q * 4, { look: 3, hat: 'cap', hatColor: C.terra1, anim: 'walk', carry: back ? '' : 'box', facing: back ? -1 : 1, phase: .4 });
-        z.crew(88, 86, { look: 2, hat: 'cap', hatColor: C.slate2, anim: 'sit', state: 'idle' });
+        crew(TW.x - 7, TW.y + 21, { kind: 'goblin', anim: impJab ? 'cower' : 'chained', facing: -1, look: 0, phase: .2 });
+        crew(TW.x + 6, TW.y + 21, { kind: 'goblin', anim: dAge < .35 ? 'cower' : 'chained', facing: -1, look: 1, phase: .6 });
+        crew(DEMON.x, DEMON.y, { kind: 'demon', anim: 'whip', facing: 1, lash: 30, ...dOpt });
+        crew(IMP.x, IMP.y, { kind: 'imp', anim: 'work', tool: 'pitchfork', facing: 1, phase: .5, speed: 4 });
       } else if (idle) {
-        [[80, 86, 0], [104, 86, 2], [130, 86, 4], [150, 86, 1]].forEach(([x, y, l], i) => z.crew(x, y, { look: l, hat: ['cap', 'straw', 'helmet', 'none'][i], hatColor: C.leaf1, anim: 'sit', facing: i % 2 ? -1 : 1 }));
-        z.crew(144, 64, { look: 0, anim: 'idle', facing: 1 });
-        z.crew(100, -56, { look: 4, hat: 'bandana', hatColor: C.teal2, anim: 'sit' });
+        crew(TW.x - 12, -80, { kind: 'goblin', anim: 'sit', chains: true, look: 0 }); crew(TW.x + 10, -80, { kind: 'goblin', anim: 'sit', chains: true, look: 1, facing: -1 });
+        crew(DEMON.x, DEMON.y, { kind: 'demon', anim: 'idle', tool: 'spear', facing: 1 });
+        crew(IMP.x, IMP.y, { kind: 'imp', anim: 'idle', tool: 'pitchfork', facing: 1 });
       } else if (wait) {
-        z.crew(8, -8, { look: 1, hat: 'cap', hatColor: C.leaf1, anim: 'idle', tool: 'axe', facing: -1 });
-        z.crew(-4, 22, { look: 5, hat: 'helmet', anim: 'idle', tool: 'pick', facing: -1 });
-        z.crew(34, -8, { look: 3, hat: 'straw', anim: 'idle', tool: 'hoe', facing: -1 });
-        z.crew(100, 86, { look: 2, hat: 'cap', hatColor: C.slate2, anim: 'sit' });
-        z.crew(100, -56, { look: 4, hat: 'bandana', hatColor: C.teal2, anim: 'idle' });
+        crew(TW.x - 7, TW.y + 21, { kind: 'goblin', anim: 'idle', chains: true, facing: -1, look: 0 }); crew(TW.x + 6, TW.y + 21, { kind: 'goblin', anim: 'idle', chains: true, facing: -1, look: 1, phase: .5 });
+        crew(DEMON.x, DEMON.y, { kind: 'demon', anim: 'idle', facing: 1, mark: false });
+        crew(IMP.x, IMP.y, { kind: 'imp', anim: 'idle', tool: 'pitchfork', facing: 1, mark: false });
       } else if (err) {
-        z.crew(-150, -30, { look: 1, hat: 'cap', hatColor: C.leaf1, anim: 'idle', facing: -1 });
-        z.crew(24, -30, { look: 5, hat: 'helmet', anim: 'idle', facing: 1 });
-        z.crew(-2, 30, { look: 3, hat: 'straw', anim: 'idle' });
-        z.crew(142, 64, { look: 0, anim: 'idle' });
+        crew(TW.x - 30, -76, { kind: 'goblin', anim: 'cower', look: 0, facing: -1 }); crew(TW.x + 30, -74, { kind: 'goblin', anim: 'cower', look: 1, phase: .5, mark: false });
+        crew(DEMON.x, DEMON.y, { kind: 'demon', anim: 'idle', facing: 1 });
+        crew(IMP.x - 6, IMP.y + 4, { kind: 'imp', anim: 'cower', facing: -1, mark: false });
       } else {
-        z.crew(100, -56, { look: 4, hat: 'bandana', hatColor: C.teal2, anim: 'sit' });
-        z.crew(130, 86, { look: 4, hat: 'helmet', anim: 'sit' });
+        crew(DEMON.x, DEMON.y, { kind: 'demon', anim: 'sleep' }); crew(IMP.x, IMP.y, { kind: 'imp', anim: 'sleep', phase: .4 });
       }
 
+      /* Haul yard: an Uruk whips the rope crew dragging a basalt block west; a troll shoves it and a cacodemon bellows. */
+      const prog = run ? (t % HAUL.period) / HAUL.period : .35;
+      const uOpt = { phase: .6, speed: 7 }, uAge = AgentCharacters.crackAge(t, uOpt), heave = run ? (uAge < .2 ? 0 : uAge < .5 ? 1 : 2) : 0;
+      let bx = Math.round(HAUL.x0 - prog * (HAUL.x0 - HAUL.x1)) - heave;
+      const slip = err ? 12 : 0; bx += slip;
+      const HAULERS = [{ kind: 'orc', look: 0, dx: -16, y: -22 }, { kind: 'hollow', look: 1, dx: -28, y: -9 }, { kind: 'orc', look: 2, dx: -40, y: -22 }, { kind: 'hollow', look: 0, dx: -52, y: -9 }];
+      const cOpt = { phase: .25, speed: 6 }, cAge = AgentCharacters.crackAge(t, cOpt);
+      // The Uruk walks along behind the line.
+      if (run) crew(bx - 26, -40, { kind: 'uruk', anim: 'whip', facing: -1, look: 0, lash: 26, ...uOpt });
+      else if (idle) crew(bx - 26, -40, { kind: 'uruk', anim: 'idle', tool: 'spear', facing: -1, look: 0 });
+      else if (wait) crew(bx - 26, -40, { kind: 'uruk', anim: 'idle', facing: -1, look: 0 });
+      else if (err) crew(bx - 30, -40, { kind: 'uruk', anim: 'cheer', facing: 1, look: 0 });
+      else crew(bx - 26, -40, { kind: 'uruk', anim: 'sleep', look: 0 });
+      // Ropes (taut while hauling, slack otherwise; snapped in error).
+      const rope = (y0, x1, y1, taut) => taut ? (k.line(bx, y0 + 1, x1, y1 + 1, WOOD[0]), k.line(bx, y0, x1, y1, '#c8b080')) : k.path([[bx, y0], [bx - 6, y0 + 8], [(bx + x1) / 2, Math.max(y0, y1) + 9], [x1 + 4, y1 + 7], [x1, y1]], '#a8905c');
+      if (!err) { rope(-26, bx - 52, -34, run); rope(-18, bx - 54, -20, run); }
+      else { k.path([[bx, -26], [bx - 4, -20], [bx - 5, -14]], '#a8905c'); k.path([[bx - 30, -14], [bx - 40, -12], [bx - 54, -14]], '#a8905c'); }
+      // Rollers and the block.
+      const rf = run ? Math.floor((t + prog * 30) * 6) % 4 : 0;
+      if (err) { k.blit(roller(1), bx + 6, -8); k.blit(roller(2), bx + 22, -8); const rq = (t * .5) % 1; k.blit(roller(Math.floor(t * 8) % 4), bx + 36 + rq * 18, -6 + rq * 8); Props.smoke(k, bx + 4, -8, t * 1.4, 3, '#4a4448'); }
+      else for (const dx of [2, 12, 22]) k.blit(roller(rf), bx + dx, -8);
+      k.blit(block(), bx, HAUL.y + (err ? 1 : 0));
+      if (wait) { k.rect(bx + 26, -52, 1, 20, BAS[4]); const fw = Math.floor(t * 3) % 2; k.poly([[bx + 27, -52], [bx + 36, -49 + fw], [bx + 27, -46]], C.waiting); k.px(bx + 26, -53, C.gold3); }
+      if (err && Math.floor(t * 4) % 2) { k.rect(bx + 11, -52, 7, 11, C.ink); k.rect(bx + 12, -51, 5, 9, C.error); k.rect(bx + 14, -50, 1, 4, C.white); k.px(bx + 14, -44, C.white); }
+      if (run && z.detail && uAge > .2 && uAge < .6) { const u = (uAge - .2) / .4; k.alpha((1 - u) * .7, () => { for (let i = 0; i < 3; i++) k.circle(bx + 32 + u * 6 + i * 3, -8 - u * 4 + i, 1 + u * 2, '#4a4040'); }); }
+      // Haulers: pull, cower at each crack or bellow, then heave on; rest in chains when idle; scatter in error.
+      HAULERS.forEach((h, i) => {
+        const x = bx + h.dx, o = { kind: h.kind, look: h.look, phase: i * .3, facing: -1 };
+        if (run) crew(x, h.y, { ...o, anim: uAge < .3 || (i >= 2 && cAge < .25) ? 'cower' : 'walk' });
+        else if (idle) crew(x + 4, h.y + 2, { ...o, anim: 'sit', chains: true, facing: i % 2 ? 1 : -1 });
+        else if (wait) crew(x, h.y, { ...o, anim: 'idle', chains: true });
+        else if (err) crew(x - 10 + (i % 2) * 22, h.y + (i % 2 ? 12 : -6), { ...o, anim: 'cower', facing: i % 2 ? 1 : -1, mark: i === 0 });
+      });
+      if (run && z.detail) HAULERS.forEach((h, i) => { const q = (t * 1.1 + i * .37) % 1; if (q < .5) { const u = q / .5; k.px(bx + h.dx + 2 + u * 4, h.y - 19 - Math.sin(u * Math.PI) * 3 + u * 8, '#b6e2f0'); } });
+      // The cave troll shoves from behind.
+      if (run) crew(bx + 36, -10, { kind: 'troll', anim: 'walk', facing: -1, chains: true, phase: .1 });
+      else if (idle) crew(bx + 38, -8, { kind: 'troll', anim: 'sit', facing: -1, chains: true });
+      else if (wait) crew(bx + 36, -10, { kind: 'troll', anim: 'idle', facing: -1, chains: true });
+      else if (err) crew(bx + 26, 12, { kind: 'troll', anim: 'cower', facing: 1 });
+      else crew(bx + 38, -8, { kind: 'troll', anim: 'sleep', phase: .7 });
+      // The cacodemon hovers over the line.
+      const cy0 = -30 + Math.round(Math.sin(t * 1.3) * 2);
+      if (run) crew(bx - 2, cy0, { kind: 'cacodemon', anim: 'whip', facing: -1, ...cOpt });
+      else if (live) crew(bx - 2, cy0, { kind: 'cacodemon', anim: err ? 'cower' : 'idle', facing: -1, mark: false });
+      else crew(bx - 6, -34, { kind: 'cacodemon', anim: 'sleep' });
+
+      /* The overlord at the anvil (asleep on his throne when off). */
       if (state === 'off') z.lead(REST.x, REST.y, {}); else z.lead(LEAD.x, LEAD.y, {});
 
-      if (live && !err && z.detail) for (let i = 0; i < 2; i++) { const p = (t * .05 + i * .5) % 1; Props.bird(k, -190 + p * 380, -138 + i * 10 + Math.sin(p * 9) * 3, t + i); }
-      if (fx) fx();
+      /* Forge stoker: a goblin shovels coal into the forge mouth. */
+      if (run) crew(-152, -40, { kind: 'goblin', anim: 'work', tool: 'hoe', look: 2, facing: 1, phase: .3, speed: 4 });
+      else if (idle) crew(-156, -38, { kind: 'goblin', anim: 'sit', chains: true, look: 2 });
+      else if (wait) crew(-152, -40, { kind: 'goblin', anim: 'idle', look: 2, facing: 1 });
+      else if (err) crew(-170, -30, { kind: 'goblin', anim: 'cower', look: 2, facing: -1 });
+
+      /* Slave pen: a Hell Knight hurls green fireballs over the diggers; prisoners rest, wait or sleep in chains. */
+      const HK = { x: -20, y: 62 }, hOpt = { phase: .45, speed: 5 }, hAge = AgentCharacters.crackAge(t, hOpt);
+      if (run) {
+        crew(-80, 68, { kind: 'zombie', anim: hAge < .4 ? 'cower' : 'work', tool: 'hoe', look: 0, facing: 1, phase: .2 });
+        crew(-66, 84, { kind: 'zombie', anim: hAge < .4 ? 'cower' : 'work', tool: 'pick', look: 1, facing: 1, phase: .7 });
+        crew(...cage(0, 0), { kind: 'hollow', anim: 'sit', chains: true, look: 2 });
+        crew(HK.x, HK.y, { kind: 'hellknight', anim: 'whip', facing: -1, lash: 36, ...hOpt });
+      } else if (idle) {
+        crew(...cage(0, 0), { kind: 'hollow', anim: 'sit', chains: true, look: 2 }); crew(...cage(0, 2), { kind: 'orc', anim: 'sit', chains: true, look: 3, facing: -1 });
+        crew(...cage(1, 1), { kind: 'goblin', anim: 'sit', chains: true, look: 1 });
+        crew(-120, 112, { kind: 'zombie', anim: 'sit', chains: true, look: 0 }); crew(-90, 118, { kind: 'orc', anim: 'sit', chains: true, look: 1, facing: -1 });
+        crew(HK.x, HK.y, { kind: 'hellknight', anim: 'idle', facing: -1 });
+      } else if (wait) {
+        crew(-80, 68, { kind: 'zombie', anim: 'idle', chains: true, look: 0 }); crew(-66, 84, { kind: 'zombie', anim: 'idle', chains: true, look: 1, phase: .5 });
+        crew(...cage(0, 1), { kind: 'hollow', anim: 'idle', chains: true, look: 2, mark: false }); crew(...cage(1, 1), { kind: 'orc', anim: 'idle', chains: true, look: 3, mark: false });
+        crew(HK.x, HK.y, { kind: 'hellknight', anim: 'idle', facing: -1, mark: false });
+      } else if (err) {
+        crew(-100, 70, { kind: 'zombie', anim: 'cower', look: 0, facing: -1 }); crew(-58, 112, { kind: 'zombie', anim: 'cower', look: 1, phase: .5, mark: false });
+        crew(...cage(0, 1), { kind: 'hollow', anim: 'cower', look: 2, mark: false });
+        crew(HK.x, HK.y, { kind: 'hellknight', anim: 'cheer', facing: -1 });
+        Props.smoke(k, -70, 60, t * 1.2, 4, '#2a2e24');
+      } else {
+        // Everyone asleep in the pen and the cages.
+        const SLEEP = [['orc', -150, 108], ['goblin', -134, 120], ['hollow', -118, 104], ['orc', -104, 126], ['zombie', -88, 108], ['goblin', -72, 124], ['orc', -140, 128], ['hollow', -60, 104], ['goblin', -120, 130]];
+        SLEEP.forEach(([kind, x, y], i) => crew(x, y, { kind, look: i, phase: i * .23, facing: i % 2 ? -1 : 1, chains: i % 3 === 0 }));
+        for (let j = 0; j < 3; j++) { crew(...cage(0, j), { kind: j === 1 ? 'goblin' : 'orc', look: j, phase: j * .31 + .1 }); crew(...cage(1, j), { kind: j === 1 ? 'hollow' : 'goblin', look: j + 1, phase: j * .27 + .5 }); }
+        crew(HK.x, HK.y, { kind: 'hellknight', anim: 'sleep', phase: .2 });
+      }
+
+      /* Chain gang: chained orcs trudge out of the pen and through the south gate, and return laden. */
+      if (run) {
+        const kinds = [{ tool: 'axe', carry: 'wood', look: 0 }, { tool: 'pick', carry: 'ore', look: 2 }, { tool: 'hoe', carry: 'food', look: 1 }];
+        kinds.forEach((c, i) => {
+          const p = (t * .04 + i / 3) % 1, out = p < .5, q = out ? p * 2 : (1 - p) * 2, [x, y] = along(GANG, q), fade = Math.min(1, (1 - q) * 8);
+          k.alpha(fade, () => crew(x + (out ? 3 : -3), y, { kind: 'orc', look: c.look, anim: out ? 'chained' : 'carry', chains: true, tool: out ? c.tool : '', carry: out ? '' : c.carry, facing: out ? (q < .4 ? 1 : 1) : -1, phase: i * .3 }));
+        });
+      }
+      /* The Nazgûl patrols the road. */
+      if (run) { const p = (t * .05) % 1, back = p > .5, q = back ? (1 - p) * 2 : p * 2; crew(30, 26 + q * 66, { kind: 'wraith', anim: 'walk', facing: back ? -1 : 1, phase: .4 }); }
+      else if (live) crew(30, 60, { kind: 'wraith', anim: err ? 'cheer' : 'idle', facing: -1, mark: err });
+      else crew(30, 60, { kind: 'wraith', anim: 'sleep', z: false });
+
+      /* Mess pit: the cauldron bubbles, an orc cook stirs, goblins queue and eat. */
+      const cx = MESS.x, cy = MESS.y;
+      if (live) {
+        flame(k, cx - 5, cy + 4, t, run ? 1 : .6, err ? FL.red : FL.fire); flame(k, cx + 5, cy + 4, t + .3, run ? .9 : .5, err ? FL.red : FL.fire);
+        for (let i = 0; i < (run || err ? 3 : 1); i++) { const q = (t * .9 + i / 3) % 1, bx2 = cx - 6 + i * 6; if (q < .7) k.circle(bx2, cy - 16, Math.round(q * 2), '#7aa02a'); else k.ring(bx2, cy - 17, 2, 1, '#a8d050'); }
+        Props.smoke(k, cx, cy - 20, t * (run ? .8 : .4), run ? 3 : 1, err ? '#1a1a1a' : '#8a9a70');
+      }
+      if (err) { k.poly([[cx + 8, cy - 16], [cx + 14, cy - 12], [cx + 16, cy + 2], [cx + 28, cy + 8], [cx + 20, cy + 10], [cx + 10, cy + 6]], '#6a8a2a'); k.ellipse(cx + 22, cy + 9, 7, 2, '#5a7a22'); }
+      const stir = Math.round(Math.sin(t * (run ? 4 : 0)) * 3);
+      if (run) { k.line(cx + 22, cy - 26, cx + 2 + stir, cy - 16, WOOD[3]); crew(cx + 24, cy - 2, { kind: 'orc', anim: 'work', look: 3, facing: -1, phase: .1, speed: 4 }); }
+      else if (live) crew(cx + 24, cy - 2, { kind: 'orc', anim: err ? 'cower' : 'idle', look: 3, facing: -1 });
+      if (run) {
+        crew(70, 104, { kind: 'goblin', anim: 'idle', look: 0, facing: 1, phase: .2 }); crew(82, 108, { kind: 'goblin', anim: 'idle', look: 1, facing: 1, phase: .6 });
+        crew(72, 132, { kind: 'imp', anim: 'sit', look: 1 }); crew(134, 134, { kind: 'hollow', anim: 'sit', look: 0, facing: -1 });
+      } else if (idle) {
+        crew(68, 132, { kind: 'goblin', anim: 'sit', look: 0 }); crew(80, 134, { kind: 'orc', anim: 'sit', look: 1, facing: -1 }); crew(130, 134, { kind: 'hollow', anim: 'sit', look: 0 }); crew(144, 136, { kind: 'imp', anim: 'sit', look: 2, facing: -1 });
+      } else if (wait) {
+        [60, 72, 84, 96].forEach((x, i) => crew(x, 102 + (i % 2) * 4, { kind: i % 2 ? 'orc' : 'goblin', anim: 'idle', look: i, facing: 1, phase: i * .3, mark: i === 1 }));
+      } else if (err) {
+        crew(64, 120, { kind: 'goblin', anim: 'cower', look: 0, facing: -1 }); crew(150, 120, { kind: 'imp', anim: 'cower', look: 1, mark: false });
+      }
+
+      if (err) blackSmoke(k, 40, -60, t, 3);
     }
   };
 })();

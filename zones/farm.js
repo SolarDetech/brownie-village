@@ -1,255 +1,287 @@
-/* Farm · Growing & harvesting: red barn and silo, a tower windmill, a glasshouse, crop beds at every growth stage,
-   a sheep and chicken paddock with coop, hay bales, orchard hives and a produce cart at the gate. Resource zone: no lead. */
+/* Farm · The slave fields of Nurn: ash-grey furrows of red thorn-pods and black thorn-wheat behind bone fences, a skull
+   scarecrow, a black windmill with tattered sails, a water-lifting wheel on the black canal turned by chained goblins at
+   a capstan, Doom's pentagram portal spitting lost souls, a bubbling cauldron by the slave hut, and the harvest cart
+   under the Red Eye banner. Orcs and hollows hoe and haul under a Nazgûl's whip while an imp pokes with a pitchfork.
+   Resource zone: no lead. Cartoonish: no blood. */
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.farm = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const MILL = { x: -40, y: -46, hub: -102 };      // windmill base centre and sail hub height
-  const WHEAT = { x: -176, y: 2, w: 158, h: 34 };  // ripe wheat field (animated sway)
-  const PEN = { x0: -150, x1: -64, y0: 54, y1: 132 };
-  const CARTP = { x: 26, y: 106 };
-  const SHEEP = [[-110, 74], [-120, 98], [-96, 76], [-138, 120], [-86, 112]];
-  const HENS = [[-136, 104], [-128, 118], [-110, 122], [-100, 90], [-128, 84]];
-  const straw = look => ({ look, hat: 'straw' });
-  const RED = ['#5e1c18', '#86281f', '#a8382c', '#c4533e'];
+  const ASH = ['#1c1818', '#2e2826', '#3e3633', '#4c4440', '#5a514c', '#6c625b', '#8a8078'];
+  const SOIL = ['#262022', '#342c2c', '#443a38', '#564a46', '#6a5e58'];
+  const LAVA = ['#5a140c', '#8e200e', '#c43a12', '#ec6418', '#ff9a2a', '#ffcc55', '#fff2b0'];
+  const IRON = ['#111114', '#1e1f24', '#2e3038', '#454854', '#646876', '#8c909c'];
+  const TOX = ['#173010', '#285a14', '#3f8e1c', '#62c42a', '#9ef04a', '#d8ff9a'];
+  const BONE = ['#8a8070', '#b8ae98', '#dcd4bc', '#f4eedc'];
+  const BARK = ['#0c0909', '#171112', '#231b1b', '#352a28', '#5e4e47'];
+  const THORN = ['#1a0e10', '#3a1618', '#7a1a1e', '#b8282a', '#e8544a'];
+  const MILL = { x: -116, y: -64, hub: -112 };
+  const WHEEL = { x: 112, y: -112, r: 17 };
+  const CAP = { x: 150, y: -70, rx: 17, ry: 6 };      // capstan the chained goblins turn
+  const PORTAL = { x: -10, y: -118, rx: 26, ry: 9 };
+  const FIELD_L = { x0: -176, x1: -20, y0: -44, y1: 42 };
+  const FIELD_R = { x0: 20, x1: 176, y0: -44, y1: 42 };
+  const POT = { x: -96, y: 100 };                     // cauldron
+  const CARTP = { x: 56, y: 116 };
+  const TOWER = { x: -40, y: 132 };                     // signal fire pole
 
   /* ---------- Local helpers ---------- */
-  const bed = (k, x, y, w, h, soil = C.dirt1) => {
-    k.rect(x + 2, y + h + 1, w, 2, C.shadowSoft); k.rect(x - 1, y - 1, w + 2, h + 2, C.wood1); k.rect(x - 1, y - 1, w + 2, 1, C.wood3);
-    k.rect(x, y, w, h, soil); for (let r = 2; r < h; r += 5) { k.rect(x, y + r, w, 1, S(soil, -.25)); k.rect(x, y + r + 1, w, 1, S(soil, .12)); }
-    for (let i = 0; i < w * h / 30; i++) k.px(x + P.hash(i, x) * w, y + P.hash(y, i) * h, S(soil, -.35));
+  const skull = (k, x, y) => { k.rect(x - 2, y - 4, 5, 4, BONE[2]); k.rect(x - 1, y, 3, 1, BONE[1]); k.px(x - 2, y - 4, BONE[3]); k.px(x - 1, y - 3, IRON[0]); k.px(x + 1, y - 3, IRON[0]); };
+  const chain = (k, x0, y0, x1, y1) => { const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / 2)); for (let i = 0; i <= n; i++) { const x = Math.round(x0 + (x1 - x0) * i / n), y = Math.round(y0 + (y1 - y0) * i / n); k.px(x, y, i % 2 ? IRON[3] : IRON[5]); if (!(i % 2)) k.px(x, y + 1, IRON[1]); } };
+  const sagChain = (k, x0, y0, x1, y1, sag = 4) => { const mx = (x0 + x1) >> 1, my = ((y0 + y1) >> 1) + sag; chain(k, x0, y0, mx, my); chain(k, mx, my, x1, y1); };
+  // Bone fence: femur rails between bone posts, a skull on every third post.
+  const boneFence = (k, x, y, len) => {
+    k.rect(x + 1, y + 1, len, 1, C.shadow); k.rect(x, y - 6, len, 2, BONE[1]); k.rect(x, y - 6, len, 1, BONE[2]); k.rect(x, y - 3, len, 1, BONE[0]);
+    for (let i = 0, n = 0; i <= len; i += 9, n++) { k.rect(x + i, y - 8, 2, 9, BONE[2]); k.px(x + i, y - 8, BONE[3]); k.px(x + i + 1, y - 2, BONE[0]); k.rect(x + i - 1, y - 9, 4, 1, BONE[1]); if (n % 3 === 0) skull(k, x + i + 1, y - 9); }
   };
-  const cabbage = (k, x, y) => { k.ellipse(x, y, 3, 2, C.leaf1); k.ellipse(x - 1, y - 1, 2, 1, C.leaf3); k.px(x - 1, y - 2, C.leaf5); k.px(x + 2, y + 1, C.leaf0); k.px(x - 3, y, C.leaf2); };
-  const carrot = (k, x, y) => { k.px(x, y, '#e8782a'); k.px(x + 1, y, '#c85a1e'); k.rect(x, y - 3, 1, 3, C.leaf3); k.px(x - 1, y - 3, C.leaf4); k.px(x + 1, y - 4, C.leaf4); k.px(x + 2, y - 2, C.leaf2); };
-  const pumpkin = (k, x, y, s = 3) => { k.ellipse(x + 1, y + 1, s + 1, 1, C.shadow); k.ellipse(x, y - 1, s, s - 1, '#d8742a'); k.rect(x - 1, y - s, 1, s * 2 - 1, '#b85a1e'); k.px(x - s + 1, y - 2, '#f0a050'); k.rect(x, y - s - 1, 1, 2, C.leaf1); };
-  const hen = f => P.sprite(`fm-hen|${f}`, 10, 9, 5, 8, q => {
-    const peck = f === 1; q.rect(-3, -5, 6, 4, C.white); q.rect(-3, -5, 6, 1, '#fff8e8'); q.rect(-4, -5, 1, 2, '#e8e0d0'); q.px(-3, -2, '#d8d0c0');
-    q.rect(peck ? 2 : 1, peck ? -4 : -7, 3, 3, C.white); q.px(peck ? 3 : 2, peck ? -5 : -8, C.red2); q.px(peck ? 5 : 4, peck ? -3 : -6, C.gold2); q.px(peck ? 3 : 2, peck ? -3 : -6, C.ink);
-    q.px(-1, -1, C.gold1); q.px(1, -1, C.gold1);
-  }, '#5a4a3a');
-  const sheepSprite = (f, lie) => P.sprite(`fm-sheep|${f}|${lie}`, 16, 12, 8, 10, q => {
-    const y = lie ? 2 : 0;
-    if (!lie) for (const x of [-4, -1, 2, 4]) q.rect(x, -3, 1, 3, '#3a302a');
-    q.ellipse(0, -6 + y, 6, 4, '#e8e2d2'); q.ellipse(-1, -7 + y, 5, 3, '#f6f2e6'); for (let i = 0; i < 5; i++) q.px(-4 + i * 2, -9 + y + (i % 2), C.white); q.px(3, -4 + y, '#c8c0b0'); q.px(-4, -4 + y, '#d0c8b8');
-    const hy = (f && !lie ? -4 : -7) + y; q.rect(5, hy, 3, 4, '#3a302a'); q.px(5, hy - 1, '#e8e2d2'); q.px(7, hy + 1, C.ink); q.px(4, hy, '#2a221e');
-  }, '#4a4038');
-  // Tower-mill sails: four lattice sails, symmetric every 90 degrees -> 9 frames of 10 degrees.
-  const sailSprite = f => P.sprite(`fm-sails|${f}`, 76, 76, 38, 38, q => {
+  const brazier = (k, x, y) => {
+    k.ellipse(x + 2, y + 1, 6, 2, C.shadow); k.line(x - 4, y, x - 1, y - 7, IRON[2]); k.line(x + 4, y, x + 1, y - 7, IRON[1]); k.rect(x, y - 7, 1, 7, IRON[3]);
+    k.poly([[x - 6, y - 11], [x + 6, y - 11], [x + 4, y - 7], [x - 4, y - 7]], IRON[2]); k.rect(x - 6, y - 11, 13, 1, IRON[4]); k.rect(x - 5, y - 12, 11, 1, LAVA[0]);
+  };
+  const flame = (k, x, y, t, s = 1, hue = 0) => {
+    const f = Math.floor(t * 12 + x) % 3, A = hue === 1 ? ['#b86a10', '#f4b73a', '#ffe08a'] : hue === 2 ? [TOX[2], TOX[4], TOX[5]] : [LAVA[3], LAVA[4], LAVA[5]];
+    k.poly([[x - 3 * s, y], [x - 1, y - (7 + f) * s], [x + 1, y - 4 * s], [x + 2 * s, y - (6 - f) * s], [x + 3 * s, y]], A[0]);
+    k.poly([[x - 2 * s, y], [x, y - (5 + f) * s], [x + 2 * s, y]], A[1]); k.px(x, y - 1, A[2]);
+  };
+  const embers = (k, x, y, t, n, spread = 10, rise = 30, speed = .6) => { for (let i = 0; i < n; i++) { const q = (t * speed + i / n) % 1; k.px(x + Math.sin(i * 2.3 + q * 4) * spread * (.3 + q), y - q * rise, q < .4 ? LAVA[5] : q < .7 ? LAVA[4] : LAVA[2]); } };
+  // Crops: red thorn-pods on black briar stems, and black thorn-wheat with ember-red ears.
+  const thornPod = (k, x, y, s) => {
+    k.line(x, y, x - 2, y - 5, THORN[0]); k.line(x, y, x + 2, y - 6, THORN[1]); k.rect(x, y - 4, 1, 4, THORN[1]);
+    k.px(x - 3, y - 3, THORN[1]); k.px(x + 3, y - 3, THORN[0]); k.px(x - 1, y - 2, BONE[1]); k.px(x + 1, y - 4, BONE[1]);
+    k.rect(x - 3, y - 7, 2, 2, THORN[3]); k.px(x - 3, y - 7, THORN[4]); if (s % 2) { k.rect(x + 2, y - 8, 2, 2, THORN[3]); k.px(x + 2, y - 8, THORN[4]); } if (s % 3 === 0) { k.rect(x, y - 6, 2, 2, THORN[2]); }
+  };
+  const thornWheat = (k, x, y, s) => { const h = 6 + (s % 3); k.rect(x, y - h, 1, h, BARK[2]); k.px(x - 1, y - h + 3, BARK[3]); k.px(x + 1, y - h + 5, BARK[1]); k.rect(x, y - h - 2, 1, 2, THORN[2]); k.px(x, y - h - 3, THORN[4]); k.px(x + 1, y - h - 1, THORN[3]); };
+  const basket = (k, x, y, full = true) => { k.ellipse(x + 4, y + 1, 5, 1, C.shadow); k.rect(x, y - 5, 9, 5, '#5a4630'); k.rect(x, y - 5, 9, 1, '#7a6040'); for (let i = 1; i < 9; i += 2) k.px(x + i, y - 3, '#3a2c1e'); if (full) { k.rect(x + 1, y - 7, 7, 2, THORN[3]); k.px(x + 2, y - 7, THORN[4]); k.px(x + 5, y - 8, THORN[2]); } };
+
+  /* ---------- Cached moving sprites ---------- */
+  const blitD = (k, s, x, y, off, flip = false) => { k.blit(s, x, y, flip); if (off) k.blit(P.tint(s, '#141c3c'), x, y, flip, .4); };
+  // Tattered windmill sails: four torn cloth sails on black spars, symmetric every 90 degrees -> 9 frames of 10 degrees.
+  const sailSprite = f => P.sprite(`fm-hell-sails|${f}`, 64, 64, 32, 32, q => {
     for (let i = 0; i < 4; i++) {
       const a = f * Math.PI / 18 + i * Math.PI / 2, c = Math.cos(a), s = Math.sin(a), T = (r, w) => [c * r - s * w, s * r + c * w];
-      q.poly([T(8, 1), T(35, 1), T(35, 8), T(8, 8)], C.paper2);
-      q.poly([T(8, 1), T(35, 1), T(35, 3), T(8, 3)], C.paper);
-      for (let r = 11; r <= 35; r += 5) q.line(...T(r, 1), ...T(r, 8), C.wood2);
-      q.line(...T(8, 8), ...T(35, 8), C.wood1); q.line(...T(2, 0), ...T(36, 0), C.wood1, 2);
+      q.poly([T(7, 1), T(29, 1), T(26, 7), T(20, 5), T(15, 8), T(7, 7)], i % 2 ? '#5a1a1c' : '#3a1418'); q.poly([T(7, 1), T(29, 1), T(28, 3), T(7, 3)], '#7a2a2a');
+      for (let r = 11; r <= 27; r += 5) q.line(...T(r, 1), ...T(r, 6), BARK[1]);
+      q.line(...T(2, 0), ...T(30, 0), BARK[2], 2);
     }
-    q.circle(0, 0, 4, C.wood1); q.circle(0, 0, 3, C.wood3); q.px(-1, -1, C.wood5); q.px(0, 0, C.wood0);
-  }, C.wood0);
-  const scarecrow = () => P.sprite('fm-scarecrow', 24, 32, 12, 30, q => {
-    const x = 0, y = 0; q.rect(x, y - 24, 2, 24, C.wood1); q.rect(x - 8, y - 18, 18, 2, C.wood1);
-    q.rect(x - 4, y - 18, 10, 9, C.teal2); q.rect(x - 4, y - 18, 10, 1, C.teal3); q.rect(x - 10, y - 17, 3, 3, C.gold3); q.rect(x + 9, y - 17, 3, 3, C.gold3);
-    q.rect(x - 2, y - 25, 6, 6, C.paper2); q.px(x - 1, y - 23, C.ink); q.px(x + 2, y - 23, C.ink); q.rect(x - 5, y - 27, 12, 2, C.gold2); q.rect(x - 2, y - 30, 6, 3, C.gold3); q.rect(x - 2, y - 28, 6, 1, C.red2);
+    q.circle(0, 0, 4, BARK[2]); q.circle(0, 0, 3, BARK[3]); q.px(-1, -1, BONE[2]); q.px(0, 0, IRON[0]);
+  }, C.ink);
+  // Water-lifting wheel (noria) with buckets: 12 buckets -> 6 frames of 5 degrees loop.
+  const noriaSprite = f => P.sprite(`fm-hell-noria|${f}`, 44, 44, 22, 22, q => {
+    const R = WHEEL.r, a0 = f * Math.PI / 36;
+    for (let i = 0; i < 6; i++) { const b = a0 + i * Math.PI / 3; q.line(Math.cos(b) * 3, Math.sin(b) * 3, Math.cos(b) * (R - 2), Math.sin(b) * (R - 2), BARK[2], 2); }
+    q.ring(0, 0, R - 1, R - 1, BARK[1]); q.ring(0, 0, R - 2, R - 2, BARK[3]); q.ring(0, 0, R - 5, R - 5, BARK[2]);
+    for (let i = 0; i < 12; i++) { const b = a0 + i * Math.PI / 6, x = Math.round(Math.cos(b) * R), y = Math.round(Math.sin(b) * R); q.rect(x - 2, y - 2, 4, 4, IRON[3]); q.px(x - 2, y - 2, IRON[5]); if (y > -4) q.rect(x - 1, y - 2, 2, 1, '#2a3a4a'); }
+    q.circle(0, 0, 4, IRON[2]); q.circle(0, 0, 3, IRON[3]); q.px(-1, -1, IRON[5]);
+  }, C.ink);
+  const scarecrow = sw => P.sprite(`fm-hell-scare|${sw}`, 26, 36, 13, 34, q => {
+    q.rect(0, -28, 2, 28, BARK[2]); q.rect(0, -28, 1, 28, BARK[4]); q.rect(-9, -21, 20, 2, BARK[2]);
+    q.poly([[-5, -21], [7, -21], [8 + sw, -8], [4, -11], [1, -6], [-2, -10], [-6 + sw, -7]], '#2a2228'); q.rect(-5, -21, 12, 1, '#4a3a44');
+    for (const x of [-10, 10]) { q.rect(x, -22, 2, 4, '#2a2228'); q.px(x + (x < 0 ? -1 : 2) + sw, -18, '#2a2228'); }
+    q.rect(-3, -30, 8, 7, BONE[2]); q.rect(-3, -30, 8, 1, BONE[3]); q.rect(-2, -27, 2, 2, IRON[0]); q.rect(2, -27, 2, 2, IRON[0]); q.px(1, -25, IRON[0]); q.rect(-1, -23, 5, 1, BONE[1]);
+    q.poly([[-3, -30], [-7, -35], [-2, -31]], BONE[1]); q.poly([[5, -30], [9, -35], [4, -31]], BONE[0]);
+    q.px(-1, -26, LAVA[4]); q.px(3, -26, LAVA[4]);
   });
-  // Ripe wheat field in four sway frames; drawn once each, blitted per frame.
-  const wheatSprite = f => P.sprite(`fm-wheat|${f}`, WHEAT.w, WHEAT.h + 6, 0, 6, q => {
-    for (let r = 0; r < WHEAT.h; r += 4) for (let x = 1 + (r % 8 ? 1 : 0); x < WHEAT.w - 1; x += 3) {
-      const sway = Math.round(Math.sin(f * Math.PI / 2 + x * .09 + r * .3) * 1.2), h = 5 + Math.floor(P.hash(x, r) * 3), y = r + 4;
-      q.rect(x, y - h + 2, 1, h - 2, r % 8 ? C.gold1 : '#a88428');
-      q.rect(x + sway, y - h, 1, 3, C.gold2); q.px(x + sway, y - h, C.gold3); if (P.hash(r, x) > .7) q.px(x + sway + 1, y - h + 1, C.gold4);
-    }
-  }, null);
+  const halo = (r, col) => P.sprite(`fm-hell-halo|${r}|${col}`, r * 2 + 2, r * 2 + 2, r + 1, r + 1, q => q.circle(0, 0, r, col), null);
 
   return {
     paint(k) {
-      /* ---- Ground: meadow edge, farmyard dirt, lanes ---- */
-      k.polyTex([[-150, 42], [150, 42], [182, 60], [186, 136], [22, 136], [-22, 136], [-60, 136], [-60, 44]], (x, y) => {
-        const h = P.hash(x * 5, y * 3); if (h < .07) return C.dirt1; if (h > .95) return C.stone3; if (h > .88) return C.dirt4; if (Math.abs(x) < 14 && y > 100) return (x + y) % 3 ? C.dirt3 : C.dirt4; return C.dirt3;
+      /* ---- Ground: ash-grey dust with cinders; a packed road to the gate ---- */
+      k.rectTex(-210, -165, 420, 320, (x, y) => {
+        const h = P.hash(x * 3, y * 5), g = P.hash(Math.floor((x + (y >> 2) * 3) / 5), y >> 2);
+        if (Math.abs(x + Math.sin(y * .05) * 2) < 12 && y > -50) return h > .85 ? ASH[6] : g > .5 ? ASH[5] : '#645a53';
+        if (h < .05) return ASH[2]; if (h > .975) return ASH[6]; if (h > .968) return '#5e2a1e';
+        return g > .6 ? ASH[3] : g > .25 ? ASH[4] : '#554b46';
       });
-      k.rect(-12, -42, 24, 86, C.dirt3); k.dither(-12, -42, 24, 86, C.dirt2, 1); k.rect(-12, -42, 1, 86, C.dirt2); k.rect(11, -42, 1, 86, C.dirt2);
-      k.rect(-182, -40, 364, 6, C.dirt3); k.dither(-182, -40, 364, 6, C.dirt2, 1);
-      for (let i = 0; i < 22; i++) { const x = -12 + P.hash(i, 7) * 24, y = -40 + P.hash(i, 8) * 84; k.px(x, y, C.dirt4); }
 
-      /* ---- Red barn with hayloft and silo ---- */
-      const bx = -162, by = -44, bw = 60;   // narrowed to clear the hexagon edge
-      Props.building(k, bx, by, { w: bw, h: 42, roofH: 28, roof: C.slate1, wall: RED[2], mat: 'planks', foundation: 4 });
-      for (let x = bx + 3; x < bx + bw - 2; x += 4) k.rect(x, by - 40, 1, 36, RED[1]);
-      k.rect(bx, by - 42, bw, 2, C.paper); k.rect(bx, by - 42, 2, 38, C.paper); k.rect(bx + bw - 2, by - 42, 2, 38, C.paper2);
-      // Big double door with white X braces.
-      const dx = bx + 16, dw = 28, dh = 26; k.rect(dx - 2, by - dh - 2, dw + 4, dh + 2, C.paper); k.rect(dx, by - dh, dw, dh, RED[1]);
-      for (const x0 of [dx, dx + dw / 2]) { k.rect(x0, by - dh, 1, dh, C.paper2); k.line(x0 + 1, by - dh + 1, x0 + dw / 2 - 2, by - 2, C.paper); k.line(x0 + dw / 2 - 2, by - dh + 1, x0 + 1, by - 2, C.paper); k.rect(x0, by - dh / 2 - 1, dw / 2, 1, C.paper); }
-      k.rect(dx + dw / 2, by - dh, 1, dh, RED[0]); k.rect(dx - 3, by, dw + 6, 2, C.stone3);
-      // Hayloft door, pulley beam and hay spilling out.
-      k.rect(dx + 7, by - 40, 14, 10, C.paper); k.rect(dx + 8, by - 39, 12, 9, '#3a2418'); k.rect(dx + 8, by - 33, 12, 3, C.gold2); k.px(dx + 10, by - 34, C.gold3); k.px(dx + 15, by - 34, C.gold3);
-      k.rect(dx + 12, by - 48, 3, 8, C.wood1); k.rect(dx + 12, by - 44, 8, 2, C.wood2); k.rect(dx + 18, by - 42, 1, 6, C.stone1); k.rect(dx + 17, by - 36, 3, 2, C.stone2);
-      Props.window(k, bx + 4, by - 30, 8, 8, { frame: C.paper }); Props.window(k, bx + 48, by - 30, 8, 8, { frame: C.paper });
-      // Silo: banded cylinder with a dome cap.
-      const sx = -102, sw = 22, stop = -98;
-      k.rect(sx + sw, stop + 4, 5, -44 - stop - 4, C.shadowSoft);
-      k.rect(sx, stop, sw, -44 - stop, C.stone3); k.rect(sx, stop, 5, -44 - stop, C.stone4); k.rect(sx + sw - 5, stop, 5, -44 - stop, C.stone2); k.rect(sx + sw - 2, stop, 2, -44 - stop, C.stone1);
-      for (let y = stop + 6; y < -46; y += 8) { k.rect(sx, y, sw, 1, C.stone1); k.rect(sx, y + 1, sw, 1, C.stone4); }
-      k.ellipse(sx + sw / 2, stop, sw / 2, 7, C.slate2); k.ellipse(sx + sw / 2 - 3, stop - 3, 5, 3, C.slate3); k.rect(sx, stop, sw, 2, C.slate0); k.rect(sx + sw / 2 - 1, stop - 10, 2, 3, C.slate1);
-      k.rect(sx + 4, stop + 6, 1, -50 - stop, C.wood1); for (let y = stop + 8; y < -48; y += 3) k.rect(sx + 3, y, 3, 1, C.wood2);
+      /* ---- Black canal and the water-lifting wheel (north-east) ---- */
+      k.poly([[40, -170], [210, -170], [210, -128], [150, -124], [96, -128], [56, -136]], BARK[1]);
+      k.polyTex([[44, -170], [210, -170], [210, -131], [150, -127], [96, -131], [58, -139]], (x, y) => { const h = P.hash(x, y * 3); if ((Math.floor(y / 2) + x * 3) % 19 === 0) return '#4a3a5a'; return h > .9 ? '#243040' : (x + y) & 1 ? '#161c26' : '#1a2230'; });
+      for (let x = 58; x < 150; x += 8) { k.rect(x, -133 + Math.round((x - 58) * .04), 6, 2, ASH[4]); k.px(x, -133 + Math.round((x - 58) * .04), ASH[6]); }
+      // Wheel frame, aqueduct trough to the fields, the capstan pit and its drive shaft.
+      for (const dx of [-14, 12]) { k.rect(WHEEL.x + dx, WHEEL.y - 4, 3, 30, BARK[2]); k.rect(WHEEL.x + dx, WHEEL.y - 4, 1, 30, BARK[4]); }
+      k.rect(WHEEL.x - 16, WHEEL.y - 6, 34, 3, BARK[3]); k.rect(WHEEL.x - 16, WHEEL.y - 6, 34, 1, BARK[4]);
+      k.rect(WHEEL.x - 40, WHEEL.y - 22, 32, 4, BARK[2]); k.rect(WHEEL.x - 40, WHEEL.y - 22, 32, 1, BARK[4]); k.rect(WHEEL.x - 39, WHEEL.y - 21, 30, 2, '#1a2230');
+      k.line(WHEEL.x - 38, WHEEL.y - 18, 44, -56, BARK[1], 4); k.line(WHEEL.x - 38, WHEEL.y - 19, 44, -57, BARK[3], 2); k.line(WHEEL.x - 38, WHEEL.y - 20, 44, -58, '#2a3a4a', 1);
+      for (const [x, y] of [[62, -84], [52, -70]]) { k.rect(x, y, 2, 14, BARK[2]); k.px(x, y, BARK[4]); }
+      k.ellipse(CAP.x, CAP.y + 2, CAP.rx + 6, CAP.ry + 4, ASH[2]); k.ellipse(CAP.x, CAP.y + 1, CAP.rx + 3, CAP.ry + 2, '#3a302c'); k.ring(CAP.x, CAP.y + 1, CAP.rx, CAP.ry, ASH[1]);
+      k.line(CAP.x, CAP.y - 14, WHEEL.x + 4, WHEEL.y + 6, BARK[2], 2); k.line(CAP.x, CAP.y - 15, WHEEL.x + 4, WHEEL.y + 5, BARK[4], 1);
 
-      /* ---- Tower windmill ---- */
-      const mx = MILL.x, mb = MILL.y, mt = -98;
-      k.poly([[mx + 13, mb], [mx + 21, mb - 3], [mx + 16, mt + 6], [mx + 8, mt]], C.shadow);
-      k.polyTex([[mx - 13, mb], [mx + 13, mb], [mx + 8, mt], [mx - 8, mt]], (x, y) => {
-        const f = (y - mt) / (mb - mt), half = 8 + 5 * f, u = (x - mx + half) / (half * 2);
-        if (u < .18) return C.plaster3; if (u > .8) return u > .92 ? C.plaster0 : C.plaster1;
-        return (y % 6 === 0 && (x + Math.floor(y / 6) * 3) % 6 !== 0) ? C.plaster1 : C.plaster2;
-      });
-      k.rect(mx - 14, mb - 4, 28, 4, C.stone2); k.rect(mx - 14, mb - 4, 28, 1, C.stone4);
-      Props.door(k, mx - 4, mb, 9, 13, C.wood2, { arch: true });
-      Props.window(k, mx - 3, mb - 32, 5, 6, { frame: C.wood1 }); Props.window(k, mx - 3, mb - 48, 5, 5, { frame: C.wood1 });
-      k.rect(mx - 12, mb - 22, 24, 2, C.wood2); k.rect(mx - 12, mb - 22, 24, 1, C.wood4); for (let x = mx - 12; x < mx + 12; x += 4) k.rect(x, mb - 20, 1, 3, C.wood1);
-      k.poly([[mx - 11, mt + 1], [mx + 11, mt + 1], [mx + 8, mt - 8], [mx, mt - 12], [mx - 8, mt - 8]], C.wood1);
-      k.poly([[mx - 9, mt], [mx + 1, mt], [mx, mt - 11], [mx - 7, mt - 8]], C.wood3); k.rect(mx - 11, mt, 22, 2, C.wood0);
-      for (let i = 0; i < 4; i++) Props.sack(k, mx + 16 + (i % 2) * 8, mb - 10 + Math.floor(i / 2) * 5, i % 2 ? C.plaster1 : C.paper2);
+      /* ---- Pentagram portal (Doom), top centre ---- */
+      { const { x, y, rx, ry } = PORTAL;
+        k.ellipse(x + 3, y + 3, rx + 6, ry + 4, C.shadow); k.ellipse(x, y, rx + 5, ry + 4, ASH[2]); k.ellipse(x, y - 1, rx + 4, ry + 3, ASH[5]); k.ellipse(x, y, rx, ry, '#140a0e');
+        k.ring(x, y, rx - 2, ry - 1, THORN[3]); const pts = []; for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 4 / 5; pts.push([x + Math.cos(a) * (rx - 3), y + Math.sin(a) * (ry - 1)]); } pts.push(pts[0]); k.path(pts, THORN[3], 1);
+        for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; k.rect(x + Math.cos(a) * (rx + 3) - 1, y + Math.sin(a) * (ry + 2) - 1, 3, 2, i % 2 ? ASH[3] : ASH[6]); }
+        for (const dx of [-rx - 8, rx + 4]) { k.rect(x + dx, y - 26, 5, 26, ASH[3]); k.rect(x + dx, y - 26, 1, 26, ASH[6]); k.rect(x + dx + 4, y - 26, 1, 26, ASH[1]); k.rect(x + dx - 1, y - 28, 7, 3, ASH[4]); skull(k, x + dx + 2, y - 29); for (let j = 0; j < 3; j++) k.px(x + dx + 2, y - 20 + j * 6, THORN[3]); } }
 
-      /* ---- Glasshouse ---- */
-      const gx = 18, gy = -50, gw = 100, gh = 26, gr = 16;
-      k.rect(gx + 3, gy - gh - gr, gw + 4, gh + gr + 3, C.shadowSoft);
-      k.rect(gx, gy - gh, gw, gh, '#2e4630');
-      for (let i = 0; i < 12; i++) { const x = gx + 5 + i * 8; k.ellipse(x, gy - 10, 4, 5, i % 2 ? C.leaf2 : C.leaf3); k.px(x - 1, gy - 13, C.leaf5); if (i % 3 === 0) { k.px(x + 1, gy - 9, C.red2); k.px(x - 2, gy - 7, C.red3); } if (i % 3 === 1) k.px(x, gy - 8, C.gold2); }
-      for (let i = 0; i < 6; i++) { const x = gx + 8 + i * 16; k.line(x, gy - gh + 2, x + 2, gy - 12, C.leaf1); k.px(x + 1, gy - gh + 6, C.leaf4); }
-      k.rect(gx, gy - 6, gw, 6, C.terra1); for (let x = gx; x < gx + gw; x += 5) k.px(x, gy - 4, C.terra0); k.rect(gx, gy - 6, gw, 1, C.terra3);
-      k.alpha(.45, () => { k.rect(gx, gy - gh, gw, gh - 6, C.glass); k.poly([[gx - 3, gy - gh], [gx + gw + 3, gy - gh], [gx + gw - 3, gy - gh - gr], [gx + 3, gy - gh - gr]], C.glass); });
-      k.poly([[gx - 3, gy - gh], [gx + gw + 3, gy - gh], [gx + gw - 3, gy - gh - gr], [gx + 3, gy - gh - gr]], P.alpha(C.water4, .35));
-      for (let x = gx; x <= gx + gw; x += 10) { k.rect(x, gy - gh, 1, gh - 6, C.white); k.line(x, gy - gh, x + (x - gx - gw / 2) * .06, gy - gh - gr, C.plaster3); }
-      k.rect(gx - 3, gy - gh - 1, gw + 6, 2, C.white); k.rect(gx + 3, gy - gh - gr - 1, gw - 6, 2, C.plaster3); k.rect(gx, gy - gh + 9, gw, 1, C.plaster3);
-      for (let i = 0; i < 6; i++) { const x = gx + 6 + i * 17; k.line(x, gy - gh - 3, x + 5, gy - gh - 12, C.white); k.line(x + 2, gy - 8, x + 6, gy - gh + 2, P.alpha(C.white, .6)); }
-      Props.door(k, gx + gw / 2 - 5, gy, 10, 16, C.teal2, {}); k.rect(gx + gw / 2 - 4, gy - 15, 8, 6, C.glass);
-      for (const x of [gx + 4, gx + gw - 10]) Props.pot(k, x, gy + 2);
+      /* ---- Black windmill (north-west) ---- */
+      { const mx = MILL.x, mb = MILL.y, mt = -110;
+        k.poly([[mx + 13, mb], [mx + 21, mb - 3], [mx + 16, mt + 6], [mx + 8, mt]], C.shadow);
+        k.polyTex([[mx - 13, mb], [mx + 13, mb], [mx + 8, mt], [mx - 8, mt]], (x, y) => { const f = (y - mt) / (mb - mt), half = 8 + 5 * f, u = (x - mx + half) / (half * 2); if (u < .18) return BARK[4]; if (u > .8) return u > .92 ? BARK[0] : BARK[1]; return (y % 5 === 0) ? BARK[1] : (P.hash(x, y) > .96 ? BARK[4] : BARK[2]); });
+        k.rect(mx - 14, mb - 4, 28, 4, ASH[3]); k.rect(mx - 14, mb - 4, 28, 1, ASH[5]);
+        k.rect(mx - 4, mb - 13, 9, 13, IRON[0]); k.rect(mx - 3, mb - 12, 7, 12, '#2a0e0c'); k.rect(mx - 2, mt + 14, 5, 6, '#1a0808');
+        k.poly([[mx - 11, mt + 1], [mx + 11, mt + 1], [mx + 7, mt - 7], [mx, mt - 13], [mx - 7, mt - 7]], BARK[1]); k.poly([[mx - 9, mt], [mx + 1, mt], [mx, mt - 12], [mx - 6, mt - 7]], BARK[3]); k.rect(mx - 11, mt, 22, 2, BARK[0]);
+        k.poly([[mx - 1, mt - 13], [mx + 1, mt - 13], [mx, mt - 19]], IRON[3]);
+        for (let i = 0; i < 3; i++) { const x = mx + 16 + (i % 2) * 8, y = mb - 2 + Math.floor(i / 2) * 5; k.ellipse(x + 3, y, 4, 3, '#4a3a2a'); k.ellipse(x + 2, y - 1, 3, 2, '#6a5236'); } }
 
-      /* ---- Orchard corner with beehives ---- */
-      Props.tree(k, 142, -98, 'fruit', 1, 1); Props.tree(k, 174, -104, 'blossom', 1, 2); Props.tree(k, 160, -72, 'orange', 1, 3); Props.tree(k, 178, -60, 'fruit', 0, 0);
-      for (let i = 0; i < 3; i++) { const x = 130 + i * 12, y = -48; k.rect(x + 2, y + 1, 9, 2, C.shadow); k.rect(x, y - 10, 9, 10, C.gold2); k.rect(x, y - 10, 9, 1, C.gold4); k.rect(x, y - 6, 9, 1, C.gold1); k.rect(x - 1, y - 12, 11, 2, C.wood2); k.rect(x + 3, y - 3, 3, 1, C.ink); }
+      /* ---- The fields: ash furrows, crops, a hoed strip and bone fences ---- */
+      for (const [F, crop] of [[FIELD_L, 0], [FIELD_R, 1]]) {
+        k.rect(F.x0 + 2, F.y1 + 1, F.x1 - F.x0, 2, C.shadowSoft); k.rect(F.x0, F.y0, F.x1 - F.x0, F.y1 - F.y0, SOIL[1]);
+        for (let r = 0, y = F.y0 + 4; y < F.y1 - 2; y += 8, r++) {
+          k.rect(F.x0, y, F.x1 - F.x0, 3, SOIL[3]); k.rect(F.x0, y, F.x1 - F.x0, 1, SOIL[4]); k.rect(F.x0, y + 3, F.x1 - F.x0, 1, SOIL[0]);
+          for (let x = F.x0 + 2; x < F.x1 - 2; x += 3) if (P.hash(x, y) > .7) k.px(x, y + 1, SOIL[2]);
+          const bare = (crop === 0 && r === 5) || (crop === 1 && r === 3);   // strips being hoed (crews stand here)
+          if (!bare) for (let x = F.x0 + 4 + (r % 2) * 3; x < F.x1 - 3; x += crop ? 5 : 7) { if (P.hash(x, r + crop * 9) < .1) continue; crop ? thornWheat(k, x, y + 2, x + r) : thornPod(k, x, y + 2, x + r); }
+        }
+        boneFence(k, F.x0, F.y0 - 2, F.x1 - F.x0); boneFence(k, F.x0, F.y1 + 6, F.x1 - F.x0);
+      }
+      // Irrigation trough ends pour onto the right field; a skull-lined ditch runs along the left field.
+      k.rect(38, -58, 10, 4, BARK[2]); k.rect(39, -57, 8, 2, '#1a2230');
+      for (let i = 0; i < 6; i++) skull(k, -170 + i * 30, 52);
 
-      /* ---- Crop beds, one per growth stage ---- */
-      // Seed rows: freshly tilled with first sprouts.
-      bed(k, -176, -30, 76, 24); for (let r = 0; r < 4; r++) for (let x = -172; x < -102; x += 5) { const y = -26 + r * 5 + 1; if (P.hash(x, r) > .35) { k.px(x, y, C.leaf3); k.px(x + 1, y - 1, C.leaf4); } }
-      // Leafy greens: cabbages and lettuce.
-      bed(k, -92, -30, 76, 24); for (let r = 0; r < 3; r++) for (let x = -87; x < -20; x += 9) cabbage(k, x + (r % 2) * 4, -24 + r * 8);
-      // Root crop: carrots with feathery tops.
-      bed(k, 18, -30, 76, 24); for (let r = 0; r < 4; r++) for (let x = 22; x < 92; x += 5) carrot(k, x + (r % 2) * 2, -23 + r * 5);
-      // Pumpkin patch with vines.
-      bed(k, 102, -30, 80, 24, C.dirt2); for (let i = 0; i < 6; i++) k.line(104 + i * 13, -26 + (i % 2) * 8, 114 + i * 13, -20 + (i % 3) * 3, C.leaf1);
-      for (let i = 0; i < 10; i++) { const x = 106 + (i * 17) % 74, y = -24 + (i * 7) % 18; k.ellipse(x, y, 3, 2, C.leaf2); k.px(x - 1, y - 1, C.leaf4); }
-      for (const [x, y, s] of [[112, -14, 4], [132, -22, 3], [150, -12, 4], [170, -20, 3], [124, -8, 3], [164, -8, 3]]) pumpkin(k, x, y, s);
-      // Wheat field bed (the ears are animated), with a scarecrow.
-      bed(k, WHEAT.x, WHEAT.y, WHEAT.w, WHEAT.h, '#9a7a44');
-      // Tomatoes on stakes.
-      bed(k, 18, 2, 76, 34); for (let i = 0; i < 8; i++) { const x = 24 + i * 9; k.rect(x, 6, 1, 26, C.wood3); for (let j = 0; j < 4; j++) { k.ellipse(x + (j % 2 ? 1 : -1), 12 + j * 6, 3, 3, j % 2 ? C.leaf2 : C.leaf1); k.px(x - 1, 11 + j * 6, C.leaf4); if ((i + j) % 2) { k.rect(x + 1, 13 + j * 6, 2, 2, C.red2); k.px(x + 1, 13 + j * 6, C.red3); } } }
-      // Sweetcorn: tall stalks with tassels and cobs.
-      bed(k, 102, 2, 80, 34); for (let r = 0; r < 3; r++) for (let x = 106 + r * 2; x < 180; x += 7) { const y = 14 + r * 10; k.rect(x, y - 12, 1, 12, C.leaf2); k.line(x, y - 5, x + 3, y - 8, C.leaf3); k.line(x, y - 8, x - 3, y - 10, C.leaf1); k.rect(x - 1, y - 14, 3, 2, C.gold3); if ((x + r) % 3 === 0) { k.rect(x + 1, y - 7, 2, 3, C.gold2); k.px(x + 1, y - 7, C.leaf4); } }
-      // Irrigation channel and hand pump between the beds.
-      k.rect(-176, -4, 176, 2, C.water1); k.rect(-176, -4, 176, 1, C.water3); k.rect(18, -4, 164, 2, C.water1); k.rect(18, -4, 164, 1, C.water3);
+      /* ---- Slave hut, cauldron and firewood (south-west) ---- */
+      { const hx = -170, hy = 90; k.rect(hx + 3, hy - 2, 44, 4, C.shadow); k.rect(hx, hy - 20, 40, 20, BARK[2]); for (let x = hx + 2; x < hx + 40; x += 4) { k.rect(x, hy - 20, 1, 20, BARK[1]); k.px(x + 2, hy - 16 + (x % 9), BARK[3]); }
+        k.poly([[hx - 5, hy - 18], [hx + 45, hy - 18], [hx + 38, hy - 34], [hx + 2, hy - 34]], '#3a3228'); for (let i = 0; i < 12; i++) k.line(hx - 3 + i * 4, hy - 18, hx + 3 + i * 3, hy - 34, '#524634'); k.rect(hx - 5, hy - 19, 50, 1, '#221c16');
+        k.rect(hx + 15, hy - 14, 10, 14, '#120c0c'); k.rect(hx + 4, hy - 14, 7, 5, '#120c0c'); k.rect(hx + 29, hy - 14, 7, 5, '#120c0c');
+        for (let i = 0; i < 3; i++) { k.rect(hx + 40 + i * 2, hy - 8, 1, 8, IRON[3]); } sagChain(k, hx + 42, hy - 6, hx + 56, hy + 6, 3); }
+      { const { x, y } = POT; k.ellipse(x + 3, y + 3, 16, 4, C.shadow);
+        for (let i = 0; i < 5; i++) k.line(x - 10 + i * 5, y + 4, x - 6 + i * 3, y - 2, BARK[2], 2);
+        k.line(x - 14, y + 2, x - 11, y - 22, BARK[2], 2); k.line(x + 14, y + 2, x + 11, y - 22, BARK[2], 2); k.rect(x - 12, y - 24, 25, 2, BARK[3]); k.line(x, y - 22, x, y - 16, IRON[3]);
+        k.ellipse(x, y - 6, 12, 9, IRON[1]); k.ellipse(x - 2, y - 8, 9, 6, IRON[2]); k.px(x - 7, y - 10, IRON[4]); k.ellipse(x, y - 14, 11, 3, IRON[3]); k.ellipse(x, y - 14, 9, 2, TOX[2]); k.ellipse(x - 1, y - 15, 6, 1, TOX[3]);
+        k.rect(x + 12, y - 20, 2, 18, '#5a4630'); k.ellipse(x + 13, y - 2, 3, 1, '#3a2c1e'); }
+      for (let i = 0; i < 6; i++) basket(k, -140 + (i % 3) * 11, 122 - Math.floor(i / 3) * 7, i < 4);
+      for (let i = 0; i < 7; i++) { const x = -60 + (i % 3) * 4, y = 80 - Math.floor(i / 3) * 2; k.line(x, y, x + 5, y - 1, BONE[1 + (i % 3)]); } skull(k, -54, 74);
 
-      /* ---- Paddock with coop, trough and animals ---- */
-      k.rect(PEN.x0, PEN.y0, PEN.x1 - PEN.x0, PEN.y1 - PEN.y0, C.grass3); k.dither(PEN.x0, PEN.y0, PEN.x1 - PEN.x0, PEN.y1 - PEN.y0, C.grass4, 1);
-      for (let i = 0; i < 18; i++) Props.tuft(k, PEN.x0 + 4 + P.hash(i, 71) * 110, PEN.y0 + 6 + P.hash(i, 72) * 70, C.grass1, C.grass5);
-      k.ellipse(-126, 112, 14, 6, C.dirt2); k.dither(-140, 106, 28, 12, C.dirt3, 1);
-      Props.building(k, -146, 96, { w: 30, h: 18, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 10, w: 8, h: 9, color: C.wood1, open: true }, foundation: 2 });
-      k.line(-132, 96, -126, 102, C.wood2, 2); for (let i = 0; i < 3; i++) k.rect(-131 + i * 2, 97 + i * 2, 1, 1, C.wood4);
-      k.rect(-100, 58, 22, 6, C.wood1); k.rect(-99, 59, 20, 3, C.water2); k.rect(-99, 59, 20, 1, C.water4); k.rect(-100, 64, 2, 2, C.wood0); k.rect(-80, 64, 2, 2, C.wood0);
-      Props.fence(k, PEN.x0, PEN.y0, PEN.x1 - PEN.x0); Props.fence(k, PEN.x0, PEN.y1, PEN.x1 - PEN.x0);
-      Props.fence(k, PEN.x0, PEN.y0, PEN.y1 - PEN.y0, true); Props.fence(k, PEN.x1, PEN.y0, 36, true); Props.fence(k, PEN.x1, PEN.y0 + 54, PEN.y1 - PEN.y0 - 54, true);
-      k.rect(-78, 76, 8, 5, C.gold2); k.rect(-78, 76, 8, 1, C.gold3); k.rect(-72, 80, 6, 4, C.gold1);
-
-      /* ---- Farmyard: well, hay bales, produce stand, cart ---- */
-      Props.well(k, -36, 88);
-      const bale = (x, y) => { k.rect(x + 2, y + 1, 14, 2, C.shadow); k.rect(x, y - 8, 14, 8, C.gold2); k.rect(x, y - 8, 14, 1, C.gold3); k.rect(x, y - 1, 14, 1, C.gold0); k.rect(x + 4, y - 8, 1, 8, C.gold1); k.rect(x + 9, y - 8, 1, 8, C.gold1); for (let i = 0; i < 4; i++) k.px(x + 1 + i * 3, y - 5 + (i % 2), C.gold4); };
-      for (const [x, y] of [[106, 128], [120, 128], [113, 120], [127, 120], [120, 112], [132, 104]]) bale(x, y);   // stacked inside the hexagon's cut corner
-      const round = (x, y) => { k.ellipse(x + 2, y + 1, 9, 2, C.shadow); k.circle(x, y - 6, 7, C.gold1); k.circle(x - 1, y - 7, 5, C.gold2); k.ring(x - 1, y - 7, 3, 3, C.gold1); k.px(x - 3, y - 10, C.gold4); };
-      round(118, 96); round(150, 92); round(102, 84);
-      Props.cart(k, CARTP.x, CARTP.y, (q, x, y) => { for (let i = 0; i < 3; i++) { q.circle(x + 5 + i * 6, y - 1, 3, i === 1 ? C.red2 : '#d8742a'); q.px(x + 4 + i * 6, y - 3, C.white); } q.ellipse(x + 11, y - 5, 4, 3, C.leaf2); q.px(x + 10, y - 7, C.leaf4); });
-      for (let i = 0; i < 4; i++) { const x = 64 + (i % 2) * 11, y = 118 - Math.floor(i / 2) * 9; Props.crate(k, x, y, 10); for (let j = 0; j < 3; j++) k.circle(x + 2 + j * 3, y, 1, [C.red2, '#d8742a', C.leaf3, C.gold2][i]); }
-      for (const [x, y, s] of [[92, 128, 4], [100, 124, 3], [86, 122, 3], [96, 118, 3]]) pumpkin(k, x, y, s);
-      Props.sack(k, 50, 124, C.plaster1); Props.sack(k, 42, 128, C.paper2); Props.barrel(k, 110, 98);
-      // Scarecrow, lamp, gate sign and edging flowers.
-      Props.sign(k, 28, 140, 'FARM', C.leaf1); Props.lamp(k, -22, 136, false); Props.lamp(k, 14, -44, false);
-      Props.flowerBed(k, -56, 124, 28, 10, ['#f2c14e', '#e46c52', '#f6ecd0'], 5);
-      for (const [x, y] of [[180, 40], [180, 80], [-180, 40], [-56, 50], [180, 134]]) Props.bush(k, x, y, 1);
-      for (let i = 0; i < 16; i++) Props.flower(k, -186 + P.hash(i, 81) * 372, -140 + P.hash(i, 82) * 12, ['#f2c14e', '#f6ecd0', '#e98aa0'][i % 3]);
-      for (let i = 0; i < 20; i++) Props.tuft(k, -120 + P.hash(i, 91) * 240, -140 + P.hash(i, 92) * 20, C.grass1, C.grass4);
-      // Back boundary: herb beds, a duck pond with reeds, hedges and a split-rail fence.
-      Props.fence(k, -150, -140, 114); Props.hedge(k, 100, -148, 46, 7);
-      Props.flowerBed(k, -148, -134, 32, 12, ['#c3a2c0', '#f6ecd0', C.leaf4], 3); Props.flowerBed(k, -112, -134, 30, 12, ['#f2c14e', '#e46c52', C.leaf4], 4);
-      Props.pond(k, 28, -128, 26, 9); k.rect(2, -120, 10, 2, C.wood2); k.rect(2, -120, 10, 1, C.wood4); for (const x of [3, 10]) k.rect(x, -118, 1, 4, C.wood1);
-      for (let i = 0; i < 7; i++) { const x = -78 + i * 5; k.rect(x, -140, 1, 12, C.leaf1); k.line(x, -134, x + 2, -136, C.leaf3); k.circle(x, -142, 2, C.gold2); k.px(x, -142, C.wood1); }
-      Props.tree(k, 76, -120, 'oak', 0, 2); Props.tree(k, 100, -116, 'birch', 0, 1); Props.bush(k, -94, -128, 2); Props.bush(k, 62, -136, 1);
-      // Tool shed with hung hoes and watering cans in the east yard.
-      Props.building(k, 122, 80, { w: 48, h: 22, roofH: 12, roof: C.terra1, wall: C.wood3, mat: 'planks', door: { x: 6, w: 12, h: 14, color: C.wood1, open: true }, windows: [{ x: 32, y: 6, w: 8, h: 7 }], foundation: 2 });
-      for (let i = 0; i < 3; i++) { k.rect(142 + i * 4, 62, 1, 14, C.wood4); k.rect(141 + i * 4, 75, 3, 2, C.stone2); }
-      k.rect(112, 72, 6, 5, '#6a8aa0'); k.line(118, 73, 121, 70, '#6a8aa0'); k.rect(112, 72, 6, 1, '#8aaac0');
-      { const x = 72, y = 70; k.ellipse(x + 8, y + 1, 11, 2, C.shadow); k.line(x + 12, y - 4, x + 22, y - 1, C.wood1, 2); k.poly([[x - 2, y - 9], [x + 14, y - 9], [x + 12, y - 2], [x + 1, y - 2]], C.wood2); k.rect(x - 1, y - 9, 15, 1, C.wood4); pumpkin(k, x + 3, y - 9, 3); pumpkin(k, x + 9, y - 10, 3); k.circle(x + 2, y - 1, 3, C.wood0); k.circle(x + 2, y - 1, 2, C.stone1); }
-      k.ellipse(40, 66, 12, 5, C.dirt1); k.ellipse(39, 64, 9, 4, '#5a4a2a'); for (let i = 0; i < 8; i++) k.px(30 + P.hash(i, 5) * 18, 61 + P.hash(i, 6) * 6, i % 2 ? C.leaf3 : '#d8742a');
+      /* ---- Harvest cart, Red Eye banner and signal pole (south-east) ---- */
+      Props.cart(k, CARTP.x, CARTP.y, (q, x, y) => { for (let i = 0; i < 3; i++) { q.rect(x + 2 + i * 7, y - 6, 6, 5, '#5a4630'); q.rect(x + 3 + i * 7, y - 8, 4, 2, THORN[3]); q.px(x + 3 + i * 7, y - 8, THORN[4]); } });
+      for (let i = 0; i < 4; i++) basket(k, 94 + (i % 2) * 11, 126 - Math.floor(i / 2) * 7);
+      { const x = 142, y = 90; k.rect(x, y - 50, 2, 50, BARK[2]); k.rect(x, y - 50, 1, 50, BARK[4]); k.poly([[x - 1, y - 50], [x + 3, y - 50], [x + 1, y - 55]], IRON[4]);
+        k.rect(x + 2, y - 48, 18, 24, '#141214'); k.rect(x + 2, y - 48, 18, 1, IRON[3]); for (let i = 0; i < 3; i++) k.poly([[x + 2 + i * 6, y - 24], [x + 8 + i * 6, y - 24], [x + 5 + i * 6, y - 20]], '#141214');
+        k.ellipse(x + 11, y - 36, 7, 4, LAVA[2]); k.ellipse(x + 11, y - 36, 5, 3, LAVA[4]); k.rect(x + 10, y - 39, 2, 7, IRON[0]); k.px(x + 7, y - 36, LAVA[5]); }
+      { const { x, y } = TOWER; k.ellipse(x + 3, y + 1, 7, 2, C.shadow); k.rect(x - 1, y - 34, 3, 34, BARK[2]); k.rect(x - 1, y - 34, 1, 34, BARK[4]); k.line(x - 6, y, x, y - 12, BARK[1]); k.line(x + 6, y, x + 1, y - 12, BARK[1]);
+        k.poly([[x - 6, y - 38], [x + 7, y - 38], [x + 5, y - 34], [x - 4, y - 34]], IRON[2]); k.rect(x - 6, y - 39, 14, 1, IRON[4]); }
+      brazier(k, -30, 64); brazier(k, 150, 110);
+      // Drying rack of thorn-pods and a gruel trough (south-east yard).
+      { const x = 78, y = 88; k.rect(x + 2, y, 40, 2, C.shadow); for (const dx of [0, 36]) { k.rect(x + dx, y - 22, 2, 22, BARK[2]); k.px(x + dx, y - 22, BARK[4]); } k.rect(x, y - 22, 38, 2, BARK[3]); k.rect(x, y - 12, 38, 1, BARK[2]);
+        for (let i = 0; i < 8; i++) { const px = x + 3 + i * 4; k.rect(px, y - 20, 1, 3 + (i % 3), '#5a4630'); k.rect(px - 1, y - 17 + (i % 3), 3, 3, THORN[i % 2 ? 3 : 2]); k.px(px - 1, y - 17 + (i % 3), THORN[4]); }
+        for (let i = 0; i < 6; i++) { const px = x + 5 + i * 5; k.rect(px, y - 10, 3, 4, BONE[i % 2 ? 1 : 2]); } }
+      k.rect(96, 104, 26, 5, BARK[2]); k.rect(97, 105, 24, 2, '#6a645a'); k.rect(96, 104, 26, 1, BARK[4]);
+      for (const [x, y] of [[-176, -110], [-160, -130], [-178, -80], [160, -30], [178, -10]]) { for (let j = 0; j < 3; j++) { k.line(x + j * 3, y, x + j * 3 - 3, y - 6, THORN[0]); k.line(x + j * 3, y, x + j * 3 + 2, y - 7, THORN[1]); k.px(x + j * 3 - 3, y - 6, THORN[3]); } }
+      Props.sign(k, 20, 142, 'NURN', '#3a2622');
+      for (let i = 0; i < 16; i++) { const x = -170 + P.hash(i, 31) * 340, y = 60 + P.hash(i, 37) * 80; if (Math.abs(x) > 18) { k.px(x, y, BONE[0]); k.px(x + 1, y, BONE[1]); } }
+      for (let i = 0; i < 10; i++) { const x = -60 + P.hash(i, 41) * 180, y = -150 + P.hash(i, 43) * 14; if (Math.abs(x - PORTAL.x) > 40) { k.line(x, y, x - 2, y - 4, THORN[0]); k.line(x, y, x + 2, y - 5, THORN[1]); k.px(x - 2, y - 4, THORN[3]); } }
     },
 
     animate(k, t, state, z) {
-      const run = state === 'working', live = state !== 'off', wait = state === 'waiting', err = state === 'error';
-      const dim = (s, x, y, flip) => { k.blit(s, x, y, flip); if (!live) k.blit(P.tint(s, '#141c3c'), x, y, flip, .4); };
+      const run = state === 'working', live = state !== 'off', wait = state === 'waiting', err = state === 'error', idle = state === 'idle';
+      const W = (x, y, kind, o = {}) => z.crew(x, y, { kind, ...o });
+      const crack = ph => (window.AgentCharacters?.crackAge ? AgentCharacters.crackAge(t, { phase: ph }) : 9) < .5;
+      const R = (x, y, kind, o = {}) => z.crew(x, y, { kind, ...o, state: 'working' });
 
-      /* Wheat sways in the breeze (still when off). */
-      dim(wheatSprite(live ? Math.floor(t * 2.5) % 4 : 0), WHEAT.x, WHEAT.y);
-      dim(scarecrow(), -150, 24);
-      // A cut swathe where the harvester is working.
-      if (run) { const cut = Math.floor(((t * .04) % 1) * 40); k.rect(WHEAT.x + 118 - cut, WHEAT.y + 18, cut + 20, 14, '#9a7a44'); k.dither(WHEAT.x + 118 - cut, WHEAT.y + 18, cut + 20, 14, '#c4a060', 0); for (let x = WHEAT.x + 119 - cut; x < WHEAT.x + 138; x += 3) k.rect(x, WHEAT.y + 26, 1, 2, C.gold1); }
-
-      /* Windmill sails: turning while working, braked otherwise, jammed and smoking on error. */
-      const sf = run ? Math.floor(t * 8) % 9 : err ? 4 : 0;
-      dim(sailSprite(sf), MILL.x, MILL.hub);
-      if (err) { Props.smoke(k, MILL.x + 4, MILL.hub - 6, t, 5, '#5a5650'); for (let i = 0; i < 5; i++) { const q = (t * 3.5 + i / 5) % 1; k.px(MILL.x + 3 + Math.cos(i * 1.3) * q * 12, MILL.hub + Math.sin(i * 1.3) * q * 8 + q * q * 10, q < .5 ? C.gold4 : C.red3); } }
-      if (run && z.detail) for (let i = 0; i < 3; i++) { const q = (t * .6 + i / 3) % 1; k.alpha((1 - q) * .8, () => k.px(MILL.x + 22 + q * 6, MILL.y - 18 - q * 10, C.paper)); }
-
-      if (live) for (let i = 0; i < 3; i++) { const x = 28 + Math.round(Math.sin(t * .3 + i * 2.1) * 14), y = -129 + i * 3, fl = Math.cos(t * .3 + i * 2.1) < 0; k.rect(x - 2, y, 5, 2, i ? C.white : '#6a5a3a'); k.rect(fl ? x - 3 : x + 2, y - 2, 2, 2, i ? C.white : C.leaf1); k.px(fl ? x - 4 : x + 4, y - 1, C.gold2); k.rect(x - 2, y + 2, 5, 1, C.water4); }
-      /* Animals. Off: sheep lie down and hens are in the coop. */
-      SHEEP.forEach(([x, y], i) => {
-        const dx = live ? Math.round(Math.sin(t * .25 + i * 2) * 4) : 0;
-        dim(sheepSprite(live ? Math.floor(t * .8 + i * .7) % 2 : 0, !live || (state === 'idle' && i % 2 === 0)), x + dx, y, i % 2 === 1);
-      });
-      if (live) HENS.forEach(([x, y], i) => {
-        let hx = x + Math.round(Math.sin(t * .6 + i * 1.7) * 6), hy = y, f = Math.floor(t * 3 + i) % 3 === 0 ? 1 : 0;
-        if (err) { const q = (t * .15 + i / 5) % 1; hx = -60 + ((q * 240 + i * 31) % 240) - 20; hy = 42 + (i * 9) % 12; f = Math.floor(t * 8) % 2; } // escaped through the broken rail
-        k.blit(hen(f), hx, hy, Math.sin(t * .6 + i * 1.7 + 1.57) < 0);
-      });
-      if (err) { k.rect(PEN.x1 - 2, PEN.y0 + 40, 12, 2, C.wood2); k.line(PEN.x1 + 2, PEN.y0 + 44, PEN.x1 + 12, PEN.y0 + 50, C.wood2, 2); }
-
-      /* Waiting: harvest piled at the gate on hold. */
-      if (wait) {
-        for (let i = 0; i < 6; i++) { const x = 44 + (i % 3) * 11, y = 100 - Math.floor(i / 3) * 9; Props.crate(k, x, y, 10); k.circle(x + 4, y, 2, i % 2 ? C.red2 : '#d8742a'); }
-        for (let i = 0; i < 4; i++) Props.sack(k, -60 + i * 9, 40 + (i % 2) * 3, C.plaster1);
-        k.rect(CARTP.x + 2, CARTP.y - 30, 28, 11, C.ink); k.rect(CARTP.x + 3, CARTP.y - 29, 26, 9, C.waiting); k.text('HOLD', CARTP.x + 9, CARTP.y - 27, C.ink);
+      /* Portal: swirling red glow, pentagram pulsing; lost souls circle out of it (a swarm on error). */
+      const pa = run ? 1 : err ? 1.3 : live ? .5 : .12;
+      k.alpha(pa * (.2 + .08 * Math.sin(t * 3)), () => k.blit(halo(16, THORN[3]), PORTAL.x, PORTAL.y - 6));
+      if (live) {
+        for (let i = 0; i < 8; i++) { const a = t * (run || err ? 2.4 : .8) + i * Math.PI / 4, r = .4 + .5 * ((i % 3) / 2); k.px(PORTAL.x + Math.cos(a) * (PORTAL.rx - 4) * r, PORTAL.y + Math.sin(a) * (PORTAL.ry - 2) * r, i % 2 ? '#e0a8ff' : THORN[4]); }
+        const pts = []; for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 4 / 5; pts.push([PORTAL.x + Math.cos(a) * (PORTAL.rx - 3), PORTAL.y + Math.sin(a) * (PORTAL.ry - 1)]); } pts.push(pts[0]);
+        k.alpha(pa * (.5 + .4 * Math.sin(t * 4)), () => k.path(pts, err ? C.error : LAVA[4], 1));
+        embers(k, PORTAL.x, PORTAL.y - 2, t, run ? 6 : 3, 18, 26, .5);
       }
-      /* State lantern on the lane post and window glow in the glasshouse. */
-      const sig = !live ? C.slate1 : err ? (Math.floor(t * 4) % 2 ? C.error : C.red0) : wait ? (Math.floor(t * 1.5) % 2 ? C.waiting : C.gold1) : run ? C.working : C.idle;
-      k.rect(13, -64, 6, 5, sig); if (live) k.px(13, -64, C.white);
-      if (live && (err || wait)) k.alpha(.25 + .15 * Math.sin(t * 6), () => k.circle(16, -62, 7, sig));
-      if (live) k.rect(-23, 115, 4, 3, C.glassLit);
+      const souls = run ? 3 : err ? 5 : idle || wait ? 1 : 0;
+      for (let i = 0; i < souls; i++) {
+        const q = (t * (err ? .22 : .12) + i / souls) % 1, a = q * Math.PI * 2;
+        const sx = PORTAL.x + Math.cos(a) * (err ? 70 + i * 12 : 44 + i * 10), sy = PORTAL.y + 34 + Math.sin(a) * (err ? 30 : 16);
+        R(Math.round(sx), Math.round(sy), 'lostsoul', { anim: 'idle', facing: Math.sin(a) > 0 ? -1 : 1, phase: i * .3, mark: false });
+      }
 
-      /* Crew. */
+      /* Windmill sails: turning while working, braked otherwise, burning on error. */
+      const sf = run ? Math.floor(t * 6) % 9 : err ? 3 : 0;
+      blitD(k, sailSprite(sf), MILL.x, MILL.hub, !live);
+      if (err) { flame(k, MILL.x + 6, MILL.hub - 4, t, 1.5); flame(k, MILL.x - 14, MILL.hub + 12, t + .4, 1); Props.smoke(k, MILL.x, MILL.hub - 10, t * 1.3, 6, '#141012'); }
+      if (live) { k.alpha(.4 + .2 * Math.sin(t * 3), () => k.rect(MILL.x - 2, -96, 5, 6, err ? C.error : LAVA[3])); }
+
+      /* Noria wheel lifts black water while the capstan turns; drips spill into the trough. */
+      const nf = run ? Math.floor(t * 8) % 6 : 0;
+      blitD(k, noriaSprite(nf), WHEEL.x, WHEEL.y, !live);
+      if (run) { for (let i = 0; i < 3; i++) { const q = (t * 2 + i / 3) % 1; k.px(WHEEL.x - 10 - q * 4, WHEEL.y - 16 + q * 6, '#6a7a9a'); } for (let i = 0; i < 4; i++) k.px(40 + (i * 3) % 6, -54 + ((t * 30 + i * 5) % 10), '#4a5a7a'); }
+
+      /* Capstan: chained goblins walk the ring, pushing the spokes; a Nazgûl cracks the whip over them. */
+      const ca = run ? t * .5 : 0;
+      const capWalker = i => { const a = ca + i * Math.PI * 2 / 3, x = Math.round(CAP.x + Math.cos(a) * CAP.rx), y = Math.round(CAP.y + Math.sin(a) * CAP.ry) + 2; return [x, y, a]; };
+      const walkers = [0, 1, 2].map(i => capWalker(i));
+      const drawCapPost = () => { k.rect(CAP.x - 2, CAP.y - 16, 5, 18, BARK[2]); k.rect(CAP.x - 2, CAP.y - 16, 1, 18, BARK[4]); k.rect(CAP.x - 3, CAP.y - 17, 7, 2, IRON[3]); };
+      const drawWalker = ([x, y, a], i) => {
+        k.line(CAP.x, CAP.y - 10, x, y - 10, BARK[3], 2);
+        if (run) W(x, y, 'goblin', { anim: 'chained', facing: -Math.sin(a) > 0 ? 1 : -1, phase: i * .3, look: i });
+        else if (idle) W(x, y, 'goblin', { anim: 'sit', chains: true, phase: i * .3, look: i });
+        else W(x, y, 'goblin', { anim: 'idle', chains: true, phase: i * .3, look: i });
+      };
+      walkers.forEach((w, i) => { if (w[1] <= CAP.y + 2) drawWalker(w, i); }); drawCapPost(); walkers.forEach((w, i) => { if (w[1] > CAP.y + 2) drawWalker(w, i); });
+
+      /* Cauldron: green bubbles and steam; boils over on error. */
+      if (live) {
+        flame(k, POT.x - 4, POT.y + 3, t, err ? 1.5 : 1); flame(k, POT.x + 5, POT.y + 3, t + .3, err ? 1.3 : .8);
+        for (let i = 0; i < 4; i++) { const q = (t * 1.2 + i / 4) % 1, bx = POT.x - 6 + i * 4; if (q < .7) k.px(bx, POT.y - 15 - Math.round(q * 2), TOX[5]); else { k.px(bx - 1, POT.y - 17, TOX[4]); k.px(bx + 1, POT.y - 17, TOX[4]); } }
+        Props.smoke(k, POT.x + 2, POT.y - 18, t * (run ? 1 : .5), run ? 4 : 2, err ? '#1e2a14' : '#6a8a5a');
+      } else for (let i = 0; i < 3; i++) k.px(POT.x - 4 + i * 4, POT.y + 3, LAVA[1]);
+      if (err) for (let i = 0; i < 5; i++) { const q = (t * 1.3 + i / 5) % 1, d = i % 2 ? 1 : -1; k.circle(POT.x + d * (6 + q * 16), POT.y - 14 - Math.sin(q * Math.PI) * 14 + q * 16, 1, TOX[4]); }
+
+      /* Braziers, the Red Eye's glow and the signal fire (amber while waiting). */
+      for (const [x, y] of [[-30, 52], [150, 98]]) if (live) flame(k, x, y, t, err ? 1.4 : 1);
+      if (live) k.alpha(.4 + .25 * Math.sin(t * 2), () => k.blit(halo(8, LAVA[4]), 153, 54));
+      const sx = TOWER.x, sy = TOWER.y - 39;
+      if (wait) { flame(k, sx, sy, t, 2, 1); flame(k, sx - 2, sy, t + .3, 1, 1); k.alpha(.25 + .1 * Math.sin(t * 5), () => k.circle(sx, sy - 6, 10, C.waiting)); Props.banner(k, sx + 3, sy + 10, C.waiting, t, 10); }
+      else if (live) flame(k, sx, sy, t, err ? 1.4 : .8);
+      const lamp = !live ? C.slate1 : err ? (Math.floor(t * 4) % 2 ? C.error : C.red0) : wait ? (Math.floor(t * 1.5) % 2 ? C.waiting : C.gold1) : run ? C.working : C.idle;
+      k.rect(sx + 3, sy + 12, 5, 6, C.ink); k.rect(sx + 4, sy + 13, 3, 4, lamp); if (live) k.px(sx + 4, sy + 13, C.white);
+      if (live && (err || wait)) k.alpha(.25 + .15 * Math.sin(t * 6), () => k.circle(sx + 5, sy + 15, 7, lamp));
+
+      /* Scarecrow rags flap. */
+      blitD(k, scarecrow(live ? Math.floor(t * 2) % 2 : 0), -40, -12, !live);
+
+      /* Harvest on hold at the cart while waiting. */
+      if (wait) { for (let i = 0; i < 5; i++) basket(k, 30 + (i % 3) * 10, 104 - Math.floor(i / 3) * 7); }
+
+      /* Crews. Workers: orc, hollow, goblin, imp. Overseers: wraith (Nazgûl); lost souls from the portal. */
+      const rowL = FIELD_L.y0 + 4 + 5 * 8 + 3, rowR = FIELD_R.y0 + 4 + 3 * 8 + 3;   // the bare, hoed strips
       if (run) {
-        z.crew(-138, -8, { ...straw(0), anim: 'work', tool: 'hoe', speed: 4, phase: .1 });
-        z.crew(-54, -8, { ...straw(1), anim: 'work', tool: 'watering', speed: 3, phase: .5 });
-        for (let i = 0; i < 4; i++) { const q = (t * 2 + i / 4) % 1; k.px(-45 + i, -18 + q * 8, C.water4); }
-        const hx = WHEAT.x + 120 - Math.floor(((t * .04) % 1) * 40);
-        z.crew(hx, WHEAT.y + 30, { ...straw(2), anim: 'work', tool: 'axe', facing: -1, speed: 5, phase: .3 });
-        z.crew(50, 36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, anim: 'work', phase: .7, speed: 3 });
-        const cp = (t * .09) % 1, back = cp > .5, q = back ? (1 - cp) * 2 : cp * 2;
-        z.crew(6 + q * 8, 40 + q * 56, { ...straw(3), anim: 'walk', carry: back ? '' : 'food', facing: back ? -1 : 1, phase: .2 });
-        z.crew(-112, 104, { ...straw(5), anim: 'work', phase: .9, speed: 3 });
-        if (z.detail) for (let i = 0; i < 5; i++) { const q2 = (t * 1.8 + i / 5) % 1; k.px(-106 + q2 * 10 + i, 90 + q2 * q2 * 12, C.gold3); }
-      } else if (state === 'idle') {
-        // Rest: crew sit on the hay bales and by the well; animals graze and butterflies drift.
-        z.crew(124, 108, { ...straw(0), anim: 'sit', phase: .1 }); z.crew(138, 100, { ...straw(1), anim: 'sit', facing: -1, phase: .5 });
-        z.crew(-22, 96, { ...straw(2), anim: 'sit', facing: -1, phase: .3 }); z.crew(50, 36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, anim: 'idle', phase: .7 });
-        z.crew(100, 94, { ...straw(3), anim: 'sit', phase: .2 }); z.crew(-112, 104, { ...straw(5), anim: 'idle', phase: .9 });
-        if (z.detail) { Props.butterfly(k, -40 + Math.sin(t * .7) * 30, -20 + Math.cos(t * 1.3) * 8, t); Props.butterfly(k, 60 + Math.sin(t * .5 + 1) * 24, -40 + Math.sin(t * 1.1) * 6, t + 1, '#f6ecd0'); for (let i = 0; i < 2; i++) Props.bird(k, ((t * 14 + i * 150) % 360) - 180, -132 + i * 7, t + i); }
-      } else if (live) {
-        z.crew(-138, -8, { ...straw(0), anim: 'idle', tool: 'hoe', phase: .1 }); z.crew(-54, -8, { ...straw(1), anim: 'idle', phase: .5 });
-        z.crew(-60, 34, { ...straw(2), anim: err ? 'cheer' : 'idle', phase: .3 }); z.crew(50, 36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, anim: 'idle', phase: .7 });
-        z.crew(10, 98, { ...straw(3), anim: 'idle', facing: 1, phase: .2 }); z.crew(-50, 60, { ...straw(5), anim: err ? 'cheer' : 'idle', facing: -1, phase: .9 });
+        // Left field: the Nazgûl drives the hoe gang.
+        W(-160, rowL, 'wraith', { anim: 'whip', lash: 26, facing: 1, phase: 0 });
+        W(-132, rowL, 'hollow', { anim: crack(0) ? 'cower' : 'work', tool: 'hoe', phase: .1, speed: 4 });
+        W(-100, rowL, 'orc', { anim: 'work', tool: 'hoe', phase: .5, speed: 4 }); W(-66, rowL, 'hollow', { anim: 'work', tool: 'hoe', phase: .8, speed: 3, look: 1 });
+        // Right field: the imp prods a slow orc with its pitchfork.
+        const poke = (t * .45) % 1 < .25;
+        W(58, rowR, 'imp', { anim: poke ? 'work' : 'idle', tool: 'pitchfork', facing: 1, phase: .2, speed: 8 });
+        W(72, rowR, 'orc', { anim: poke ? 'cower' : 'work', tool: 'hoe', phase: .3, speed: 4, look: 2 });
+        W(112, rowR, 'hollow', { anim: 'work', tool: 'hoe', facing: -1, phase: .6, speed: 3, look: 2 }); W(146, rowR, 'orc', { anim: 'work', tool: 'hoe', facing: -1, phase: .9, speed: 4, look: 3 });
+        // Basket haulers trudge from the fields down to the cart.
+        const hp = (t * .07) % 1, back = hp > .5, hq = back ? (1 - hp) * 2 : hp * 2;
+        W(30 + hq * 20, 48 + hq * 60, 'orc', { anim: back ? 'walk' : 'carry', carry: back ? '' : 'food', facing: back ? -1 : 1, phase: .4, look: 1 });
+        const hp2 = (hp + .5) % 1, back2 = hp2 > .5, hq2 = back2 ? (1 - hp2) * 2 : hp2 * 2;
+        W(-30 + hq2 * 60, 50 + hq2 * 50, 'hollow', { anim: back2 ? 'walk' : 'carry', carry: back2 ? '' : 'food', facing: back2 ? -1 : 1, phase: .7 });
+        // A second Nazgûl watches the capstan gang; a goblin stirs the cauldron.
+        W(CAP.x - 34, CAP.y + 14, 'wraith', { anim: 'whip', lash: 22, facing: 1, phase: .5, look: 1 });
+        W(POT.x + 22, POT.y + 4, 'goblin', { anim: 'work', facing: -1, phase: .6, speed: 3 });
+        if (z.detail) for (let i = 0; i < 2; i++) Props.bird(k, -150 + ((t * 14 + i * 150) % 300), -150 + i * 8 + Math.sin(t + i) * 3, t + i, '#1a1416');
+      } else if (idle) {
+        W(-160, rowL, 'wraith', { anim: 'idle', tool: 'spear', facing: 1, phase: 0 }); W(CAP.x - 34, CAP.y + 14, 'wraith', { anim: 'idle', tool: 'spear', facing: 1, phase: .5, look: 1 });
+        for (const [x, y, kind, ph, lk] of [[-132, rowL, 'hollow', .1, 0], [-100, rowL, 'orc', .5, 0], [-66, rowL, 'hollow', .8, 1], [72, rowR, 'orc', .3, 2], [112, rowR, 'hollow', .6, 2], [-150, 104, 'orc', .4, 1], [-126, 102, 'hollow', .7, 0]]) W(x, y, kind, { anim: 'sit', chains: true, phase: ph, look: lk });
+        W(58, rowR, 'imp', { anim: 'sleep', phase: .2, z: true });
+        W(POT.x + 22, POT.y + 4, 'goblin', { anim: 'sit', facing: -1, phase: .6 });
+        if (z.detail) for (let i = 0; i < 3; i++) Props.bird(k, -40 + ((t * 10 + i * 100) % 260) - 130, -150 + i * 6 + Math.sin(t + i) * 3, t + i, '#1a1416');
+      } else if (wait) {
+        W(-160, rowL, 'wraith', { anim: 'idle', tool: 'spear', facing: 1, phase: 0 }); W(CAP.x - 34, CAP.y + 14, 'wraith', { anim: 'idle', facing: 1, phase: .5, look: 1 });
+        W(-132, rowL, 'hollow', { anim: 'idle', tool: 'hoe', phase: .1 }); W(-100, rowL, 'orc', { anim: 'idle', tool: 'hoe', phase: .5 }); W(-66, rowL, 'hollow', { anim: 'idle', tool: 'hoe', phase: .8, look: 1 });
+        W(58, rowR, 'imp', { anim: 'idle', tool: 'pitchfork', phase: .2 }); W(72, rowR, 'orc', { anim: 'idle', tool: 'hoe', phase: .3, look: 2 }); W(112, rowR, 'hollow', { anim: 'idle', tool: 'hoe', facing: -1, phase: .6, look: 2 });
+        W(44, 96, 'orc', { anim: 'idle', carry: 'food', phase: .4, look: 1 }); W(-8, 100, 'hollow', { anim: 'idle', carry: 'food', phase: .7 });
+        W(POT.x + 22, POT.y + 4, 'goblin', { anim: 'idle', facing: -1, phase: .6 });
+      } else if (err) {
+        // Burning mill, boiling cauldron, lost souls swarming: workers scatter from the fields.
+        const sc = [[-132, rowL, 1, 'hollow'], [-100, rowL, -1, 'orc'], [-66, rowL, 1, 'hollow'], [72, rowR, 1, 'orc'], [112, rowR, -1, 'hollow'], [146, rowR, -1, 'orc'], [POT.x + 22, POT.y + 4, 1, 'goblin']];
+        sc.forEach(([x, y, d, kind], i) => { const q = (t * .25 + i * .17) % 1, r = Math.sin(q * Math.PI) * 26; R(x + d * r, y + (i % 2 ? 6 : -4) * Math.sin(q * Math.PI), kind, { anim: 'walk', facing: d * (q < .5 ? 1 : -1), phase: i * .2 }); });
+        R(-160, rowL, 'wraith', { anim: 'whip', lash: 26, facing: 1, phase: 0, speed: 11 }); W(CAP.x - 34, CAP.y + 14, 'wraith', { anim: 'idle', facing: 1, phase: .5, look: 1 });
+        W(58, rowR, 'imp', { anim: 'cheer', phase: .2 });
       } else {
-        z.crew(124, 108, { ...straw(0), phase: .1 }); z.crew(138, 100, { ...straw(1), facing: -1, phase: .5 }); z.crew(100, 94, { ...straw(3), phase: .2 });
-        z.crew(-22, 96, { ...straw(2), facing: -1, phase: .3 }); z.crew(-166, -36, { ...straw(4), hat: 'scarf', hatColor: C.plum3, phase: .7 }); z.crew(-118, -36, { ...straw(5), phase: .9 });
+        W(-156, rowL, 'wraith', { phase: 0 }); W(CAP.x - 34, CAP.y + 14, 'wraith', { phase: .5, look: 1 });
+        for (const [x, y, kind, ph, lk] of [[-150, 104, 'orc', .4, 1], [-126, 102, 'hollow', .7, 0], [-104, 124, 'orc', .1, 0], [-66, 116, 'hollow', .8, 1], [80, 100, 'orc', .3, 2], [120, 104, 'hollow', .6, 2], [58, rowR, 'imp', .2, 0], [POT.x + 22, POT.y + 4, 'goblin', .6, 0]]) W(x, y, kind, { phase: ph, look: lk });
       }
     }
   };

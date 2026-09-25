@@ -11,7 +11,7 @@
   // Daghan's village mirrors GKTC's across the river.
   const TX = 390, TY = 354, X3 = RIVER - 425, Y0 = 598;
   const tile = (c, r) => [X3 - (3 - c) * TX, Y0 + r * TY + (c % 2) * TY / 2 + 5];   // zone centre (the hex mid-height is 5 px above it)
-  const SY = Y0 + 2 * TY + TY / 2;                                                  // the castle row: the stone bridges cross the river here
+  const SY = Y0 + 2 * TY + TY / 2;                                                  // the HQ's centre row: the stone bridges cross the river here
   const WEST = X3 - 3 * TX - 144, CX = X3 - 1.5 * TX, TOP = Y0 - 155, BOT = Y0 + 4 * TY + TY / 2 + 155;   // top and bottom of the honeycomb
   const northStream = x => 120 + M + Math.round(Math.sin((x - M) / 210) * 10 + Math.sin((x - M) / 67) * 3);
   const southStream = x => 2310 + M + Math.round(Math.sin((x - M) / 190 + 1) * 10 + Math.sin((x - M) / 59) * 3);
@@ -23,24 +23,26 @@
     ['text-writer', 'Text Writer', 'Scriptorium gardens', 1, 1, 'A scriptorium and quiet editorial gardens, where drafts become stories.'],
     ['gazeteci', 'Gazeteci', 'The news district', 2, 1, 'Source towers, a newsroom, archives and a working printing yard. News arrives from every direction.'],
     ['girard', 'Girard', 'Merchant quarter', 0, 2, 'Market stalls, a trade hall and a prospecting court bring new opportunities together.'],
-    ['bayes', 'Bayes', 'Observatory hill', 2, 2, 'An observatory, experiment gardens and a sky full of patterns.'],
+    ['bayes', 'Bayes', 'Observatory hill', 3, 1, 'An observatory, experiment gardens and a sky full of patterns.'],
     ['kandinsky', 'Kandinsky', 'The artists’ grove', 0, 3, 'Studios, sculptures, pigments and canvases form an open-air creative district.'],
-    ['kole', 'Köle', 'Workshop & living quarters', 1, 3, 'The forge, bunkhouse and dining hall. Small Köle crews leave this base for the lumberyard, mine and farm.'],
-    ['scum-master', 'Head Chef', 'The Sprint Kitchen', 2, 3, 'An open kitchen, a pantry and a sunny terrace, where order tickets ride the rail from TODO to DOING, REVIEW and DONE and the head chef checks every plate at the pass.']
+    ['kole', 'Köle', 'The slave camp', 1, 3, 'A Mordor-style slave camp: a spiked forge tower, slave pens and a mess pit. The dark overlord’s overseers drive shackled crews out to the lumberyard, mine and farm.'],
+    ['scum-master', 'Head Chef', 'The Sprint Kitchen', 3, 3, 'An open kitchen, a pantry and a sunny terrace, where order tickets ride the rail from TODO to DOING, REVIEW and DONE and the head chef checks every plate at the pass.']
   ];
   const services = [
-    ['castle', 'The Castle', 'Keep, courtyard & royal gardens', 1, 2, 'The heart of the village: a keep, courtyard, fountain and formal gardens.', 'modal', 'village'],
+    ['hq', 'HQ', 'Palace & operations campus', 1, 2, 'The heart of the village, three tiles wide: a palace behind the Atatürk statue, and teams at work on computers, VR, drones, solar panels and robots.', 'modal', 'village'],
     ['inbox', 'GGI', 'Inbox & approvals', 3, 2, 'Sealed dispatches, watchful couriers and decisions that need your attention.', 'drawer', 'village'],
     ['military', 'Command Grounds', 'Tasks · Workflows · Runs', 0, 0, 'Drill grounds and an operations keep. Plan tasks, follow workflows and inspect runs.', 'page', 'civic'],
     ['library', 'The Grand Library', 'Documents & KPIs', 1, 0, 'A great archive of documents and knowledge, with a gallery of village metrics.', 'page', 'civic'],
     ['hospital', 'Healing Gardens', 'Health & diagnostics', 2, 0, 'A peaceful hospital, medicinal garden and a view into the health of your village.', 'modal', 'civic']
   ];
   const resources = [
-    ['lumberyard', 'Lumberyard', 'Timber & sawmill', 0, 4, 'Köle crews fell managed timber, run the sawmill and carry planks back to the workshop.'],
-    ['mine', 'Stone & ore mine', 'Mining & hauling', 1, 4, 'Köle miners extract ore and stone, fill carts and haul supplies back to the forge.'],
-    ['farm', 'Village farm', 'Growing & harvesting', 2, 4, 'Köle fieldhands tend crop rows, water seedlings and bring fresh produce to the dining hall.']
+    ['lumberyard', 'Lumberyard', 'Felling ground', 0, 4, 'An Isengard-style felling ground: orcs and goblins fell the dead black forest under the Uruk-hai’s whips and feed the logs to a fire pit.'],
+    ['mine', 'Stone & ore mine', 'Mining & hauling', 1, 4, 'A Moria-style hell mine: goblins, hollows and chained zombies dig glowing ore and push carts past the lava under a demon’s flaming whip.'],
+    ['farm', 'Village farm', 'The slave fields', 2, 4, 'The slave fields of Nurn: orcs and hollows hoe thorn crops in the ash while a Nazgûl watches and chained goblins turn the water wheel.']
   ];
   const defaults = { gktc: { girard: 'waiting', 'scum-master': 'error' }, daghan: { girard: 'waiting', bayes: 'idle', kandinsky: 'off' } };
+  // The HQ covers three tiles that meet at one corner; its centre (the statue) is that shared corner.
+  const HQ_CELLS = [[1, 2], [2, 2], [2, 3]];
   const zones = ['gktc', 'daghan'].flatMap((v, vi) => {
     const at = (c, r) => { const [x, y] = tile(c, r); return { x: vi ? MIRROR - x : x, y, col: c, row: r }; };
     return [
@@ -53,14 +55,16 @@
   // Each village's inbox is its own post office and court: GGI for GKTC, DGI for Daghan.
   for (const z of zones) if (z.role === 'inbox') { const g = z.village === 'gktc'; z.agent = g ? 'GGI' : 'DGI'; z.name = (g ? 'GKTC' : 'Daghan') + ' Gelenler ve İzinler'; z.description = 'Post office and court in one. Letters arrive at the ' + (g ? 'GGI' : 'DGI') + ' counters, then go before the judge, who waits for your approval.'; }
   zones.push(arena);
-  // Two park tiles fill the riverside column of each honeycomb: a pond park to the north and an orchard to the south.
-  const parks = ['gktc', 'daghan'].flatMap((v, vi) => [[1, 'pond'], [3, 'orchard']].map(([r, park]) => { const [x, y] = tile(3, r); return { id: `${v}-park-${park}`, park, village: v, x: vi ? MIRROR - x : x, y }; }));
   // Plot extents (zone-local): w = half-width at the side points, t = top, b = bottom.
   const half = z => footprint(z.kind === 'arena' ? 'colosseum' : z.role);
-  function footprint(role) { return role === 'colosseum' ? { w: 300, t: 225, b: 225 } : { w: 206, t: 160, b: 150 }; }
+  function footprint(role) {
+    if (role === 'hq') { const o = hqLocal.gktc; return { w: Math.ceil(Math.max(...o.map(p => Math.abs(p[0])))), t: Math.ceil(-Math.min(...o.map(p => p[1]))), b: Math.ceil(Math.max(...o.map(p => p[1]))) }; }
+    return role === 'colosseum' ? { w: 300, t: 225, b: 225 } : { w: 206, t: 160, b: 150 };
+  }
   // Every plot is a flat-top hexagon: short top and bottom edges, side points at mid-height. The slanted edges
-  // share one slope (0.4 px across per px down), so all plots have the same angles.
-  function hexOf(role) { const h = footprint(role), ym = (h.b - h.t) / 2, a = Math.round(h.w - .4 * (h.t + h.b) / 2); return [[-a, -h.t], [a, -h.t], [h.w, ym], [a, h.b], [-a, h.b], [-h.w, ym]]; }
+  // share one slope (0.4 px across per px down), so all plots have the same angles. The HQ's outline (three tiles,
+  // mirrored in Daghan's village) is traced from the honeycomb below.
+  function hexOf(role, village = 'gktc') { if (role === 'hq') return hqLocal[village]; const h = footprint(role), ym = (h.b - h.t) / 2, a = Math.round(h.w - .4 * (h.t + h.b) / 2); return [[-a, -h.t], [a, -h.t], [h.w, ym], [a, h.b], [-a, h.b], [-h.w, ym]]; }
   // Grow a convex polygon outward by d px (vertices move along the corner bisectors).
   function grow(pts, d) {
     const n = pts.length, nrm = (p, q) => { const dx = q[0] - p[0], dy = q[1] - p[1], l = Math.hypot(dx, dy); return [dy / l, -dx / l]; };
@@ -75,24 +79,37 @@
     for (let i = rows.length - 1; i >= 0; i--) { const [y, , x1] = rows[i]; p.lineTo(x1, y + 1); p.lineTo(x1, y); }
     p.closePath(); return p;
   }
-  const clips = {};
-  [...zones, ...parks].forEach(z => {
-    const h = z.park ? footprint('park') : half(z); z.plot = { x: z.x - h.w, y: z.y - h.t, w: h.w * 2, h: h.t + h.b }; z.labelY = z.y + h.b - (z.kind === "arena" ? 34 : 20);
-    if (z.kind === 'arena') return;
-    z.hexL = hexOf(z.role); z.hex = z.hexL.map(([x, y]) => [z.x + x, z.y + y]); z.clip = clips[z.role] ||= stairPath(z.hexL);
-    // Forest keeps this far from the plot: the lane width around, 22 px more below (tree canopies rise over the bottom edge).
-    z.keepOut = grow(z.hex, 23).map(([x, y], i) => [x, i === 3 || i === 4 ? y + 22 : y]);
-  });
-  const tiles = [...zones.filter(z => z.hex), ...parks];
-  // Edge i of a hexagon (vertex i to i + 1) faces the tile at this offset; an edge with no tile behind it is on the village rim.
+  const clips = {}, TILE_HEX = hexOf('tile'), hqLocal = {};
+  // The honeycomb cells: one per district, three for the HQ. Edge i of a hexagon (vertex i to i + 1) faces the cell at
+  // SIDE[i]; an edge with no cell behind it is on the village rim.
   const SIDE = [[0, -TY], [TX, -TY / 2], [TX, TY / 2], [0, TY], [-TX, TY / 2], [-TX, -TY / 2]];
-  const tileKey = (x, y) => Math.round(x) + ',' + Math.round(y), byPos = new Map(tiles.map(z => [tileKey(z.x, z.y), z]));
-  tiles.forEach(z => { z.next = SIDE.map(([dx, dy]) => byPos.get(tileKey(z.x + dx, z.y + dy)) || null); });
-  // The lanes: one per shared edge, along the centre line between the two tiles. u runs along the lane and nrm points
-  // from the first tile to the second. Junctions are where lane ends meet (three tiles, or two on the village rim).
+  const cellAt = (zone, x, y) => { const hex = TILE_HEX.map(([hx, hy]) => [x + hx, y + hy]), keepOut = grow(hex, 23).map(([hx, hy], i) => [hx, i === 3 || i === 4 ? hy + 22 : hy]); return { zone, x, y, hex, keepOut, plot: { x: x - 206, y: y - 160, w: 412, h: 310 } }; };
+  // Forest keeps out of keepOut: the lane width around each cell, 22 px more below (tree canopies rise over the bottom edge).
+  const cells = zones.filter(z => z.kind !== 'arena').flatMap(z => z.role !== 'hq' ? [cellAt(z, z.x, z.y)] : HQ_CELLS.map(([c, r]) => { const [x, y] = tile(c, r); return cellAt(z, z.village === 'daghan' ? MIRROR - x : x, y); }));
+  const tileKey = (x, y) => Math.round(x) + ',' + Math.round(y), byPos = new Map(cells.map(q => [tileKey(q.x, q.y), q]));
+  cells.forEach(q => { q.next = SIDE.map(([dx, dy]) => byPos.get(tileKey(q.x + dx, q.y + dy)) || null); });
+  // The HQ outline: each cell's outer edges in turn, bridged straight across the lanes the HQ swallows.
+  // Its centre is the corner where its three cells meet (where the Atatürk statue stands).
+  for (const z of zones.filter(q => q.role === 'hq')) {
+    const own = cells.filter(q => q.zone === z), inner = (q, i) => q.next[i]?.zone === z, out = [];
+    let q = own[0], i = [0, 1, 2, 3, 4, 5].find(j => !inner(q, j) && inner(q, (j + 5) % 6));
+    for (let n = 0; n < own.length; n++) { while (!inner(q, i)) { out.push(q.hex[i]); i = (i + 1) % 6; } out.push(q.hex[i]); const nx = q.next[i]; i = [0, 1, 2, 3, 4, 5].find(j => !inner(nx, j) && inner(nx, (j + 5) % 6)); q = nx; }
+    const mx = own.reduce((a, c) => a + c.x, 0) / 3, my = own.reduce((a, c) => a + c.y, 0) / 3;
+    const corner = own.map(c => c.hex.reduce((b, p) => Math.hypot(p[0] - mx, p[1] - my) < Math.hypot(b[0] - mx, b[1] - my) ? p : b));
+    z.x = Math.round(corner.reduce((a, p) => a + p[0], 0) / 3); z.y = Math.round(corner.reduce((a, p) => a + p[1], 0) / 3);
+    z.hex = out; hqLocal[z.village] = out.map(([x, y]) => [x - z.x, y - z.y]);
+    const low = own.reduce((a, c) => c.y > a.y ? c : a); z.labelX = low.x;
+  }
+  zones.forEach(z => {
+    const h = half(z); z.plot = { x: z.x - h.w, y: z.y - h.t, w: h.w * 2, h: h.t + h.b }; z.labelY = z.y + h.b - (z.kind === "arena" ? 34 : 20);
+    if (z.kind === 'arena') return;
+    z.hexL = hexOf(z.role, z.village); z.hex = z.hexL.map(([x, y]) => [z.x + x, z.y + y]); z.clip = clips[z.role === 'hq' ? z.id : z.role] ||= stairPath(z.hexL);
+  });
+  // The lanes: one per shared edge between two districts, along the centre line between the two cells. u runs along
+  // the lane and nrm points from the first cell to the second. Junctions are where lane ends meet.
   const lanes = [];
-  for (const z of tiles) z.hex.forEach((a, i) => {
-    const n = z.next[i]; if (!n || tiles.indexOf(n) < tiles.indexOf(z)) return; const b = z.hex[(i + 1) % 6], na = n.hex[(i + 4) % 6], nb = n.hex[(i + 3) % 6];
+  for (const z of cells) z.hex.forEach((a, i) => {
+    const n = z.next[i]; if (!n || n.zone === z.zone || cells.indexOf(n) < cells.indexOf(z)) return; const b = z.hex[(i + 1) % 6], na = n.hex[(i + 4) % 6], nb = n.hex[(i + 3) % 6];
     const A = [(a[0] + na[0]) / 2, (a[1] + na[1]) / 2], B = [(b[0] + nb[0]) / 2, (b[1] + nb[1]) / 2], dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy);
     lanes.push({ A, B, L, u: [dx / L, dy / L], nrm: [dy / L, -dx / L] });
   });
@@ -163,7 +180,7 @@
     return true;
   }
   // Inside a tile or its forest-free margin.
-  function nearPlot(x, y) { for (const z of tiles) { const p = z.plot; if (x > p.x - 16 && x < p.x + p.w + 16 && y > p.y - 16 && y < p.y + p.h + 38 && inPoly(z.keepOut, x, y)) return true; } return false; }
+  function nearPlot(x, y) { for (const z of cells) { const p = z.plot; if (x > p.x - 16 && x < p.x + p.w + 16 && y > p.y - 16 && y < p.y + p.h + 38 && inPoly(z.keepOut, x, y)) return true; } return false; }
   // A stone kerb around a polygon (a single plot, or a whole village's outline), lit on the top-left edges and
   // shaded on the bottom-right, with a soft dark rim on the grass outside.
   function kerb(k, hx) {
@@ -224,7 +241,7 @@
     // Large, soft meadow variation.
     for (let i = 0; i < 520; i++) { const x = P.hash(i, 11) * W, y = P.hash(i, 12) * H, r = 30 + P.hash(i, 13) * 90; k.ditherEllipse(x, y, r, r * .6, i % 3 ? C.grass3 : C.grass1, i % 2 ? 1 : 0); }
     // The honeycombs: every tile's lawn inside a stone kerb, and the lanes between the tiles.
-    for (const z of tiles) plotGround(k, z);
+    for (const z of zones) if (z.hex) plotGround(k, z);
     paintLanes(k);
     // Water: river, two streams, with banks, shallows and reeds.
     const bank = [[62, C.dirt2], [58, C.dirt3], [54, C.dirt4, 1], [50, C.water1], [42, C.water2], [30, C.water3, 1], [16, C.water3]];
@@ -241,33 +258,6 @@
     road(k, arena.x, arena.y + 210, arena.x, SY, 26, false); road(k, arena.x, SY, WEST, SY, 26, false);
     for (const x of [X3 + 180, MIRROR - X3 - 180]) road(k, x, SY, x + Math.sign(RIVER - x) * 50, SY, 26, true);
     if (!energy) bridge(k, riverX(SY), SY, 150, false); // energy.js builds the stone suspension bridges instead
-    // The park tiles, clipped to their hexagons like the districts.
-    for (const z of parks) {
-      const cx = z.x, cy = z.y, kind = z.park, x0 = cx - 170, y0 = cy - 150, pw = 340, pc = cx;
-      c.save(); c.translate(z.x, z.y); c.clip(z.clip); c.translate(-z.x, -z.y);
-      trimmed(z, z.x, z.y, () => {
-        road(k, pc, cy + 20, pc, cy + 150, 18, false); road(k, x0 + 30, cy + 20, x0 + pw - 30, cy + 20, 16, false);
-        if (kind === 'pond') {
-          Props.pond(k, cx, cy - 45, 84, 46); k.ellipse(cx + 30, cy - 60, 10, 4, C.leaf3); k.ellipse(cx - 40, cy - 30, 8, 3, C.leaf3); k.px(cx - 40, cy - 31, '#ffc6d8');
-          // A little gazebo on the far bank and a boat pier.
-          k.rect(cx + 94, cy - 112, 44, 30, C.stone3); k.rect(cx + 96, cy - 110, 40, 26, C.stone4); for (const dx of [98, 132]) k.rect(cx + dx, cy - 132, 3, 24, C.plaster3);
-          k.poly([[cx + 90, cy - 130], [cx + 116, cy - 150], [cx + 142, cy - 130]], C.teal2); k.rect(cx + 90, cy - 131, 52, 3, C.teal1); k.rect(cx + 114, cy - 154, 4, 5, C.gold2);
-          Props.planks(k, cx - 12, cy - 4, 24, 26, C.wood3); k.rect(cx - 8, cy - 16, 16, 8, C.wood2); k.rect(cx - 8, cy - 16, 16, 2, C.wood4);
-          for (const [x, y] of [[-150, -110], [-120, -130], [150, 40], [-160, 60], [130, 90], [-90, 100]]) Props.tree(k, cx + x, cy + y, x % 3 ? 'oak' : 'blossom', 2, Math.abs(x) % 4);
-          for (const x of [-120, -60, 60, 120]) { Props.bench(k, cx + x, cy + 12, 16); Props.lamp(k, cx + x + 22, cy + 12, true); }
-          Props.flowerBed(k, cx - 150, cy + 50, 60, 14, undefined, 5); Props.flowerBed(k, cx + 60, cy + 50, 60, 14, undefined, 6); Props.statue(k, cx - 100, cy - 40, C.stone5);
-        } else {
-          const cols = 6, beds = 4, step = 80, tx0 = 36;
-          for (let r = 0; r < 3; r++) for (let c = 0; c < cols; c++) Props.tree(k, x0 + tx0 + c * 54 + (r % 2) * 18, y0 + 50 + r * 44, c % 3 === 1 ? 'orange' : 'fruit', 1, r + c);
-          for (let i = 0; i < beds; i++) Props.flowerBed(k, x0 + 20 + i * step, cy + 50, 60, 22, [['#e46c52', '#f2c14e'], ['#7fbb5a', '#a9d670'], ['#c3a2c0', '#f6ecd0'], ['#f09a2a', '#f2c14e']][i], 20 + i);
-          for (let i = 0; i < 3; i++) { const bx = x0 + pw - 78 + i * 14; k.rect(bx, cy - 136, 10, 12, C.plaster3); k.rect(bx - 1, cy - 138, 12, 3, C.wood3); k.rect(bx, cy - 130, 10, 1, C.gold1); }
-          Props.cart(k, pc - 60, cy + 104, (q, x, y) => { for (let i = 0; i < 5; i++) q.circle(x + 3 + i * 4, y - 2, 2, i % 2 ? '#f09a2a' : C.red2); });
-          for (const x of [x0 + 30, x0 + pw - 50]) { Props.bench(k, x, cy + 12, 16); Props.lamp(k, x + 22, cy + 12, true); }
-          Props.well(k, x0 + pw - 60, cy + 110); Props.fence(k, cx - 120, cy + 128, 100);
-        }
-      });
-      c.restore();
-    }
     energy?.paintGround(k);
     // Forest: dense, varied canopy everywhere outside the settlements.
     const trees = [];
@@ -318,7 +308,7 @@
     const off = Math.floor(t * 10) % 8; c.fillStyle = '#fff2b0';
     if (!z.hex) { const p = z.plot; for (let i = -off; i < p.w; i += 8) { c.fillRect(p.x + i, p.y - 3, 4, 2); c.fillRect(p.x + p.w - i - 4, p.y + p.h + 1, 4, 2); } for (let i = -off; i < p.h; i += 8) { c.fillRect(p.x + p.w + 1, p.y + i, 2, 4); c.fillRect(p.x - 3, p.y + p.h - i - 4, 2, 4); } return; }
     const g = grow(z.hex, 3); let s = 0;
-    for (let i = 0; i < 6; i++) { const [x0, y0] = g[i], [x1, y1] = g[(i + 1) % 6], n = Math.round(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))); for (let j = 0; j < n; j++, s++) if ((s + 8 - off) % 8 < 4) c.fillRect(Math.round(x0 + (x1 - x0) * j / n) - 1, Math.round(y0 + (y1 - y0) * j / n) - 1, 2, 2); }
+    for (let i = 0; i < g.length; i++) { const [x0, y0] = g[i], [x1, y1] = g[(i + 1) % g.length], n = Math.round(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0))); for (let j = 0; j < n; j++, s++) if ((s + 8 - off) % 8 < 4) c.fillRect(Math.round(x0 + (x1 - x0) * j / n) - 1, Math.round(y0 + (y1 - y0) * j / n) - 1, 2, 2); }
   }
   function drawScene(c, t, v, opts, scale) {
     const k = P.kit(c), states = opts.states || {}, detail = scale >= .7, sel = opts.selectedId;
@@ -345,11 +335,13 @@
     // Köle crews commute between the workshop and the resource fields.
     for (const z of zones) {
       if (z.kind !== 'resource') continue; const state = stateOf(z, states), route = kolePath(z);
-      for (let i = 0; i < 3; i++) {
-        const ph = ((state === 'working' ? t / 80 : 0) + i / 3 + z.x * .001) % 1, back = ph > .5, [x, y, dir] = along(route, back ? 2 - ph * 2 : ph * 2);
-        if (x < v.l - 20 || x > v.r + 20 || y < v.t - 30 || y > v.b + 10) continue;
-        const carry = back ? { lumberyard: 'wood', mine: 'ore', farm: 'food' }[z.role] : '';
-        AgentCharacters.crew(k, Math.round(x + (i % 2 ? 6 : -6)), Math.round(y), t, { look: i + (z.role === 'mine' ? 2 : 0), hat: { lumberyard: 'bandana', mine: 'helmet', farm: 'straw' }[z.role], anim: state === 'working' ? (carry ? 'carry' : 'walk') : 'idle', carry, facing: back ? -dir : dir, phase: i, state, mark: false });
+      // Three shackled workers (orcs, goblins or hollows) walk out and haul loads back; an overseer walks behind the first.
+      const worker = { lumberyard: 'orc', mine: 'goblin', farm: 'hollow' }[z.role], boss = { lumberyard: 'uruk', mine: 'demon', farm: 'wraith' }[z.role];
+      for (let i = 0; i < 4; i++) {
+        const lead = i === 3, ph = ((state === 'working' ? t / 80 : 0) + (lead ? -.035 : i / 3) + z.x * .001 + 1) % 1, back = ph > .5, [x, y, dir] = along(route, back ? 2 - ph * 2 : ph * 2);
+        if (x < v.l - 20 || x > v.r + 20 || y < v.t - 40 || y > v.b + 10) continue;
+        const carry = back && !lead ? { lumberyard: 'wood', mine: 'ore', farm: 'food' }[z.role] : '';
+        AgentCharacters.crew(k, Math.round(x + (lead ? 0 : i % 2 ? 6 : -6)), Math.round(y), t, { kind: lead ? boss : worker, look: i, anim: state === 'working' ? (lead ? 'walk' : carry ? 'carry' : 'chained') : 'idle', carry, chains: !lead, facing: back ? -dir : dir, phase: i, state, mark: false });
       }
     }
     if (detail) {

@@ -1,5 +1,5 @@
 /* Village owners: two large avatars you can pick up and drop anywhere on the map.
-   GKTC's avatar (the Megazord from Regular Show, fan art) starts at GKTC's castle; Daghan's (Gojo Satoru, fan art) at Daghan's.
+   GKTC's avatar (the Megazord from Regular Show, fan art) starts at GKTC's HQ; Daghan's (Gojo Satoru, fan art) at Daghan's.
    When an avatar stands in an agent district, that district's lead walks over, walks alongside it and talks. */
 (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
@@ -144,17 +144,17 @@
   /* ---------- State ---------- */
   const world = () => window.VillageWorld;
   const avatars = [
-    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-88, 138], greet: 'MEGAZORD!' },
-    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [88, 138], greet: 'GOJO SENSEI!' }
+    { id: 'gktc-owner', kind: 'boss', title: 'GKTC', village: 'gktc', home: [-72, 84], greet: 'MEGAZORD!' },
+    { id: 'daghan-princess', kind: 'princess', title: 'Daghan', village: 'daghan', home: [72, 84], greet: 'GOJO SENSEI!' }
   ];
-  const KEY = 'brownie-avatars-v3'; // v3: the villages became honeycombs, so older positions are stale
+  const KEY = 'brownie-avatars-v4'; // v4: the castle became the three-tile HQ, so older positions are stale
   function init() {
     if (init.done || !world()) return; init.done = true;
     let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY)) || {}; } catch { }
     for (const av of avatars) {
-      const castle = world().zones.find(z => z.id === av.village + '-castle'), s = saved[av.id];
+      const hq = world().zones.find(z => z.id === av.village + '-hq'), s = saved[av.id];
       if (s && Number.isFinite(s.x) && Number.isFinite(s.y) && s.x > 0 && s.y > 0 && s.x < world().width && s.y < world().height) { av.x = s.x; av.y = s.y; }
-      else { av.x = castle.x + av.home[0]; av.y = castle.y + av.home[1]; }
+      else { av.x = hq.x + av.home[0]; av.y = hq.y + av.home[1]; }
       av.since = -30; av.zone = zoneAt(av.x, av.y);
     }
   }

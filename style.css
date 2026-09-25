@@ -38,7 +38,7 @@ h1,h2,h3,p{margin:0}[hidden]{display:none!important}.sr-only{position:absolute;w
 .zone-label{position:absolute;transform:translate(-50%,0);pointer-events:auto;display:flex;flex-direction:column;align-items:center;white-space:nowrap;padding:5px 11px 6px;background:var(--paper);box-shadow:var(--px);font-size:12px;font-weight:700;line-height:1.25}
 .zone-label .label-title{display:flex;align-items:center;gap:6px}
 .zone-label small{font:600 9px var(--mono);letter-spacing:.2px;color:var(--muted);margin-top:2px}
-.zone-label.service{background:#f3e3bb}.zone-label.castle{background:#f5d98f}.zone-label.arena{background:#f0cfa8}
+.zone-label.service{background:#f3e3bb}.zone-label.hq{background:#f5d98f}.zone-label.arena{background:#f0cfa8}
 .zone-label:hover,.zone-label.selected{background:#fff3c0;box-shadow:0 0 0 2px var(--edge),0 0 0 5px #ffd66a,4px 4px 0 5px #1d2a2255;z-index:2}
 .zone-label .map-state{display:flex;align-items:center;gap:6px;font:700 10px var(--mono);margin-top:4px;padding:2px 7px 2px 2px;background:var(--sc);color:#fff;box-shadow:0 0 0 1px var(--ink)}
 .zone-label .map-state .state-icon{background:#0003;box-shadow:none;width:15px;height:13px}

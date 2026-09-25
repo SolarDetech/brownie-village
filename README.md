@@ -7,10 +7,10 @@ and a choreographed arena fight.
 ## Run
 
 ```bash
-python3 -m http.server 8002 --bind 127.0.0.1 --directory claude-village-prototype
+python3 -m http.server 8765 --bind 127.0.0.1 --directory claude-village-prototype
 ```
 
-Open http://127.0.0.1:8002. No build, packages, downloads or external fonts.
+Open http://127.0.0.1:8765. No build, packages, downloads or external fonts.
 
 Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed by
 `.github/workflows/pages.yml` on every push to `main`).
@@ -104,3 +104,17 @@ frame timings to the page title.
 ## Limits
 
 All data is local sample data; no agents or services are connected. Arena state resets on reload.
+
+## Additions (round 5)
+
+- **HQ.** The castle is now the HQ, three tiles wide in the middle of each honeycomb (`zones/hq.js`): a
+  Dolmabahçe-style palace, the Atatürk statue at the corner where the three tiles meet, and an operations campus
+  with people at PCs, a VR pad, a drone port, a robotics yard and a solar field. Bayes and the Head Chef moved to
+  the riverside column (the pond park and orchard were removed), and Köle still borders the lumberyard, mine and farm.
+- **Hell camp.** Köle and its three worksites are a Mordor / Diablo / Dark Souls / Doom slave camp: orcs, goblins,
+  hollows, imps, zombies and a cave troll work under Uruk-hai, Nazgûl, demon, Hell Knight and Cacodemon overseers
+  who crack whips and throw fireballs (cartoon, no gore). Creature crews are `z.crew(x, y, { kind })` in
+  `characters.js`; the Köle lead is a dark overlord.
+- **Text Writer.** An editorial newsroom with typewriter cubicles, an editor-in-chief's glass office, a copy desk
+  and a proof press.
+- **Head Chef.** The kitchen clock shows the viewer's local time (HH:MM).

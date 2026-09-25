@@ -5,19 +5,19 @@
 <script>
   // Load the zone module named in ?zone=
   const Q = new URLSearchParams(location.search), ZONE = Q.get('zone') || 'sekreter';
-  if (ZONE === 'castle') document.write(`<script src="zones/ataturk.js"><\/script>`);
+  if (ZONE === 'hq') document.write(`<script src="zones/ataturk.js"><\/script>`);
   document.write(`<script src="zones/${ZONE}.js"><\/script>`);
 </script>
 </head><body><div class="row" id="host"></div>
 <script>
 /* ?zone=name  &village=gktc|daghan  &state=working|idle|waiting|error|off|all  &scale=2  &t=seconds (freezes time)  &w=420&h=340 */
 const P = Pixel, C = P.C;
-const scale = +(Q.get('scale') || 2), W = +(Q.get('w') || (ZONE === 'colosseum' ? 620 : 420)), H = +(Q.get('h') || (ZONE === 'colosseum' ? 460 : 340));
+const scale = +(Q.get('scale') || 2), W = +(Q.get('w') || ({ colosseum: 620, hq: 900 }[ZONE] || 420)), H = +(Q.get('h') || ({ colosseum: 460, hq: 690 }[ZONE] || 340));
 const states = (Q.get('state') || 'all') === 'all' ? ['working', 'idle', 'waiting', 'error', 'off'] : [Q.get('state')];
 const frozen = Q.has('t') ? +Q.get('t') : null;
 const design = window.ZoneDesigns[ZONE], VILLAGE = Q.get('village') || 'gktc', ZINFO = { village: VILLAGE, role: ZONE };
 // The plot is the same hexagon the world uses (VillageWorld.hexOf); zone art is clipped to it, as in the world.
-const FP = VillageWorld.footprint(ZONE), HEX = ZONE === 'colosseum' ? null : VillageWorld.hexOf(ZONE), CLIP = HEX && VillageWorld.stairPath(HEX);
+const FP = VillageWorld.footprint(ZONE), HEX = ZONE === 'colosseum' ? null : VillageWorld.hexOf(ZONE, VILLAGE), CLIP = HEX && VillageWorld.stairPath(HEX);
 const PZ = HEX && { hex: HEX, hexL: HEX, plot: { x: -FP.w, y: -FP.t, w: FP.w * 2, h: FP.t + FP.b } };
 const clipped = (c, fn) => { c.save(); if (CLIP) c.clip(CLIP); fn(); c.restore(); };
 function plot(k) {

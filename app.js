@@ -32,7 +32,7 @@
   function fitVillage(v = 'gktc') { viewMode = v; const [x, y] = world.home[v]; center(x, y - 20, Math.min((width - (width < 650 ? 20 : 120)) / (width < 650 ? 900 : 1700), (height - 110) / 2000)); }
   function focus(z) {
     viewMode = 'custom'; const available = width - ($('#drawer').hidden || width < 760 ? 0 : 400);
-    const scale = Math.max(.5, Math.min(4, available / (z.kind === 'arena' ? 680 : 470), (height - 120) / (z.kind === 'arena' ? 520 : 380)));
+    const scale = Math.max(.5, Math.min(4, available / (z.kind === 'arena' ? 680 : z.role === 'hq' ? 960 : 470), (height - 120) / (z.kind === 'arena' ? 520 : z.role === 'hq' ? 720 : 380)));
     camera.scale = scale; camera.x = available / 2 - z.x * scale; camera.y = height / 2 - z.y * scale; clampCamera(); positionLabels();
   }
   function zoom(factor, px = width / 2, py = height / 2) { const next = Math.max(fitScale() * .85, Math.min(6, camera.scale * factor)), ratio = next / camera.scale; camera.x = px - (px - camera.x) * ratio; camera.y = py - (py - camera.y) * ratio; camera.scale = next; viewMode = 'custom'; clampCamera(); positionLabels(); }
@@ -41,9 +41,9 @@
   /* ---------- Labels ---------- */
   function positionLabels() {
     for (const b of document.querySelectorAll('.zone-label')) {
-      const z = zone(b.dataset.id), x = camera.x + z.x * camera.scale, y = camera.y + z.labelY * camera.scale;
+      const z = zone(b.dataset.id), x = camera.x + (z.labelX ?? z.x) * camera.scale, y = camera.y + z.labelY * camera.scale;
       b.style.left = x + 'px'; b.style.top = y + 'px';
-      b.hidden = x < -120 || x > width + 120 || y < -60 || y > height + 60 || (camera.scale < .32 && z.role !== 'castle' && z.kind !== 'arena' && z.id !== selectedId);
+      b.hidden = x < -120 || x > width + 120 || y < -60 || y > height + 60 || (camera.scale < .32 && z.role !== 'hq' && z.kind !== 'arena' && z.id !== selectedId);
       b.classList.toggle('compact', camera.scale < .55);
     }
     for (const b of document.querySelectorAll('.land-title')) { b.style.left = camera.x + Number(b.dataset.x) * camera.scale + 'px'; b.style.top = camera.y + Number(b.dataset.y) * camera.scale + 'px'; b.style.fontSize = Math.max(9, Math.min(18, camera.scale * 16)) + 'px'; b.querySelector('small').hidden = camera.scale < .35; }
@@ -51,7 +51,7 @@
   }
   function buildLabels() {
     world.zones.forEach(z => {
-      const b = node('button', 'zone-label' + (z.kind !== 'agent' ? ' service' : '') + (z.role === 'castle' ? ' castle' : '') + (z.kind === 'arena' ? ' arena' : ''));
+      const b = node('button', 'zone-label' + (z.kind !== 'agent' ? ' service' : '') + (z.role === 'hq' ? ' hq' : '') + (z.kind === 'arena' ? ' arena' : ''));
       b.dataset.id = z.id; const title = node('span', 'label-title');
       title.append(document.createTextNode(z.agent)); b.append(title, node('small', '', z.kind === 'agent' ? z.name : z.name + (z.action === 'page' ? ' ↗' : '')));
       if (z.kind === 'agent' || z.kind === 'resource') { const st = node('span', 'map-state'); st.append(node('i', 'state-icon'), node('b')); b.append(st); }
@@ -70,7 +70,7 @@
   function hideWelcome() { $('#welcome').hidden = true; }
 
   /* ---------- Art views ---------- */
-  const spanFor = z => z.kind === 'arena' ? 640 : 440;
+  const spanFor = z => z.kind === 'arena' ? 640 : z.role === 'hq' ? 1050 : 440;
   function crop(c, z, span = spanFor(z)) { world.renderView(c, elapsed, { cx: z.x, cy: z.y + (z.kind === 'arena' ? 0 : -4), w: span, states }); }
   function art(z, cls = 'drawer-art') { const c = node('canvas', cls); c.width = 880; c.height = 560; c.setAttribute('aria-label', z.name + ' pixel-art environment'); crop(c, z); return c; }
 
@@ -91,7 +91,7 @@
     const head = node('div', 'lead-head'), portrait = node('canvas', 'portrait'); portrait.width = 150; portrait.height = 210; portrait.dataset.role = z.role; portrait.setAttribute('aria-hidden', 'true');
     const txt = node('div', 'lead-profile'); txt.append(node('strong', '', profile.title), node('small', '', profile.description)); head.append(portrait, txt);
     pad.append(badge(z), head, node('p', '', z.description));
-    if (z.role === 'kole') { const links = node('div', 'crew-links'); for (const role of ['lumberyard', 'mine', 'farm']) { const site = zone(z.village + '-' + role), b = node('button', 'button small', site.agent + ' ↗'); b.onclick = () => { resourceDrawer(site); selectedId = site.id; selection(); focus(site); }; links.append(b); } pad.append(node('p', 'notice', 'Small Köle crews work the southern resource lands and walk home to the bunks and mess hall here.'), links); }
+    if (z.role === 'kole') { const links = node('div', 'crew-links'); for (const role of ['lumberyard', 'mine', 'farm']) { const site = zone(z.village + '-' + role), b = node('button', 'button small', site.agent + ' ↗'); b.onclick = () => { resourceDrawer(site); selectedId = site.id; selection(); focus(site); }; links.append(b); } pad.append(node('p', 'notice', 'Shackled Köle crews work the southern resource lands under the overseers’ whips and are driven back to the slave pens here.'), links); }
     const tools = node('div', 'drawer-toolbar'); const focusButton = node('button', 'button', '⛶ Explore this district'); focusButton.onclick = () => focus(z); const inbox = node('button', 'button', 'Inbox ↗'); inbox.onclick = () => visit(zone(z.village + '-inbox'), inbox); tools.append(focusButton, inbox); pad.append(tools);
     pad.append(node('span', 'field-label', 'TRY AN AGENT STATE'));
     const group = node('div', 'state-picker'); group.setAttribute('role', 'radiogroup'); group.setAttribute('aria-label', 'Agent state');
@@ -110,7 +110,7 @@
     showCrew();
     const focusButton = node('button', 'button full', '⛶ Watch this worksite'); focusButton.onclick = () => focus(z);
     const toggle = node('button', 'button primary full', state(z) === 'working' ? 'Rest this crew' : 'Resume work'); toggle.onclick = () => { states[z.id] = state(z) === 'working' ? 'idle' : 'working'; toggle.textContent = state(z) === 'working' ? 'Rest this crew' : 'Resume work'; showCrew(); selection(); say(z.agent + ': ' + (state(z) === 'working' ? 'crew resumed' : 'crew resting')); };
-    const home = node('button', 'button full', 'Visit Köle’s bunks & dining hall ↗'); home.onclick = () => { const lead = zone(z.village + '-kole'); selectedId = lead.id; agentDrawer(lead); selection(); focus(lead); };
+    const home = node('button', 'button full', 'Visit Köle’s slave camp ↗'); home.onclick = () => { const lead = zone(z.village + '-kole'); selectedId = lead.id; agentDrawer(lead); selection(); focus(lead); };
     const work = z.role === 'lumberyard' ? ['Fell managed timber', 'Saw and stack planks', 'Deliver wood to the workshop'] : z.role === 'mine' ? ['Work the rock face', 'Sort ore and load carts', 'Deliver stone and ore to the forge'] : ['Water and tend crops', 'Harvest and load produce', 'Bring food to the dining hall'];
     const jobs = node('ol', 'work-steps'); work.forEach(text => jobs.append(node('li', '', text)));
     pad.append(node('span', 'field-label', 'THE CREW’S ROUTINE'), jobs, focusButton, toggle, home, node('p', 'demo-note', 'ANIMATED LOCAL DEMO · NO REAL RESOURCE ECONOMY'));
@@ -284,9 +284,9 @@
   if (new URLSearchParams(location.search).has('bench')) (() => {
     const out = [], run = (name, fn) => { fn(); paint(); const t0 = performance.now(); for (let i = 0; i < 20; i++) { elapsed += 1 / 30; paint(); } out.push(name + ' ' + ((performance.now() - t0) / 20).toFixed(1) + 'ms'); };
     const b0 = performance.now(); world.ready(); out.push('bake ' + (performance.now() - b0).toFixed(0) + 'ms');
-    // Bench points follow the layout: castle, the first district and the arena (the map has a forest margin).
+    // Bench points follow the layout: the HQ, the first district and the arena (the map has a forest margin).
     const at = id => [zone(id).x, zone(id).y];
-    run('village', () => fitVillage('gktc')); run('fit', fit); run('zoom2', () => center(...at('gktc-castle'), 2)); run('zoom4', () => center(...at('gktc-sekreter'), 4)); run('arena', () => center(...at('commons-colosseum'), 1.5));
+    run('village', () => fitVillage('gktc')); run('fit', fit); run('zoom2', () => center(...at('gktc-hq'), 2)); run('zoom4', () => center(...at('gktc-sekreter'), 4)); run('arena', () => center(...at('commons-colosseum'), 1.5));
     if (world.energy) run('energy', () => center(world.energy.x, world.energy.y, 2));
     document.title = 'BENCH ' + out.join(' | ') + ' | zoneErrors=' + world.zones.filter(z => z._err).map(z => z.id).join(',');
   })();

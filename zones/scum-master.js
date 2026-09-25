@@ -331,13 +331,13 @@ window.ZoneDesigns['scum-master'] = (() => {
       const run = state === 'working', idle = state === 'idle', wait = state === 'waiting', err = state === 'error', live = state !== 'off';
       const blink = Math.floor(t * 3) % 2 === 0, f12 = Math.floor(t * 12);
 
-      /* ---- The clock: MM:SS counts from t; red flashes in error, dark when off ---- */
+      /* ---- The clock: the viewer's local time (HH:MM); red flashes in error, dark when off ---- */
       if (live) {
-        const sec = Math.floor(t) + 497, dg = [Math.floor(sec / 600) % 6, Math.floor(sec / 60) % 10, Math.floor(sec % 60 / 10), sec % 10];
+        const now = new Date(), hh = now.getHours(), mm = now.getMinutes(), dg = [Math.floor(hh / 10), hh % 10, Math.floor(mm / 10), mm % 10];
         const col = err ? (blink ? SEG.red : '#6a1e18') : SEG.on, glow = err ? '#ff3020' : SEG.glow;
         if (z.detail) k.alpha(err && !blink ? .08 : .22, () => k.rect(CLK.x - 3, CLK.y - 1, 42, 13, glow));
         DX.forEach((dx, i) => digit(k, CLK.x + dx, CLK.y, DIG[dg[i]], col));
-        if (err || (t % 1) < .5) { k.rect(CLK.x + 16, CLK.y + 3, 1, 2, col); k.rect(CLK.x + 16, CLK.y + 7, 1, 2, col); }
+        if (err || now.getMilliseconds() < 500) { k.rect(CLK.x + 16, CLK.y + 3, 1, 2, col); k.rect(CLK.x + 16, CLK.y + 7, 1, 2, col); }
         if (err && blink && z.detail) k.alpha(.12, () => k.rect(SIGN.x, SIGN.y, SIGN.w, SIGN.h, C.error));
       }
 
