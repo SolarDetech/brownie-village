@@ -2,7 +2,8 @@
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns.sekreter = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
-  const LEAD = { x: -8, y: 46 };               // stamping desk in the courtyard
+  const LEAD = { x: -17, y: 46 };              // the butler & secretary pair, centred; the butler stands at the stamping desk
+  const DESK = LEAD.x + 9;                      // the butler's x (the desk sits just to his right)
   const BELT = { x: 22, y: -12, w: 92 };        // sorting conveyor on the pavilion counter
   const envelope = (k, x, y, seal = C.red2) => { k.rect(x - 1, y - 1, 9, 7, C.ink); k.rect(x, y, 7, 5, C.paper); k.px(x + 1, y + 1, C.paper2); k.px(x + 5, y + 1, C.paper2); k.px(x + 2, y + 2, C.paper2); k.px(x + 4, y + 2, C.paper2); k.px(x + 3, y + 3, seal); };
   const pigeon = (k, x, y, t, fly) => {
@@ -10,10 +11,10 @@ window.ZoneDesigns.sekreter = (() => {
     k.rect(x, y - 3, 4, 3, '#e8e6dc'); k.px(x + 3, y - 4, '#e8e6dc'); k.px(x + 4, y - 4, C.gold2); k.px(x, y - 2, '#b8b8b0'); k.px(x + 1, y, C.terra3);
   };
 
-  /* ---------- The butler: tall, slim, tailcoat, grey slicked hair, thin moustache, white gloves, silver tray ---------- */
-  const BUTLER = { door: [-90, -12], serve: [-40, 42], idle: [-84, -12], wait: [-42, 24], err: [-50, 22], chair: [-82, -8] };
-  const BT = { coat: '#1d1d27', coatHi: '#3b3b4a', coatSh: '#101017', arm: '#2b2b37', pants: '#262630', pantsSh: '#17171e', shoe: '#0b0b10', shoeHi: '#5c5c6c',
-    vest: '#585862', button: '#9a9aa4', hair: '#b9b9b5', hairSh: '#8a8a8e', stache: '#d4d4d0', skin: C.skin3, skinSh: C.skin2,
+  /* ---------- The footman: a young lad in teal-and-gold livery, brown hair, white gloves, silver tray (the lead butler's junior) ---------- */
+  const BUTLER = { door: [-90, -12], serve: [-54, 40], idle: [-84, -12], wait: [-56, 24], err: [-62, 22], chair: [-82, -8] };
+  const BT = { coat: C.teal1, coatHi: C.teal3, coatSh: C.teal0, arm: '#264e50', pants: '#262630', pantsSh: '#17171e', shoe: '#0b0b10', shoeHi: '#5c5c6c',
+    vest: C.gold1, button: C.gold3, hair: '#6a4428', hairSh: '#4a2e1a', stache: C.skin2, skin: C.skin3, skinSh: C.skin2,
     glove: C.white, gloveSh: '#d4d0c6', silver: '#dde2e8', silverHi: '#ffffff', silverSh: '#9aa2ae', china: '#fbf8f0', chinaSh: '#d8d0c0', tea: '#8a5a2a' };
   // Tray contents at tray offset (tx, ty): the teacup on its saucer, or a sealed letter.
   function trayLoad(q, R, tx, ty, load) {
@@ -42,13 +43,13 @@ window.ZoneDesigns.sekreter = (() => {
     R(-3, -20, 7, 11, BT.coat); R(-3, -20, 1, 11, BT.coatHi); R(3, -20, 1, 11, BT.coatSh);
     R(1, -20, 2, 4, BT.glove); R(1, -16, 2, 4, BT.vest); R(2, -15, 1, 1, BT.button); R(2, -13, 1, 1, BT.button); R(0, -20, 1, 6, BT.coatHi);
     R(1, -19, 3, 1, BT.shoe); R(2, -19, 1, 1, '#34343c');
-    // Head: long face, receding grey hair slicked back, thin grey moustache.
+    // Head: young face under a full crop of brown hair, clean-shaven.
     R(-1, -27, 4, 1, BT.skin); R(-2, -26, 6, 5, BT.skin); R(-1, -21, 4, 1, BT.skinSh); R(3, -26, 1, 5, BT.skinSh);
-    R(-1, -27, 2, 1, BT.hair); R(-2, -26, 3, 1, BT.hair); R(-2, -25, 2, 3, BT.hair); R(1, -26, 1, 1, BT.hairSh); R(-2, -23, 1, 1, BT.hairSh); R(-1, -28, 2, 1, BT.hair);
+    R(-2, -28, 5, 1, BT.hair); R(-2, -27, 6, 1, BT.hair); R(-2, -26, 3, 1, BT.hair); R(-2, -25, 2, 3, BT.hair); R(1, -26, 1, 1, BT.hairSh); R(-2, -23, 1, 1, BT.hairSh); R(0, -28, 2, 1, '#8a5a36');
     R(0, -24, 1, 2, BT.skinSh);
     if (pose === 'bow') R(2, -24, 2, 1, C.ink); else R(2, down ? -23 : -24, 1, 1, C.ink);
     R(2, -25, 2, 1, BT.hairSh); R(4, -24, 1, 2, BT.skin); R(4, -23, 1, 1, BT.skinSh);
-    R(2, -22, 3, 1, BT.stache); R(3, -21, 1, 1, BT.skinSh);
+    R(3, -22, 1, 1, '#a0503a'); R(3, -21, 1, 1, BT.skinSh);
     if (down) { R(3, -19, 2, 5, BT.arm); R(5, -15, 2, 2, BT.glove); return; }
     // Near arm carries the silver tray (held out further when offering).
     const offer = pose === 'offer', tx = offer ? 3 : 0, ty = offer ? -2 : 0;
@@ -66,9 +67,9 @@ window.ZoneDesigns.sekreter = (() => {
     q.rect(-1, -20, 3, 4, BT.glove); q.rect(-1, -16, 3, 4, BT.vest); q.px(0, -15, BT.button); q.px(0, -13, BT.button); q.px(-2, -19, BT.coatHi); q.px(2, -19, BT.coatHi);
     q.rect(-2, -19, 5, 1, BT.shoe); q.px(0, -19, '#34343c');
     q.rect(-3, -26, 7, 5, BT.skin); q.rect(-2, -27, 5, 1, BT.skin); q.rect(-2, -21, 5, 1, BT.skinSh); q.rect(3, -26, 1, 5, BT.skinSh);
-    q.rect(-2, -28, 5, 1, BT.hair); q.px(-2, -27, BT.hair); q.px(2, -27, BT.hair); q.rect(-3, -26, 1, 4, BT.hair); q.rect(3, -26, 1, 4, BT.hairSh);
+    q.rect(-2, -28, 5, 1, BT.hair); q.rect(-3, -27, 7, 1, BT.hair); q.rect(-3, -26, 1, 4, BT.hair); q.rect(3, -26, 1, 4, BT.hairSh); q.px(-1, -28, '#8a5a36');
     q.px(-1, -24, C.ink); q.px(1, -24, C.ink); q.px(-1, -25, BT.hairSh); q.px(1, -25, BT.hairSh); q.px(0, -23, BT.skinSh);
-    q.rect(-2, -22, 5, 1, BT.stache);
+    q.px(0, -22, '#a0503a');
     q.rect(-5, -19, 2, 6, BT.arm); q.rect(4, -19, 2, 6, BT.arm);
     q.ellipse(0, -12, 7, 1, BT.silverSh); q.rect(-6, -13, 13, 1, BT.silver); q.rect(-5, -13, 3, 1, BT.silverHi);
     q.rect(-3, -17, 7, 4, C.paper); q.rect(-3, -17, 7, 1, C.white); q.line(-3, -17, 0, -15, BT.chinaSh); q.line(3, -17, 0, -15, BT.chinaSh); q.px(0, -15, C.red2);
@@ -82,13 +83,13 @@ window.ZoneDesigns.sekreter = (() => {
     q.rect(-2, -11, 7, 2, BT.pants); q.rect(5, -10, 2, 9, BT.pants); q.rect(6, -1, 3, 1, BT.shoe); q.px(7, -1, BT.shoeHi);
     q.rect(-3, -20, 6, 9, BT.coat); q.rect(-3, -20, 1, 9, BT.coatHi); q.rect(2, -20, 1, 9, BT.coatSh); q.rect(1, -19, 1, 3, BT.glove); q.rect(1, -16, 1, 4, BT.vest);
     q.rect(-1, -26, 5, 1, BT.skin); q.rect(-2, -25, 6, 5, BT.skin); q.rect(3, -25, 1, 5, BT.skinSh);
-    q.rect(-1, -27, 3, 1, BT.hair); q.rect(-2, -26, 3, 1, BT.hair); q.rect(-2, -25, 2, 3, BT.hair);
-    q.rect(2, -22, 2, 1, C.ink); q.rect(2, -21, 3, 1, BT.stache); q.px(4, -23, BT.skinSh);
+    q.rect(-2, -27, 5, 1, BT.hair); q.rect(-2, -26, 5, 1, BT.hair); q.rect(-2, -25, 2, 3, BT.hair);
+    q.rect(2, -22, 2, 1, C.ink); q.px(3, -20, '#a0503a'); q.px(4, -23, BT.skinSh);
     q.rect(0, -13, 9, 1, BT.silver); q.rect(0, -12, 9, 1, BT.silverSh); q.rect(1, -13, 2, 1, BT.silverHi);
     q.rect(5, -15, 2, 2, BT.china); q.px(7, -15, BT.chinaSh);
     q.rect(1, -18, 2, 4, BT.arm); q.rect(2, -15, 2, 2, BT.glove);
   }
-  const butlerSprite = (pose, f = 0, load = 'cup') => P.sprite(`butler|${pose}|${f}|${load}`, 30, 34, 13, 31, q => drawButler(q, pose, f, load));
+  const butlerSprite = (pose, f = 0, load = 'cup') => P.sprite(`footman|${pose}|${f}|${load}`, 30, 34, 13, 31, q => drawButler(q, pose, f, load));
   const steam = (k, x, y, t) => { for (let i = 0; i < 3; i++) { const q = (t * .9 + i / 3) % 1, sx = x + Math.round(Math.sin(q * 6 + i * 2) * 1.5); k.alpha((1 - q) * .85, () => { k.px(sx, y - Math.round(q * 8), '#f6f6f2'); k.px(sx + 1, y - 1 - Math.round(q * 8), '#e6e6e2'); }); } };
   const teacup = (k, x, y) => { k.rect(x - 1, y + 2, 5, 1, BT.chinaSh); k.rect(x, y, 3, 2, BT.china); k.rect(x, y - 1, 3, 1, BT.tea); k.px(x + 3, y, BT.chinaSh); };
   function butler(k, t, state) {
@@ -101,7 +102,7 @@ window.ZoneDesigns.sekreter = (() => {
       else if (p < .97) { const q = (p - .64) / .33; x = sx + (dx - sx) * q; y = sy + (dy - sy) * q; pose = 'walk'; f = wf; flip = true; load = 'none'; }
       else { [x, y] = BUTLER.door; load = 'none'; }
       // Once served, the cup sits steaming on the Sekreter's desk until the next round.
-      if (p >= .64) { teacup(k, LEAD.x + 20, LEAD.y - 18); steam(k, LEAD.x + 21, LEAD.y - 20, t); }
+      if (p >= .64) { teacup(k, DESK + 20, LEAD.y - 18); steam(k, DESK + 21, LEAD.y - 20, t); }
     } else if (state === 'waiting') { [x, y] = BUTLER.wait; pose = 'front'; load = 'letter'; }
     else if (state === 'error') { [x, y] = BUTLER.err; pose = 'down'; load = 'none'; }
     else if (state === 'off') { [x, y] = BUTLER.chair; pose = 'sit'; load = 'none'; }
@@ -182,9 +183,9 @@ window.ZoneDesigns.sekreter = (() => {
       k.ellipse(lb[0] + 5, lb[1] - 23, 6, 3, C.teal2); k.rect(lb[0] - 1, lb[1] - 23, 13, 2, C.gold2); k.rect(lb[0] + 2, lb[1] - 16, 7, 2, C.ink); k.rect(lb[0] + 3, lb[1] - 11, 5, 4, C.gold1); k.rect(lb[0] - 1, lb[1] - 1, 13, 2, C.stone2);
 
       // The Sekreter's stamping desk: inkpad, ledgers and outgoing tray.
-      Props.table(k, LEAD.x + 4, LEAD.y - 2, 26, 12, C.wood3);
-      k.rect(LEAD.x + 16, LEAD.y - 17, 8, 3, C.wood1); k.rect(LEAD.x + 17, LEAD.y - 17, 6, 1, C.red1);
-      k.rect(LEAD.x + 25, LEAD.y - 19, 6, 5, C.wood2); for (let i = 0; i < 3; i++) k.rect(LEAD.x + 25, LEAD.y - 20 - i, 6, 1, i % 2 ? C.paper : C.paper2);
+      Props.table(k, DESK + 4, LEAD.y - 2, 26, 12, C.wood3);
+      k.rect(DESK + 16, LEAD.y - 17, 8, 3, C.wood1); k.rect(DESK + 17, LEAD.y - 17, 6, 1, C.red1);
+      k.rect(DESK + 25, LEAD.y - 19, 6, 5, C.wood2); for (let i = 0; i < 3; i++) k.rect(DESK + 25, LEAD.y - 20 - i, 6, 1, i % 2 ? C.paper : C.paper2);
 
       // Parcel depot: a notice board, weighing scale, stacked parcels and a wall of private post boxes.
       k.rect(96, 14, 34, 22, C.wood1); k.rect(97, 15, 32, 20, C.wood3); k.rect(97, 15, 32, 2, C.wood4); k.rect(99, 36, 2, 10, C.wood1); k.rect(125, 36, 2, 10, C.wood1);
@@ -260,9 +261,9 @@ window.ZoneDesigns.sekreter = (() => {
       if (run) { const q = (t * .4) % 1, px = 124 - q * 18, py = 66 - Math.sin(q * Math.PI) * 10; Props.crate(k, px, py, 7); z.crew(114, 90, { look: 3, hat: 'cap', hatColor: C.teal2, anim: 'work', tool: 'pen', phase: .7 }); }
       else if (state === 'waiting') { for (let i = 0; i < 3; i++) Props.crate(k, 98 + i * 7, 52 - i * 2, 7); z.crew(114, 90, { look: 3, hat: 'cap', hatColor: C.teal2, anim: 'idle' }); }
 
-      // The butler serves tea from the posthouse door (drawn before the lead, who stands in front of him).
+      // The footman serves tea from the posthouse door (drawn before the lead pair, who stand in front of him).
       butler(k, t, state);
-      // The lead: stamping at the desk while working, dozing on the garden bench when off.
+      // The lead pair: the butler stamps at the desk while the secretary hands him letters; both doze in the garden when off.
       if (state === 'off') z.lead(96, 116, {}); else z.lead(LEAD.x, LEAD.y, {});
       // Posthouse chimney smoke and window glow follow the working state.
       if (live) Props.smoke(k, -57, -110, t * (run ? 1 : .5), run ? 4 : 2);

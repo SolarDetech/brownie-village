@@ -192,7 +192,9 @@
       const d = Math.hypot(post.x - e.from[0], post.y - e.from[1]); e.dur = Math.max(.6, d / 30);
       const f = Math.min(1, (t - e.t0) / e.dur); return { pos: [e.from[0] + (post.x - e.from[0]) * f, e.from[1] + (post.y - e.from[1]) * f], walking: f < 1, facing: post.x < e.from[0] ? -1 : 1 };
     }
-    const a = place(e.av, t), target = [a.x + e.side * 30, a.y + 3], d = Math.hypot(target[0] - e.from[0], target[1] - e.from[1]), dur = Math.max(.8, d / 32), f = Math.min(1, (t - e.t0) / dur);
+    // A double lead (sekreter's butler & secretary) is wider, so its centre stands further out; the nearer figure keeps the usual ~30 px.
+    const gap = AgentCharacters.profiles[z.role]?.pair ? 40 : 30;
+    const a = place(e.av, t), target = [a.x + e.side * gap, a.y + 3], d = Math.hypot(target[0] - e.from[0], target[1] - e.from[1]), dur = Math.max(.8, d / 32), f = Math.min(1, (t - e.t0) / dur);
     if (f < 1) return { pos: [e.from[0] + (target[0] - e.from[0]) * f, e.from[1] + (target[1] - e.from[1]) * f], walking: true, facing: target[0] < e.from[0] ? -1 : 1, arrived: false };
     return { pos: target, walking: a.walking, facing: a.walking ? a.facing : -e.side, arrived: true, since: e.t0 + dur };
   }
