@@ -83,7 +83,7 @@ Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed
 | `engine/props.js` | Trees, buildings, furniture, water, fences and small animated helpers |
 | `engine/sculpt.js` | Sculpted sprites: per-part rounded shading, contact shadows, detail on a tone buffer |
 | `avatars.js` | The two draggable avatars, lead escorts and speech bubbles |
-| `dog.js` | The HQ's Bernese mountain dog and its petting (drawn by `zones/hq.js`) |
+| `dog.js` | The HQ's Bernese mountain dog: petting, and fetching its ball (drawn by `zones/hq.js`) |
 | `characters.js` | Lead agents, crew/citizen sprites, state bubbles and rings, portraits |
 | `zones/*.js` | One module per district (`paint`, optional `front`, `animate`) — see `zones/DESIGN-CONTRACT.md` |
 | `colosseum.js` | Arena state and fight choreography (deterministic; the caller owns time) |
@@ -122,4 +122,5 @@ All data is local sample data; no agents or services are connected. Arena state 
   a turning spit in front of a glowing heater, an usta shaving it, dürüm, ayran, a queue and a street cat.
 - **HQ dog.** A fluffy Bernese mountain dog plays on the statue plaza (`dog.js`): figure-eights, sitting and
   panting, chasing its tail, zoomies. Press and hold on it and move the mouse to pet it (eyes close, a back leg
-  thumps, hearts float up); let go and it hops and plays on.
+  thumps, hearts float up); let go and it hops and plays on. Its tennis ball lies on the plaza: hold it and shake it
+  and the dog runs over and waits; throw it (let go while moving) and the dog chases it and brings it to the cursor.
