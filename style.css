@@ -12,7 +12,7 @@ h1,h2,h3,p{margin:0}[hidden]{display:none!important}.sr-only{position:absolute;w
 
 /* ---------- Atlas ---------- */
 .atlas-body{overflow:hidden;height:100dvh}
-.viewport{position:absolute;inset:0;overflow:hidden;cursor:grab;touch-action:none;background:#1f3a2a}.viewport.dragging{cursor:grabbing}.viewport.can-carry{cursor:pointer}.viewport.carrying{cursor:grabbing}
+.viewport{position:absolute;inset:0;overflow:hidden;cursor:grab;touch-action:none;background:#1f3a2a}.viewport.dragging{cursor:grabbing}.viewport.can-carry{cursor:pointer}.viewport.carrying{cursor:grabbing}.viewport.can-pet{cursor:grab}.viewport.petting{cursor:grabbing}
 #world{display:block;width:100%;height:100%;image-rendering:pixelated}
 #map-labels,#land-titles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
 .identity{position:absolute;top:20px;left:22px;display:flex;align-items:center;gap:12px;pointer-events:none;color:#fff6d8;text-shadow:2px 2px 0 #1d2a22}

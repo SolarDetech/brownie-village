@@ -2,7 +2,7 @@
    (TODO → DOING → REVIEW → DONE); the chef inspects every fusion plate under the heat lamps and waiters carry the
    approved plates out to a white-tablecloth terrace. Spotless steel kitchen under a blue digital clock and an
    EVERY SECOND COUNTS sign, a pantry (the backlog), a service board with the burndown where the brigade lines up,
-   a reflecting pool, herb garden, staff table and a star plaque at the entrance. */
+   a reflecting pool, staff table, a star plaque at the entrance and a grand et döner stand in the bottom-left corner. */
 window.ZoneDesigns = window.ZoneDesigns || {};
 window.ZoneDesigns['scum-master'] = (() => {
   const P = window.Pixel, C = P.C, S = P.shade;
@@ -25,6 +25,7 @@ window.ZoneDesigns['scum-master'] = (() => {
   const TOQ = '#f6f4ee', TOQD = '#d4d0c6';
   const TILE = '#e6eef2', GROUT = '#b8c8d2';
   const SEG = { on: '#86d6ff', glow: '#3a8ac8', ghost: '#18222c', red: '#ff5a48' };
+  const DN = { x0: -158, x1: -96, spx: -138 };                 // grand döner stand (bottom left); counter top at y 88
 
   /* ---------- Small sprites ---------- */
   const TIX = [C.white, '#f2ecd8', '#e6eef2', '#f6e2da'];
@@ -77,6 +78,29 @@ window.ZoneDesigns['scum-master'] = (() => {
     q.rect(-1, -14, 2, 3, '#e8e2d0'); q.px(-1, -14, C.white); q.px(0, -11, ST.sh);
   });
 
+  // The grand et döner: a tall cone of stacked beef with a tomato and a green pepper on the skewer tip. DF frames
+  // turn it by two crust ridges, so the loop is seamless. Anchor = top of the skewer; the meat spans rows 6–43.
+  const MEATC = [['#4a2412', '#6e3818', '#94522a', '#b86e3a', '#d8955a', '#e8b884'], ['#1a100a', '#2a1a10', '#3a2616', '#4e3420', '#6a482c', '#6a482c']];
+  const DF = 12, DSEG = Math.PI / 7;
+  const donerHW = r => Math.round(14 - r * 6 / 37) - (r === 0 ? 3 : r === 1 ? 1 : 0);
+  const donerSprite = (f, burnt) => P.sprite(`sk|doner|${f}|${burnt ? 1 : 0}`, 30, 46, 15, 0, q => {
+    const M = MEATC[burnt ? 1 : 0], rot = f / DF * 2 * DSEG;
+    q.rect(0, 0, 1, 6, ST.hi);
+    q.circle(-2, 3, 2, burnt ? '#5a1a14' : C.red2); q.px(-3, 2, burnt ? '#7a2a20' : '#ff9a8a');
+    q.rect(1, 2, 3, 4, burnt ? '#2a3a1a' : C.leaf2); q.px(1, 2, burnt ? '#3a4a2a' : C.leaf4); q.px(2, 1, C.leaf1);
+    for (let r = 0; r < 38; r++) {
+      const hw = donerHW(r), layer = r >> 1;
+      for (let x = -hw; x <= hw; x++) {
+        const u = x / (hw + .5), th = Math.asin(u) + rot, sg = Math.floor(th / DSEG), fr = th / DSEG - sg;
+        let tone = 3.4 - (u + 1) * 1.5 + (P.hash(layer, sg & 1) - .5) * 1.2;
+        if (fr < .22) tone -= 1.2;
+        if (r < 2) tone += .8; else if (r > 34) tone -= .8; else if (r % 3 === 2) tone -= .7;
+        const fat = r % 3 === 0 && P.hash(layer * 3 + (sg & 1), 7) > .6 && fr > .45 && Math.abs(u) < .85;
+        q.px(x, r + 6, fat ? M[5] : M[Math.max(0, Math.min(4, Math.round(tone)))]);
+      }
+    }
+  });
+
   /* ---------- Static helpers ---------- */
   const flags = (k, x, y, w, h, base = '#d8d2c2') => k.rectTex(x, y, w, h, (xx, yy) => {
     const r = yy + 200, row = Math.floor(r / 8), c = xx + 400 + (row % 2) * 6;
@@ -100,21 +124,6 @@ window.ZoneDesigns['scum-master'] = (() => {
     k.ellipse(x + 5, y + 1, 6, 2, C.shadow); k.rect(x, y - 11, 10, 11, ST.base); k.rect(x, y - 11, 2, 11, ST.hi); k.rect(x + 8, y - 11, 2, 11, ST.sh);
     for (const yy of [-9, -3]) k.rect(x, y + yy, 10, 1, ST.dk);
     k.ellipse(x + 5, y - 12, 6, 2, ST.sh); k.ellipse(x + 5, y - 13, 5, 1, ST.hi); k.rect(x + 4, y - 15, 3, 1, ST.dk);
-  }
-  function herbBed(k, x, y, w, h, kinds, seed) {
-    k.rect(x + 2, y + h, w, 2, C.shadow);
-    k.rect(x, y, w, h, ST.sh); k.rect(x, y, w, 1, ST.hi); k.rect(x, y + h - 2, w, 2, ST.dk);
-    k.rect(x + 2, y + 2, w - 4, h - 5, C.dirt1); k.dither(x + 2, y + 2, w - 4, h - 5, C.dirt0, 1);
-    const HERB = { basil: [C.leaf2, C.leaf4, C.leaf5], shiso: [C.plum1, C.plum2, C.plum3], parsley: [C.leaf1, C.leaf3, C.leaf4], chive: [C.leaf2, C.leaf3, '#c3a2e0'], tomato: [C.leaf1, C.leaf3, C.red2], mint: ['#3a7a5a', '#5aa07a', '#8ad0a4'] };
-    const rows = kinds.length;
-    kinds.forEach((kd, r) => {
-      const [d, m, l] = HERB[kd], yy = y + 3 + Math.round((r + .5) * (h - 7) / rows);
-      for (let xx = x + 4; xx < x + w - 4; xx += 5) {
-        k.rect(xx - 1, yy - 2, 4, 3, d); k.rect(xx, yy - 3, 3, 2, m); k.px(xx, yy - 3, l);
-        if (kd === 'tomato') { k.rect(xx + 1, yy - 8, 1, 7, C.wood3); k.px(xx + 2, yy - 5, C.red2); k.px(xx, yy - 6, C.red3); }
-      }
-      if (r === 0) { k.rect(x + 2, y - 3, 8, 3, C.white); k.rect(x + 3, y - 2, 5, 1, '#6a6a70'); k.rect(x + 5, y, 1, 2, ST.dk); }
-    });
   }
   function topiary(k, x, y) {
     k.ellipse(x + 2, y + 1, 7, 2, C.shadow); k.rect(x - 4, y - 7, 9, 7, ST.dk); k.rect(x - 4, y - 7, 9, 1, ST.hi); k.rect(x - 4, y - 6, 2, 6, ST.sh);
@@ -290,17 +299,62 @@ window.ZoneDesigns['scum-master'] = (() => {
       k.ellipse(W.x + 12, W.y + 12, 3, 1, C.leaf3); k.px(W.x + 12, W.y + 11, '#ffc6d8'); k.ellipse(W.x + 32, W.y + 9, 2, 1, C.leaf2);
       topiary(k, W.x - 8, W.y + W.h); topiary(k, W.x + W.w + 8, W.y + W.h);
 
-      /* ---- Bins, compost and a lemon tree (left) ---- */
+      /* ---- Bins (left) ---- */
       bin(k, -184, 44); bin(k, -172, 46);
-      k.rect(-158, 32, 18, 14, ST.dk); for (let y = 33; y < 46; y += 3) { k.rect(-158, y, 18, 2, ST.sh); k.px(-157, y, ST.hi); } k.rect(-156, 30, 14, 2, C.dirt1); k.px(-153, 30, C.leaf3); k.px(-148, 29, '#e8842a');
-      k.rect(-160, 46, 22, 2, C.shadow);
-      k.rect(-135, 48, 14, 8, ST.dk); k.rect(-135, 48, 14, 1, ST.hi); Props.tree(k, -128, 50, 'orange', 1, 1);
 
-      /* ---- Herb garden (bottom left): steel-edged beds with labels ---- */
-      herbBed(k, -150, 78, 30, 20, ['basil', 'shiso'], 3); herbBed(k, -116, 78, 30, 20, ['chive', 'parsley'], 4);
-      herbBed(k, -150, 104, 30, 20, ['tomato', 'mint'], 5); herbBed(k, -116, 104, 30, 20, ['shiso', 'basil'], 6);
-      Props.hedge(k, -152, 68, 66, 5);
-      k.rect(-102, 122, 6, 5, ST.sh); k.rect(-102, 122, 6, 1, ST.hi); k.line(-96, 123, -92, 120, ST.sh); k.ellipse(-98, 128, 5, 1, C.shadow);
+      /* ---- Grand et döner stand (bottom left): sign, striped awning, İznik-tiled back wall, the spit, topping counter ---- */
+      {
+        const { x0, x1, spx } = DN, dw = x1 - x0;
+        k.rect(x0 - 2, 72, dw + 4, 46, C.stone3); flags(k, x0 - 2, 100, dw + 4, 18);
+        // Back wall: cobalt and turquoise tiles; terracotta floor.
+        k.rectTex(x0 + 2, 36, dw - 4, 36, (x, y) => {
+          const cx = (x - x0) % 8, cy = (y - 36) % 8;
+          if (cx === 7 || cy === 7) return '#c8c4b8';
+          const d = Math.abs(cx - 3) + Math.abs(cy - 3);
+          return d <= 1 ? '#1e5a9a' : d === 2 ? '#3aa0a8' : (cx === 0 || cx === 6) && (cy === 0 || cy === 6) ? '#b83a3a' : '#f2f0e8';
+        });
+        k.rect(x0 + 2, 36, dw - 4, 2, '#2a2e36'); k.rect(x0 + 2, 38, 3, 34, C.shadowSoft);
+        k.rectTex(x0 + 2, 72, dw - 4, 16, (x, y) => (((x - x0) >> 2) + ((y - 72) >> 2)) & 1 ? '#b8603a' : '#d27a4a');
+        // Vertical gas heater behind the spit (it glows in animate).
+        k.rect(spx - 17, 40, 34, 36, ST.dk); k.rect(spx - 16, 41, 32, 34, '#2a1e1a'); k.rect(spx - 17, 40, 34, 1, ST.hi);
+        for (let y = 43; y < 74; y += 4) for (let x = spx - 14; x < spx + 14; x += 4) k.rect(x, y, 3, 3, '#4a2a1e');
+        // Menu panel with a small döner icon.
+        k.rect(x0 + 40, 42, 20, 20, C.ink); k.rect(x0 + 41, 43, 18, 18, '#1a1e24'); k.text('ET', x0 + 43, 45, C.gold3);
+        k.poly([[x0 + 52, 44], [x0 + 57, 44], [x0 + 56, 51], [x0 + 53, 51]], '#94522a'); k.rect(x0 + 54, 43, 1, 10, ST.hi);
+        for (let i = 0; i < 3; i++) { k.rect(x0 + 43, 53 + i * 3, 9, 1, '#c8d0d8'); k.px(x0 + 55, 53 + i * 3, C.gold3); }
+        // Skewer foot and the drip tray.
+        k.rect(spx, 80, 1, 8, ST.sh); k.ellipse(spx, 81, 14, 3, ST.dk); k.ellipse(spx, 80, 13, 2, ST.base); k.ellipse(spx, 80, 10, 1, '#6e3818');
+        // Brass posts.
+        for (const px of [x0 - 2, x1 - 2]) { k.rect(px, 24, 4, 78, C.gold1); k.rect(px, 24, 1, 78, C.gold3); k.rect(px + 3, 24, 1, 78, C.gold0); k.rect(px - 1, 100, 6, 2, C.gold0); }
+        // Counter: topping pans on steel, a glass front with ayran cups.
+        k.rect(x0 + 4, 104, dw - 4, 2, C.shadow);
+        k.rect(x0 + 2, 88, dw - 4, 4, ST.base); k.rect(x0 + 2, 88, dw - 4, 1, ST.hi);
+        [['#e04a3a', '#ff8a70'], ['#f0e8f0', '#b87aa8'], [C.leaf3, C.leaf5], ['#a8b848', '#d8e070'], [C.plum2, C.plum3], ['#c84a5a', '#f0c8d0']].forEach(([a, b], i) => {
+          const x = x0 + 4 + i * 7; k.rect(x, 89, 6, 2, ST.dk); k.rect(x, 89, 6, 1, a); k.px(x + 1 + (i % 3), 89, b); k.px(x + 4, 90, b);
+        });
+        for (let i = 0; i < 4; i++) k.ellipse(x1 - 9, 90 - i, 4, 1, i % 2 ? '#e8d8b0' : '#f4ead0');
+        k.rect(x0 + 2, 92, dw - 4, 9, '#9ab8c4'); k.dither(x0 + 2, 92, dw - 4, 9, '#cfe6ee', 1); k.rect(x0 + 2, 92, dw - 4, 1, C.white);
+        for (let i = 0; i < 7; i++) { const x = x0 + 5 + i * 8; k.rect(x, 95, 4, 5, C.white); k.rect(x, 95, 4, 1, '#3a6ab8'); k.px(x + 3, 97, '#d8dce0'); }
+        k.rect(x0 + 2, 101, dw - 4, 3, ST.sh); k.rect(x0 + 2, 101, dw - 4, 1, ST.hi);
+        // Striped awning with a gold trim and scalloped edge.
+        for (let x = x0 - 6; x < x1 + 6; x++) {
+          const red = Math.floor((x - x0 + 6) / 6) % 2 === 0, c = red ? '#c8242e' : '#f6f2ea';
+          k.rect(x, 25, 1, 9, c); k.rect(x, 25, 1, 2, S(c, -.2));
+          if ((x - x0 + 6) % 6 > 0 && (x - x0 + 6) % 6 < 5) k.px(x, 34, c);
+        }
+        k.rect(x0 - 6, 24, dw + 12, 1, C.gold3);
+        // The sign: red enamel, gold border, DÖNER in white.
+        const sx = x0 + 27;
+        k.rect(sx - 23, 4, 46, 20, C.ink); k.rect(sx - 22, 5, 44, 18, C.gold2); k.rect(sx - 21, 6, 42, 16, '#b01e28'); k.rect(sx - 21, 6, 42, 1, '#d8404a');
+        const tx = sx - 20, word = (c, ox, oy) => {   // 2x capitals with the wide N
+          for (const [ch, x] of [['D', 0], ['O', 8], ['E', 26], ['R', 34]]) k.text(ch, tx + x + ox, 11 + oy, c, 2);
+          NG.forEach((r, j) => { for (let i = 0; i < 4; i++) if (r[i] === '1') k.rect(tx + 16 + i * 2 + ox, 11 + j * 2 + oy, 2, 2, c); });
+        };
+        for (const [ox, oy] of [[-1, 0], [1, 0], [0, -1], [0, 1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) word(C.ink, ox, oy);
+        word(C.white, 0, 0);
+        for (const dx of [8, 12]) k.rect(tx + dx, 8, 2, 2, C.white);
+        for (const dx of [-26, 25]) { k.rect(sx + dx, 12, 2, 2, C.gold3); k.px(sx + dx, 12, C.gold4); }
+      }
       Props.bush(k, -186, 136, 1); Props.bush(k, -104, 136, 2);
 
       /* ---- Fine-dining terrace: teak deck, hedge border, lanterns, maitre d' podium, wine sideboard ---- */
@@ -409,6 +463,23 @@ window.ZoneDesigns['scum-master'] = (() => {
         if ((err && blink) || wait) k.alpha(.3, () => k.circle(BEACON.x, BEACON.y, 4, bc));
       }
 
+      /* ---- Döner stand: heater glow, the turning spit (charred and smoking on error) ---- */
+      const { x0: dx0, x1: dx1, spx } = DN;
+      if (live) {
+        const g = run ? .5 + (f12 % 3) * .06 : idle ? .22 : wait ? .32 : .6;
+        k.alpha(g, () => k.rect(spx - 16, 41, 32, 34, err ? '#ff4a1a' : '#ff7a2a'));
+        if (run || err) for (let y = 44; y < 74; y += 4) for (let x = spx - 13; x < spx + 14; x += 4) if ((x + y + f12) % 3) k.px(x, y, '#ffd070');
+      }
+      const dfr = run ? mod(Math.floor(t * 8), DF) : idle ? mod(Math.floor(t * 3), DF) : 0;
+      k.blit(donerSprite(dfr, err), spx, 36);
+      if (!live) k.alpha(.38, () => k.rect(spx - 15, 36, 30, 46, '#141c3c'));
+      if (err) {
+        Props.fire(k, spx - 12, 80, t, 1); Props.fire(k, spx + 11, 80, t + .4, 1);
+        puffs(k, spx, 40, t * 1.1 + .2, 5, ['#2e2a2a', '#4a4644', '#6a6660'], 26, 6);
+      } else if (run && z.detail) steam(k, spx - 4, 40, t * .9, 3, 12, '#e8e0d4');
+      // The menu panel flashes amber while waiting for approval.
+      if (wait) { const a = .5 + Math.sin(t * 5) * .5; k.alpha(.35 + a * .3, () => k.rect(dx0 + 40, 42, 20, 20, C.waiting)); }
+
       /* ---- Burndown marks, menu stand, lanterns and candles ---- */
       {
         const gx = BOARD.x + 30, gy = BOARD.y + 4;
@@ -498,7 +569,7 @@ window.ZoneDesigns['scum-master'] = (() => {
         cook(-34, -64, { look: 1, anim: 'idle', facing: -1 });
       } else if (wait) {
         // The brigade stands in line at the service board, waiting for the chef's approval.
-        [0, 2, 4, 1].forEach((lk, i) => cook(-96 + i * 14, 44, { look: lk, anim: 'idle', phase: i * .3 }));
+        [0, 2, 4, 1].forEach((lk, i) => cook(-86 + i * 14, 44, { look: lk, anim: 'idle', phase: i * .3 }));
         foh(80, -34, { look: 5, anim: 'idle' });
         cook(-80, -64, { look: 3, anim: 'idle', facing: 1 });
       } else if (err) {
@@ -515,6 +586,42 @@ window.ZoneDesigns['scum-master'] = (() => {
       } else {
         cook(STAFF.x + STAFF.w + 6, STAFF.y + 2, { look: 2, anim: 'sit', facing: -1 });
       }
+      // Döner stand: the usta shaves the spit with a long knife, a helper rolls dürüm, customers queue, a street cat waits.
+      if (live) {
+        add(84, () => {
+          const X = -112, Y = 84;
+          z.crew(X, Y, { look: 1, hat: 'cap', hatColor: TOQ, anim: 'idle', facing: -1, phase: .3 });
+          const sx = X + (err ? [0, 1, 0, -1][mod(Math.floor(t * 12 + .9), 4)] : 0);
+          k.rect(sx - 3, Y - 10, 7, 6, TOQ); k.rect(sx - 3, Y - 10, 7, 1, TOQD);
+          if (!run) return;
+          const s = (t * 1.1) % 1, ky = 58 + Math.round(s * 20), tip = spx + donerHW(ky - 42) + 1;
+          k.line(X - 2, Y - 13, X - 5, ky, TOQ, 2); k.px(X - 6, ky, C.skin2);
+          k.rect(X - 9, ky, 3, 1, '#2a1a10'); k.line(X - 10, ky, tip, ky + 1, ST.hi); k.px(tip, ky + 2, ST.sh);
+          if (z.detail) for (let i = 0; i < 3; i++) { const q = (t * 2 + i / 3) % 1; k.px(tip - 1 - (i % 2), ky + 2 + Math.round(q * (78 - ky)), MEATC[0][3]); }
+        });
+        add(84.1, () => {
+          z.crew(-102, 84, { look: 3, hat: 'cap', hatColor: TOQ, anim: run ? 'work' : 'idle', facing: -1, phase: .6 });
+          const sx = -102 + (err ? [0, 1, 0, -1][mod(Math.floor(t * 12 + 1.8), 4)] : 0);
+          k.rect(sx - 3, 74, 7, 6, TOQ); k.rect(sx - 3, 74, 7, 1, TOQD);
+        });
+        if (run) add(88, () => {
+          if ((t / 3) % 1 < .5) { k.ellipse(-105, 87, 4, 1, '#f4ead0'); k.px(-106, 87, MEATC[0][2]); k.px(-104, 87, C.red2); k.px(-105, 86, C.leaf4); }
+          else { k.rect(-108, 85, 7, 2, '#e8d0a0'); k.rect(-108, 85, 7, 1, '#f4ead0'); k.px(-101, 85, MEATC[0][2]); k.px(-101, 86, C.leaf3); }
+        });
+        const buyer = (x, y, o) => add(y, () => { z.crew(x, y, { anim: 'idle', ...o }); if (o.durum) { k.rect(x - 6, y - 13, 2, 5, '#e8d0a0'); k.px(x - 6, y - 13, C.white); k.px(x - 5, y - 14, MEATC[0][2]); k.px(x - 6, y - 14, C.leaf3); } });
+        if (run) { buyer(-150, 116, { look: 2, facing: 1 }); buyer(-104, 116, { look: 4, facing: -1, durum: 1 }); buyer(-93, 127, { look: 1, hat: 'cap', hatColor: C.plum2, facing: -1, phase: .5 }); }
+        else if (idle) buyer(-104, 116, { look: 4, facing: -1, durum: 1 });
+        else if (wait) { buyer(-150, 116, { look: 2, facing: 1 }); buyer(-104, 116, { look: 4, facing: -1, phase: .4 }); buyer(-93, 127, { look: 1, hat: 'cap', hatColor: C.plum2, facing: -1, phase: .8 }); }
+        else if (err) { buyer(-152, 122, { look: 2, facing: -1, state: 'idle' }); buyer(-100, 122, { look: 4, facing: 1, state: 'idle' }); }
+      }
+      add(110, () => {
+        const x = -140, y = 110, F = '#8a8078', D = '#5a524c';
+        k.ellipse(x + 1, y, 5, 1, C.shadow);
+        if (!live) { k.ellipse(x, y - 2, 4, 2, F); k.rect(x - 3, y - 3, 3, 1, D); k.rect(x - 4, y - 3, 2, 2, F); k.px(x - 4, y - 4, D); k.px(x + 2, y - 3, D); return; }
+        k.rect(x - 1, y - 5, 5, 5, F); k.rect(x + 3, y - 4, 1, 4, D); k.px(x, y - 3, D); k.px(x + 1, y - 2, D); k.rect(x - 1, y - 1, 2, 1, '#b8b0a4');
+        k.rect(x - 3, y - 9, 5, 4, F); k.px(x - 3, y - 10, F); k.px(x + 1, y - 10, F); k.px(x - 2, y - 8, '#9ac850'); k.px(x, y - 8, '#9ac850'); k.px(x - 1, y - 7, '#e89aa0');
+        const w = err ? 0 : Math.round(Math.sin(t * 3)); k.rect(x + 4, y - 1, 3, 1, D); k.px(x + 7, y - 2 + w, D); k.px(x + 7, y - 3 + w, D);
+      });
       if (live) add(LEAD.y, () => z.lead(LEAD.x, LEAD.y, {})); else add(REST.y, () => z.lead(REST.x, REST.y, { facing: -1 }));
 
       items.sort((a, b) => a[0] - b[0]).forEach(([, fn]) => fn());

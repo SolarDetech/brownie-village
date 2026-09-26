@@ -10,7 +10,8 @@
                  workcell, test course with a quadruped and a rover, a humanoid on its dock) and the solar field
                  (three rows each side of the gate path, a battery container), with technicians at work.
    Gates at the bottom of the west tile (−233, 145) and of the south-east tile (157, 322). The owners' avatars stand
-   on the plaza at (±72, 84), so that ground stays open. A service place: no lead agent.
+   on the plaza at (±72, 84), so that ground stays open. A Bernese mountain dog (dog.js) plays on the plaza in front of
+   the statue. A service place: no lead agent.
    Daghan's HQ is the mirror image: only the positions are mirrored (x → −x); every structure, figure and prop
    group is drawn unmirrored around its own anchor, so the light stays top-left and the text reads. */
 window.ZoneDesigns = window.ZoneDesigns || {};
@@ -1077,6 +1078,8 @@ window.ZoneDesigns.hq = (() => {
         jet(k, 0, -20, t, flow, err);
         if (flow) for (const d of [-1, 1]) for (let j = 0; j < 4; j++) { const q = (t * 1.6 + j / 4 + (d > 0 ? .5 : 0)) % 1; k.px(d * Math.round(4 + q * 6 * flow), -13 + Math.round(q * q * 14), j % 2 ? C.water4 : C.water5); }
       });
+      /* The HQ dog plays on the statue plaza (dog.js; press and drag on it to pet it). */
+      window.HQDog?.draw(k, z, t, state);
     }
   };
 })();

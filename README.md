@@ -83,6 +83,7 @@ Hosted on GitHub Pages: https://solardetech.github.io/brownie-village/ (deployed
 | `engine/props.js` | Trees, buildings, furniture, water, fences and small animated helpers |
 | `engine/sculpt.js` | Sculpted sprites: per-part rounded shading, contact shadows, detail on a tone buffer |
 | `avatars.js` | The two draggable avatars, lead escorts and speech bubbles |
+| `dog.js` | The HQ's Bernese mountain dog and its petting (drawn by `zones/hq.js`) |
 | `characters.js` | Lead agents, crew/citizen sprites, state bubbles and rings, portraits |
 | `zones/*.js` | One module per district (`paint`, optional `front`, `animate`) — see `zones/DESIGN-CONTRACT.md` |
 | `colosseum.js` | Arena state and fight choreography (deterministic; the caller owns time) |
@@ -117,4 +118,8 @@ All data is local sample data; no agents or services are connected. Arena state 
   `characters.js`; the Köle lead is a dark overlord.
 - **Text Writer.** An editorial newsroom with typewriter cubicles, an editor-in-chief's glass office, a copy desk
   and a proof press.
-- **Head Chef.** The kitchen clock shows the viewer's local time (HH:MM).
+- **Head Chef.** The kitchen clock shows the viewer's local time (HH:MM), and a grand et döner stand fills the bottom-left corner:
+  a turning spit in front of a glowing heater, an usta shaving it, dürüm, ayran, a queue and a street cat.
+- **HQ dog.** A fluffy Bernese mountain dog plays on the statue plaza (`dog.js`): figure-eights, sitting and
+  panting, chasing its tail, zoomies. Press and hold on it and move the mouse to pet it (eyes close, a back leg
+  thumps, hearts float up); let go and it hops and plays on.

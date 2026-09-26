@@ -5,7 +5,7 @@
 <script>
   // Load the zone module named in ?zone=
   const Q = new URLSearchParams(location.search), ZONE = Q.get('zone') || 'sekreter';
-  if (ZONE === 'hq') document.write(`<script src="zones/ataturk.js"><\/script>`);
+  if (ZONE === 'hq') document.write(`<script src="zones/ataturk.js"><\/script><script src="dog.js"><\/script>`);
   document.write(`<script src="zones/${ZONE}.js"><\/script>`);
 </script>
 </head><body><div class="row" id="host"></div>

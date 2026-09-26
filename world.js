@@ -26,7 +26,7 @@
     ['bayes', 'Bayes', 'Observatory hill', 3, 1, 'An observatory, experiment gardens and a sky full of patterns.'],
     ['kandinsky', 'Kandinsky', 'The artists’ grove', 0, 3, 'Studios, sculptures, pigments and canvases form an open-air creative district.'],
     ['kole', 'Köle', 'The slave camp', 1, 3, 'A Mordor-style slave camp: a spiked forge tower, slave pens and a mess pit. The dark overlord’s overseers drive shackled crews out to the lumberyard, mine and farm.'],
-    ['scum-master', 'Head Chef', 'The Sprint Kitchen', 3, 3, 'An open kitchen, a pantry and a sunny terrace, where order tickets ride the rail from TODO to DOING, REVIEW and DONE and the head chef checks every plate at the pass.']
+    ['scum-master', 'Head Chef', 'The Sprint Kitchen', 3, 3, 'An open kitchen, a pantry, a grand döner stand and a sunny terrace, where order tickets ride the rail from TODO to DOING, REVIEW and DONE and the head chef checks every plate at the pass.']
   ];
   const services = [
     ['hq', 'HQ', 'Palace & operations campus', 1, 2, 'The heart of the village, three tiles wide: a palace behind the Atatürk statue, and teams at work on computers, VR, drones, solar panels and robots.', 'modal', 'village'],
@@ -325,7 +325,7 @@
       c.save(); c.translate(z.x, z.y);
       if (d) try {
         if (z.kind === 'arena') d.animate(k, t, window.Colosseum?.scene(t));
-        else { let leads = 0; d.animate(k, t, state, { lead: (x, y, o) => { if (!leads++ && !window.Avatars?.leadHook(z, x, y, o, t, state)) AgentCharacters.lead(k, z.role, x, y, t, state, o); }, crew: (x, y, o = {}) => AgentCharacters.crew(k, x, y, t, { state, ...o }), detail, village: z.village }); }
+        else { let leads = 0; d.animate(k, t, state, { lead: (x, y, o) => { if (!leads++ && !window.Avatars?.leadHook(z, x, y, o, t, state)) AgentCharacters.lead(k, z.role, x, y, t, state, o); }, crew: (x, y, o = {}) => AgentCharacters.crew(k, x, y, t, { state, ...o }), detail, village: z.village, id: z.id, x: z.x, y: z.y }); }
       } catch (e) { if (!z._err) { console.error(z.role, e); z._err = true; } }
       c.restore();
       const f = fronts[frontKey(z)]; if (f) c.drawImage(f.cv, z.x - f.ox, z.y - f.oy);
